@@ -34,6 +34,14 @@
   ; snap install microk8s --classic)
   ; microk8s.kubectl as kubectl
   ; microk8s.enable dns dashboard storage ingress metrics-server
+  ; kubectl -n kube-system edit service kubernetes-dashboard
+  ; --> type: ClusterIP to type: NodePort
+
+; view services: microk8s.kubectl get all --all-namespaces
+; view dashboard-port: kubectl -n kube-system get service kubernetes-dashboard
+
+; microk8s.stop
+
 
 
 (s/defmethod core-infra/dda-install facility
