@@ -1,0 +1,4 @@
+{:existing [{:node-name "test-smeagol"
+             :node-ip "192.168.178.93"}]
+ :provisioning-user {:login "initial"
+                     :password {:plain "test1234"}}}
