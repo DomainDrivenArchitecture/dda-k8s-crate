@@ -29,8 +29,12 @@
 (defn- install-microk8s
   [facility]
   (actions/as-action
-   (logging/info (str facility "-install system: microk8s")))
-  (actions/packages :aptitude ["openjdk-8-jdk"]))
+   (logging/info (str facility "-install system: microk8s"))))
+  ; sudo -if
+  ; snap install microk8s --classic)
+  ; microk8s.kubectl as kubectl
+  ; microk8s.enable dns dashboard storage ingress metrics-server
+
 
 (s/defmethod core-infra/dda-install facility
   [core-infra config]
