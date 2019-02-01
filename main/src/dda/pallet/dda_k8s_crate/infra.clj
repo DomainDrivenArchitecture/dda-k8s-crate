@@ -39,6 +39,8 @@
   ; # TODO: Install App-ServiceAccount for dash & app
   ;
   ; # TODO: inject bearer token App-ServiceAccount - see: https://github.com/kubernetes/dashboard/wiki/Access-control#bearer-token
+  ; # get bearertoken - see: https://stackoverflow.com/questions/46664104/how-to-sign-in-kubernetes-dashboard
+  ; kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | awk '/^deployment-controller-token-/{print $1}') | awk '$1=="token:"{print $2}'
   ;
   ; # TODO: disable anonymous access
   ;
@@ -55,7 +57,11 @@
   ; install main/resources/apple.yml via dashboard
   ; install main/resources/banana.yml via dashboard
   ; install main/resources/ingress.yml via dashboard
-  ; https://[159.69.207.106]/apple
+  ; # Insepct echo app at: https://[159.69.207.106]/apple
+  ;
+  ; # TODO: install letsencrypt
+  ;
+  ; # TODO: install an example app
 
   ; # TODO: till dash is insecure, pls stop after finish development
   ; microk8s.stop
