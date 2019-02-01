@@ -62,6 +62,8 @@
   ; # TODO: install letsencrypt - see: https://github.com/jetstack/cert-manager or https://medium.com/google-cloud/kubernetes-w-lets-encrypt-cloud-dns-c888b2ff8c0e or https://akomljen.com/get-automatic-https-with-lets-encrypt-and-kubernetes-ingress/
   ;
   ; # TODO: install an example app
+  ; # https://github.com/sonatype/docker-nexus
+  ; # https://github.com/xetus-oss/docker-archiva
 
   ; # TODO: till dash is insecure, pls stop after finish development
   ; microk8s.stop
