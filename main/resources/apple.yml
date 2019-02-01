@@ -1,4 +1,4 @@
-ind: Pod
+kind: Pod
 apiVersion: v1
 metadata:
   name: apple-app
