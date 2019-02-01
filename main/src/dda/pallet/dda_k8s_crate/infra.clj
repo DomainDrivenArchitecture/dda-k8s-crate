@@ -59,7 +59,7 @@
   ; install main/resources/ingress.yml via dashboard
   ; # Insepct echo app at: https://[159.69.207.106]/apple
   ;
-  ; # TODO: install letsencrypt
+  ; # TODO: install letsencrypt - see: https://github.com/jetstack/cert-manager or https://medium.com/google-cloud/kubernetes-w-lets-encrypt-cloud-dns-c888b2ff8c0e or https://akomljen.com/get-automatic-https-with-lets-encrypt-and-kubernetes-ingress/
   ;
   ; # TODO: install an example app
 
