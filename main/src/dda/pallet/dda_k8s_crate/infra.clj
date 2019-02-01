@@ -34,13 +34,26 @@
   ; snap install microk8s --classic)
   ; microk8s.kubectl as kubectl
   ; microk8s.enable dns dashboard storage ingress metrics-server
+  ;
+  ; # TODO: Install App-ServiceAccount for dash & app
+  ;
+  ; # TODO: inject bearer token App-ServiceAccount
+  ;
+  ; # TODO: disable anonymous access
+  ;
+  ; # expose dashboard to outside
   ; kubectl -n kube-system edit service kubernetes-dashboard
   ; --> type: ClusterIP to type: NodePort
+  ;
+  ; # inspect namespaces & dashboard port
+  ; view services: microk8s.kubectl get all --all-namespaces
+  ; view dashboard-port: kubectl -n kube-system get service kubernetes-dashboard
+  ;
+  ; # install apple & banana
+  ; install main/resources/apple.yml & banana.yml via dashboard
 
-; view services: microk8s.kubectl get all --all-namespaces
-; view dashboard-port: kubectl -n kube-system get service kubernetes-dashboard
-
-; microk8s.stop
+  ; # TODO: till dash is insecure, pls stop after finish development
+  ; microk8s.stop
 
 
 
