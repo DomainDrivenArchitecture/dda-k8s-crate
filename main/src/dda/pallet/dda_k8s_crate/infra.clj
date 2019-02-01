@@ -49,7 +49,7 @@
   ; view services: microk8s.kubectl get all --all-namespaces
   ; view dashboard-port: kubectl -n kube-system get service kubernetes-dashboard
   ;
-  ; # install apple & banana
+  ; # install apple & banana - see: https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-ingress-guide-nginx-example.html
   ; install main/resources/apple.yml & banana.yml via dashboard
 
   ; # TODO: till dash is insecure, pls stop after finish development
