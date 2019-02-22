@@ -13,6 +13,23 @@ microk8s.start
 nano kubernetes-admin.yml
 # Paste yml from resources
 kubectl create -f dashboard-admin.yml
+
+# install cert-manager
+kubectl create namespace cert-manager
+kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
+## Install the CustomResourceDefinition resources
+kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.6/deploy/manifests/00-crds.yaml
+## Install cert-manager itself
+kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.6/deploy/manifests/cert-manager.yaml
+
+# install cert issuers
+kubectl apply -f cert_manager/letsencryp_staging_issuer.yaml
+kubectl apply -f cert_manager/selfsigned_issuer.yaml
+kubectl create secret tls ca-key-pair \
+   --cert=ca.crt --key=ca.key --namespace=default
+kubectl apply -f cert_manager/ca_issuer.yaml
+
+# apple & banana
 nano apple.yml
 # Paste yml from resources
 kubectl create -f apple.yml
