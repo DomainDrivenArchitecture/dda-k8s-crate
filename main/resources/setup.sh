@@ -25,7 +25,6 @@ kubectl create -f ingress.yml
 
 # Insepct echo app at: https://[159.69.207.106]/apple
 
-kubectl proxy
-
 # Access dashboard locally:
+kubectl proxy
 # http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy
