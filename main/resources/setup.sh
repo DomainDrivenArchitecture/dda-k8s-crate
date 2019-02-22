@@ -10,7 +10,7 @@ nano /var/snap/microk8s/current/args/kube-apiserver
 # in line 5
 microk8s.stop
 microk8s.start
-nano kubernetes-admin.yml
+nano dashboard-admin.yml
 # Paste yml from resources
 kubectl create -f dashboard-admin.yml
 
