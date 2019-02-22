@@ -16,3 +16,21 @@ spec:
           backend:
             serviceName: banana-service
             servicePort: 5678
+
+---
+
+# Give ingress ServiceAccount cluster-admin role
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: nginx-ingress-microk8s
+  labels:
+    k8s-app: nginx-ingress-microk8s
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: nginx-ingress-microk8s-serviceaccount
+  namespace: default
