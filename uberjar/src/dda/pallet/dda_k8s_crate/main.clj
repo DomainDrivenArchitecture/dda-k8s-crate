@@ -35,7 +35,7 @@
 (defn usage [options-summary]
   (str/join
    \newline
-   ["dda-k8s-crate install & configures a microK8s"
+   ["dda-k8s-crate installs & configures a microK8s"
     ""
     "Usage: java -jar dda-k8s-standalone.jar [options] k8s.edn"
     ""

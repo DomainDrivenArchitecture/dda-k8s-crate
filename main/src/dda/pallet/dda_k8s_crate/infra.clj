@@ -34,6 +34,7 @@
   ; sudo -i
   ; snap install microk8s --classic
   ; snap alias microk8s.kubectl kubectl
+  ; microk8s.start
   ; microk8s.enable dns dashboard storage ingress metrics-server
   ;
   ; # TODO: Install App-ServiceAccount for dash & app
@@ -48,6 +49,9 @@
   ; kubectl -n kube-system edit service kubernetes-dashboard
   ; --> type: ClusterIP to type: NodePort
   ; --> nodePort: 31665
+  ;
+  ; # access dashboard from outside
+  ; https://159.69.207.106:31665
   ;
   ; # inspect namespaces & dashboard port
   ; # kubectl get all --all-namespaces
