@@ -20,9 +20,11 @@ kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
 ## Install the CustomResourceDefinition resources
 kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.6/deploy/manifests/00-crds.yaml
 ## Install cert-manager itself
+# TODO: tut mit rbac noch nicht
 kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.6/deploy/manifests/cert-manager.yaml
 
 # install cert issuers
+# TODO: tut mit rbac noch nicht
 kubectl apply -f cert_manager/letsencryp_staging_issuer.yaml
 kubectl apply -f cert_manager/selfsigned_issuer.yaml
 kubectl create secret tls ca-key-pair \
