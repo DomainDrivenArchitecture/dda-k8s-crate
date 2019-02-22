@@ -30,14 +30,7 @@
   [facility]
   (actions/as-action
    (logging/info (str facility "-install system: microk8s"))))
-  ; # install - see: https://github.com/ubuntu/microk8s
-  ; sudo -i
-  ; snap install microk8s --classic
-  ; snap alias microk8s.kubectl kubectl
-  ; microk8s.start
-  ; microk8s.enable dns dashboard storage ingress metrics-server
-  ;
-  ; # TODO: Install App-ServiceAccount for dash & app
+  ; # TODO: Install App-ServiceAccount for app
   ;
   ; # TODO: inject bearer token App-ServiceAccount - see: https://github.com/kubernetes/dashboard/wiki/Access-control#bearer-token
   ; # get bearertoken - see: https://stackoverflow.com/questions/46664104/how-to-sign-in-kubernetes-dashboard
@@ -45,23 +38,9 @@
   ;
   ; # TODO: disable anonymous access
   ;
-  ; # expose dashboard to outside - see: https://github.com/kubernetes/dashboard/wiki/Accessing-Dashboard---1.7.X-and-above#kubectl-proxy
-  ; kubectl -n kube-system edit service kubernetes-dashboard
-  ; --> type: ClusterIP to type: NodePort
-  ; --> nodePort: 31665
-  ;
-  ; # access dashboard from outside
-  ; https://159.69.207.106:31665
-  ;
   ; # inspect namespaces & dashboard port
   ; # kubectl get all --all-namespaces
   ; # kubectl -n kube-system get service kubernetes-dashboard
-  ;
-  ; # install apple & banana - see: https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-ingress-guide-nginx-example.html
-  ; install main/resources/apple.yml via dashboard
-  ; install main/resources/banana.yml via dashboard
-  ; install main/resources/ingress.yml via dashboard
-  ; # Insepct echo app at: https://[159.69.207.106]/apple
   ;
   ; # TODO: install letsencrypt - see: https://github.com/jetstack/cert-manager or https://medium.com/google-cloud/kubernetes-w-lets-encrypt-cloud-dns-c888b2ff8c0e or https://akomljen.com/get-automatic-https-with-lets-encrypt-and-kubernetes-ingress/
   ;
