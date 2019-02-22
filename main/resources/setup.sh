@@ -1,3 +1,5 @@
+ssh user@159.69.207.106 -L 8001:localhost:8001
+
 sudo -i
 snap install microk8s --classic
 snap alias microk8s.kubectl kubectl
@@ -22,3 +24,8 @@ nano ingress.yml
 kubectl create -f ingress.yml
 
 # Insepct echo app at: https://[159.69.207.106]/apple
+
+kubectl proxy
+
+# Access dashboard locally:
+# http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy
