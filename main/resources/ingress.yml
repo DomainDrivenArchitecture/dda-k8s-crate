@@ -3,14 +3,16 @@ kind: Ingress
 metadata:
   name: example-ingress
   annotations:
-    certmanager.k8s.io/cluster-issuer: selfsigning-issuer
+    #certmanager.k8s.io/cluster-issuer: selfsigning-issuer
+    #certmanager.k8s.io/cluster-issuer: letsencrypt-staging
+    certmanager.k8s.io/cluster-issuer: letsencrypt-prod
     ingress.kubernetes.io/ssl-redirect: "true"
     ingress.kubernetes.io/rewrite-target: /
 spec:
   tls:
   - hosts:
-    - test-k8s.domaindrivenarchitecture.org
-    secretName: ingress-cert
+    - k8stest.domaindrivenarchitecture.org
+    secretName: ingress-cert-prod
   rules:
   - http:
       paths:
