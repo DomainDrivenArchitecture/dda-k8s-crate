@@ -32,12 +32,6 @@
    (logging/info (str facility "-install system: microk8s"))))
   ; # TODO: Install App-ServiceAccount for app
   ;
-  ; # TODO: inject bearer token App-ServiceAccount - see: https://github.com/kubernetes/dashboard/wiki/Access-control#bearer-token
-  ; # get bearertoken - see: https://stackoverflow.com/questions/46664104/how-to-sign-in-kubernetes-dashboard
-  ; kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | awk '/^deployment-controller-token-/{print $1}') | awk '$1=="token:"{print $2}'
-  ;
-  ; # TODO: disable anonymous access
-  ;
   ; # inspect namespaces & dashboard port
   ; # kubectl get all --all-namespaces
   ; # kubectl -n kube-system get service kubernetes-dashboard
