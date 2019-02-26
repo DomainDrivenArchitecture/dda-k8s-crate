@@ -20,10 +20,16 @@ kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
 ## Install the CustomResourceDefinition resources
 kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.6/deploy/manifests/00-crds.yaml
 ## Install cert-manager itself
-# TODO: tut mit rbac noch nicht
-kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.6/deploy/manifests/cert-manager.yaml
+kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.6/deploy/manifests/cert-manager-no-webhook.yaml
 
 # install cert issuers
+mkdir cert_manager
+nano cert_manager/letsencryp_staging_issuer.yaml
+# Paste yml from resources
+nano cert_manager/selfsigned_issuer.yaml
+# Paste yml from resources
+nano cert_manager/ca_issuer.yaml
+# Paste yml from resources
 # TODO: tut mit rbac noch nicht
 kubectl apply -f cert_manager/letsencryp_staging_issuer.yaml
 kubectl apply -f cert_manager/selfsigned_issuer.yaml
@@ -38,6 +44,11 @@ kubectl create -f apple.yml
 nano banana.yml
 # Paste yml from resources
 kubectl create -f banana.yml
+# nexus
+mkdir nexus
+nano nexus/nexus.yml
+# Paste yml from resources
+kubectl create -f nexus/nexus.yml
 nano ingress.yml
 # Paste yml from resources
 kubectl create -f ingress.yml
