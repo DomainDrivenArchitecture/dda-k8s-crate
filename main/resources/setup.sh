@@ -1,35 +1,13 @@
+# local
 ssh-keygen -f "$HOME/.ssh/known_hosts" -R "159.69.207.106"
+scp -r main/resources `(whoami)`@159.69.207.106:
+
+# remote
 ssh `(whoami)`@159.69.207.106 -L 8001:localhost:8001
+rm -rf /tmp/resources
+mv resources /tmp/
 
 sudo -i
-
-#nano /var/snap/microk8s/current/args/kube-apiserver
-# replace "–authorization-mode=AlwaysAllow" with "–authorization-mode=RBAC"
-# in line 5
-nano dashboard-admin.yml
-# Paste yml from resources
-
-# install cert issuers
-mkdir cert_manager
-#nano cert_manager/letsencryp_staging_issuer.yaml
-# Paste yml from resources
-nano cert_manager/letsencryp_prod_issuer.yaml
-# Paste yml from resources
-#nano cert_manager/selfsigned_issuer.yaml
-# Paste yml from resources
-nano cert_manager/ca_issuer.yaml
-# Paste yml from resources
-
-nano apple.yml
-# Paste yml from resources
-nano banana.yml
-# Paste yml from resources
-nano nexus/nexus.yml
-# Paste yml from resources
-
-nano ingress.yml
-# Paste yml from resources
-
 
 snap install microk8s --classic
 snap alias microk8s.kubectl kubectl
@@ -42,29 +20,54 @@ microk8s.start
 kubectl proxy &
 # http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy
 
+# clean up k8s setup?
+kubectl delete namespace cert-manager
+kubectl delete secret ca-key-pair ingress-cert
+kubectl delete clusterrole cert-manager cert-manager-edit cert-manager-view
+
+kubectl delete -f /tmp/resources/cert_manager/ca_issuer.yml
+kubectl delete -f /tmp/resources/cert_manager/selfsigned_issuer.yml
+kubectl delete -f /tmp/resources/cert_manager/letsencrypt_staging_issuer.yml
+kubectl delete -f /tmp/resources/cert_manager/letsencrypt_prod_issuer.yml
+kubectl delete -f /tmp/resources/ingress.yml
+kubectl delete -f /tmp/resources/apple.yml
+kubectl delete -f /tmp/resources/banana.yml
+kubectl delete -f /tmp/resources/nexus/nexus.yml
+
 # install cert-manager
 kubectl create namespace cert-manager
 kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
 ## Install the CustomResourceDefinition resources
-kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.6/deploy/manifests/00-crds.yaml
+# Not needed: kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.6/deploy/manifests/00-crds.yaml
 ## Install cert-manager itself
 kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.6/deploy/manifests/cert-manager-no-webhook.yaml
 
+
 # TODO: tut mit rbac noch nicht
-kubectl apply secret tls ca-key-pair \
-  --cert=ca.crt --key=ca.key --namespace=default
-kubectl apply -f cert_manager/ca_issuer.yaml
-# kubectl apply -f cert_manager/selfsigned_issuer.yaml
-# kubectl apply -f cert_manager/letsencryp_staging_issuer.yaml
-kubectl apply -f cert_manager/letsencryp_prod_issuer.yaml
+openssl genrsa -out ca.key 2048
+openssl req -x509 -new -nodes -key ca.key -subj "/CN=domaindrivenarchitecture.org" -days 3650 -reqexts v3_req -extensions v3_ca -out ca.crt
+
+#kubectl create secret generic ca-key-pair \
+#  --from-file=tls.key=./ca.key \
+#  --from-file=tls.crt=./ca.crt \
+#  --namespace=default
+kubectl create secret tls ca-key-pair \
+   --cert=ca.crt \
+   --key=ca.key \
+   --namespace=default
+
+kubectl apply -f /tmp/resources/cert_manager/ca_issuer.yml
+kubectl apply -f /tmp/resources/cert_manager/selfsigned_issuer.yml
+kubectl apply -f /tmp/resources/cert_manager/letsencrypt_staging_issuer.yml
+kubectl apply -f /tmp/resources/cert_manager/letsencrypt_prod_issuer.yml
 
 # apple & banana
-kubectl apply -f apple.yml
-kubectl apply -f banana.yml
+kubectl apply -f /tmp/resources/apple.yml
+kubectl apply -f /tmp/resources/banana.yml
 # nexus
-kubectl apply -f nexus/nexus.yml
+kubectl apply -f /tmp/resources/nexus/nexus.yml
 # ingress
-kubectl apply -f ingress.yml
+kubectl apply -f /tmp/resources/ingress.yml
 
 # Insepct echo app at:
 #     https://[159.69.207.106]/apple
