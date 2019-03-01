@@ -13,7 +13,7 @@ spec:
   tls:
   - hosts:
     - k8stest.domaindrivenarchitecture.org
-    secretName: ingress-cert-prod
+    secretName: ingress-cert
   rules:
   - http:
       paths:
