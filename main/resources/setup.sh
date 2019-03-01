@@ -21,10 +21,10 @@ kubectl proxy &
 # http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy
 
 # clean up k8s setup?
+rm ca*
 kubectl delete namespace cert-manager
-kubectl delete secret ca-key-pair ingress-cert
+kubectl delete secret my-ca-key-pair ingress-cert
 kubectl delete clusterrole cert-manager cert-manager-edit cert-manager-view
-
 kubectl delete -f /tmp/resources/cert_manager/ca_issuer.yml
 kubectl delete -f /tmp/resources/cert_manager/selfsigned_issuer.yml
 kubectl delete -f /tmp/resources/cert_manager/letsencrypt_staging_issuer.yml
@@ -51,10 +51,10 @@ openssl req -x509 -new -nodes -key ca.key -subj "/CN=domaindrivenarchitecture.or
 #  --from-file=tls.key=./ca.key \
 #  --from-file=tls.crt=./ca.crt \
 #  --namespace=default
-kubectl create secret tls ca-key-pair \
+kubectl create secret tls my-ca-key-pair \
    --cert=ca.crt \
    --key=ca.key \
-   --namespace=default
+   --namespace=cert-manager
 
 kubectl apply -f /tmp/resources/cert_manager/ca_issuer.yml
 kubectl apply -f /tmp/resources/cert_manager/selfsigned_issuer.yml

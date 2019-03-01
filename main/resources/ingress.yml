@@ -1,12 +1,12 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: example-ingress
+  name: echo-ingress
   annotations:
-    #certmanager.k8s.io/cluster-issuer: selfsigning-issuer
+    certmanager.k8s.io/cluster-issuer: selfsigning-issuer
+    #certmanager.k8s.io/cluster-issuer: ca-issuer
     #certmanager.k8s.io/cluster-issuer: letsencrypt-staging
     #certmanager.k8s.io/cluster-issuer: letsencrypt-prod
-    certmanager.k8s.io/cluster-issuer: ca-issuer
     ingress.kubernetes.io/ssl-redirect: "true"
     ingress.kubernetes.io/rewrite-target: /
 spec:
