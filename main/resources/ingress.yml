@@ -28,7 +28,7 @@ spec:
         - path: /nexus
           backend:
             serviceName: nexus-service
-            servicePort: 5678
+            servicePort: 8081
 
 ---
 

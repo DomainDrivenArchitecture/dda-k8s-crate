@@ -20,4 +20,4 @@ spec:
   selector:
     app: nexus
   ports:
-    - port: 5678 # Default port for image
+    - port: 8081
