@@ -25,7 +25,7 @@ spec:
           backend:
             serviceName: banana-service
             servicePort: 5678
-        - path: /nexus
+        - path: /
           backend:
             serviceName: nexus-service
             servicePort: 8081
