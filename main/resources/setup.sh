@@ -11,14 +11,16 @@ sudo -i
 
 snap install microk8s --classic
 snap alias microk8s.kubectl kubectl
+nano /var/snap/microk8s/current/args/kube-apiserver
+#To activate RBAC replace "–authorization-mode=AlwaysAllow" with "–authorization-mode=RBAC" in line 5
 microk8s.enable dns dashboard storage ingress metrics-server
 microk8s.stop
 microk8s.start
 #kubectl create -f dashboard-admin.yml
 
 # Access dashboard locally:
-kubectl proxy &
-# http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy
+kubectl proxy
+# & http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy
 
 # clean up k8s setup?
 rm ca*
