@@ -16,3 +16,4 @@ Cache/
 .settings/
 .project
 /logs/
+.classpath
