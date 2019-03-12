@@ -21,11 +21,6 @@ nano /var/snap/microk8s/current/args/kube-apiserver
 microk8s.stop
 microk8s.start
 
-# ingress
-kubectl apply -f /tmp/resources/ingress.yml
-# dashboard
-kubectl apply -f /tmp/resources/dashboard.yml
-
 # clean up k8s setup?
 rm ca*
 kubectl delete namespace cert-manager
@@ -65,13 +60,17 @@ kubectl apply -f /tmp/resources/cert_manager/selfsigned_issuer.yml
 kubectl apply -f /tmp/resources/cert_manager/letsencrypt_staging_issuer.yml
 kubectl apply -f /tmp/resources/cert_manager/letsencrypt_prod_issuer.yml
 
+# dashboard
+kubectl apply -f /tmp/resources/dashboard.yml
 # apple & banana
 kubectl apply -f /tmp/resources/apple.yml
 kubectl apply -f /tmp/resources/banana.yml
 # nexus, takes a few minutes to start
 kubectl apply -f /tmp/resources/nexus/nexus.yml
+# ingress
+kubectl apply -f /tmp/resources/ingress.yml
 
-# Access dashboard locally after waiting a few minutes:
+# Access dashboard locally
 kubectl proxy &
 # http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy
 
