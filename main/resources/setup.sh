@@ -1,8 +1,8 @@
-# local
+# local, needs to be executed without remote part
 ssh-keygen -f "$HOME/.ssh/known_hosts" -R "159.69.207.106"
 scp -r main/resources `(whoami)`@159.69.207.106:
 
-# remote
+# remote, can be copied as a whole until kubectl proxy
 ssh `(whoami)`@159.69.207.106 -L 8001:localhost:8001
 sudo rm -rf /tmp/resources
 mv resources /tmp/
@@ -11,17 +11,20 @@ sudo -i
 
 snap install microk8s --classic
 snap alias microk8s.kubectl kubectl
-# Wait a moment for snap to really finish
+sleep 15 # Sometimes SNAP is not ready otherwise
 microk8s.enable dns dashboard storage ingress metrics-server
 # Wait a minute as PODs are initializing -> all Status:Running with kubectl get pods --all-namespaces
+# Should be handled programmatically but until then we just sleep for a few seconds
+sleep 45
 
 # RBAC
-nano /var/snap/microk8s/current/args/kube-apiserver
-#To activate RBAC replace "–authorization-mode=AlwaysAllow" with "–authorization-mode=RBAC" in line 5
+cp /tmp/resources/kube-apiserver /var/snap/microk8s/current/args
 microk8s.stop
 microk8s.start
+sleep 10 # Until startup is completed, otherwise API might not respond
 
 # clean up k8s setup?
+#doing this instead of: snap remove microk8s
 rm ca*
 kubectl delete namespace cert-manager
 kubectl delete secret my-ca-key-pair ingress-cert
@@ -34,6 +37,18 @@ kubectl delete -f /tmp/resources/ingress.yml
 kubectl delete -f /tmp/resources/apple.yml
 kubectl delete -f /tmp/resources/banana.yml
 kubectl delete -f /tmp/resources/nexus/nexus.yml
+
+# dashboard
+kubectl apply -f /tmp/resources/dashboard.yml
+# apple & banana
+kubectl apply -f /tmp/resources/apple.yml
+kubectl apply -f /tmp/resources/banana.yml
+# nexus, takes a few minutes to start
+kubectl apply -f /tmp/resources/nexus/nexus.yml
+# ingress
+kubectl apply -f /tmp/resources/ingress.yml
+# wait for pods to be ready
+sleep 30
 
 # install cert-manager
 kubectl create namespace cert-manager
@@ -60,16 +75,6 @@ kubectl apply -f /tmp/resources/cert_manager/selfsigned_issuer.yml
 kubectl apply -f /tmp/resources/cert_manager/letsencrypt_staging_issuer.yml
 kubectl apply -f /tmp/resources/cert_manager/letsencrypt_prod_issuer.yml
 
-# dashboard
-kubectl apply -f /tmp/resources/dashboard.yml
-# apple & banana
-kubectl apply -f /tmp/resources/apple.yml
-kubectl apply -f /tmp/resources/banana.yml
-# nexus, takes a few minutes to start
-kubectl apply -f /tmp/resources/nexus/nexus.yml
-# ingress
-kubectl apply -f /tmp/resources/ingress.yml
-
 # Access dashboard locally
 kubectl proxy &
 # http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy
@@ -78,3 +83,5 @@ kubectl proxy &
 #     https://[159.69.207.106]/apple
 #     https://k8stest.domaindrivenarchitecture.org/apple
 #     https://k8stest.domaindrivenarchitecture.org/banana
+
+microk8s.stop # Otherwise we are exposing Nexus
