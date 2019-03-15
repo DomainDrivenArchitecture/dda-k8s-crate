@@ -13,7 +13,7 @@ spec:
   tls:
   - hosts:
     - k8stest.domaindrivenarchitecture.org
-      secretName: echo-cert
+    secretName: echo-cert
   rules:
     - host: k8stest.domaindrivenarchitecture.org
       http:

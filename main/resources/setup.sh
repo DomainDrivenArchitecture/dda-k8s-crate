@@ -27,7 +27,7 @@ sleep 10 # Until startup is completed, otherwise API might not respond
 #doing this instead of: snap remove microk8s
 rm ca*
 kubectl delete namespace cert-manager
-kubectl delete secret my-ca-key-pair ingress-cert
+kubectl delete secret my-ca-key-pair echo-cert
 kubectl delete clusterrole cert-manager cert-manager-edit cert-manager-view
 kubectl delete -f /tmp/resources/cert_manager/ca_issuer.yml
 kubectl delete -f /tmp/resources/cert_manager/selfsigned_issuer.yml
@@ -40,15 +40,6 @@ kubectl delete -f /tmp/resources/nexus/nexus.yml
 
 # dashboard
 kubectl apply -f /tmp/resources/dashboard.yml
-# apple & banana
-kubectl apply -f /tmp/resources/apple.yml
-kubectl apply -f /tmp/resources/banana.yml
-# nexus, takes a few minutes to start
-kubectl apply -f /tmp/resources/nexus/nexus.yml
-# ingress
-kubectl apply -f /tmp/resources/ingress.yml
-# wait for pods to be ready
-sleep 30
 
 # install cert-manager
 kubectl create namespace cert-manager
@@ -74,6 +65,16 @@ kubectl apply -f /tmp/resources/cert_manager/ca_issuer.yml
 kubectl apply -f /tmp/resources/cert_manager/selfsigned_issuer.yml
 kubectl apply -f /tmp/resources/cert_manager/letsencrypt_staging_issuer.yml
 kubectl apply -f /tmp/resources/cert_manager/letsencrypt_prod_issuer.yml
+
+# apple & banana
+kubectl apply -f /tmp/resources/apple.yml
+kubectl apply -f /tmp/resources/banana.yml
+# nexus, takes a few minutes to start
+#kubectl apply -f /tmp/resources/nexus/nexus.yml
+# ingress
+kubectl apply -f /tmp/resources/ingress.yml
+# wait for pods to be ready
+sleep 30
 
 # Access dashboard locally
 kubectl proxy &
