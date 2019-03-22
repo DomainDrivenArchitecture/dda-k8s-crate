@@ -66,6 +66,9 @@ kubectl apply -f /tmp/resources/cert_manager/selfsigned_issuer.yml
 kubectl apply -f /tmp/resources/cert_manager/letsencrypt_staging_issuer.yml
 kubectl apply -f /tmp/resources/cert_manager/letsencrypt_prod_issuer.yml
 
+# debug
+# kubectl run my-shell --rm -i --tty --image nicolaka/netshoot -- bash
+
 # apple & banana
 kubectl apply -f /tmp/resources/apple.yml
 kubectl apply -f /tmp/resources/banana.yml
