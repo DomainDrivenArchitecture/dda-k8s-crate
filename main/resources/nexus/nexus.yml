@@ -9,6 +9,13 @@ spec:
     - name: nexus-app
       image: sonatype/nexus3:latest
       imagePullPolicy: IfNotPresent
+      volumeMounts:
+          - mountPath: /nexus-data
+            name: nexus-data-volume
+  volumes:
+    - name: nexus-data-volume
+      persistentVolumeClaim:
+        claimName: nexus-pvc
 
 ---
 
@@ -21,3 +28,6 @@ spec:
     app: nexus
   ports:
     - port: 8081
+
+---
+

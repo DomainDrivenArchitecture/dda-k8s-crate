@@ -1,31 +1,20 @@
+# set network on remote
+cd /etc/netplan
+sudo nano 50-cloud-init.yaml
+# Under ethernets: enp0s8: dhcp4: true
+
 # local, needs to be executed without remote part
 ssh-keygen -f "$HOME/.ssh/known_hosts" -R "159.69.207.106"
-scp -r main/resources `(whoami)`@159.69.207.106:
+scp -r main/resources `(whoami)`@192.168.56.101:
 
-# remote, can be copied as a whole until kubectl proxy
-ssh `(whoami)`@159.69.207.106 -L 8001:localhost:8001
+# remote,
+ssh serv@192.168.56.101 -L 8001:localhost:8001
 sudo rm -rf /tmp/resources
 mv resources /tmp/
 
-sudo -i
-
-snap install microk8s --classic
-snap alias microk8s.kubectl kubectl
-sleep 15 # Sometimes SNAP is not ready otherwise
-microk8s.enable dns dashboard storage ingress metrics-server
-# Wait a minute as PODs are initializing -> all Status:Running with kubectl get pods --all-namespaces
-# Should be handled programmatically but until then we just sleep for a few seconds
-sleep 45
-
-# RBAC
-cp /tmp/resources/kube-apiserver /var/snap/microk8s/current/args
-microk8s.stop
-microk8s.start
-sleep 10 # Until startup is completed, otherwise API might not respond
-
-# clean up k8s setup?
-#doing this instead of: snap remove microk8s
+# clean up k8s setup
 rm ca*
+kubectl delete namespace ingress-nginx
 kubectl delete namespace cert-manager
 kubectl delete secret my-ca-key-pair echo-cert
 kubectl delete clusterrole cert-manager cert-manager-edit cert-manager-view
@@ -33,19 +22,99 @@ kubectl delete -f /tmp/resources/cert_manager/ca_issuer.yml
 kubectl delete -f /tmp/resources/cert_manager/selfsigned_issuer.yml
 kubectl delete -f /tmp/resources/cert_manager/letsencrypt_staging_issuer.yml
 kubectl delete -f /tmp/resources/cert_manager/letsencrypt_prod_issuer.yml
+kubectl delete -f /tmp/resources/kustomization.yml
 kubectl delete -f /tmp/resources/ingress.yml
 kubectl delete -f /tmp/resources/apple.yml
 kubectl delete -f /tmp/resources/banana.yml
 kubectl delete -f /tmp/resources/nexus/nexus.yml
 
+#Docker
+sudo apt-get update \
+  && sudo apt-get install -qy docker.io
+
+#Install Kubernetes apt repo
+sudo apt-get update \
+  && sudo apt-get install -y apt-transport-https \
+  && curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+
+echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" \
+  | sudo tee -a /etc/apt/sources.list.d/kubernetes.list \
+  && sudo apt-get update 
+
+#Install kubelet (run containers), kubeadm (convenience utility) and kubernetes-cni (network components)
+#CNI stands for Container Networking Interface which is a spec that defines how network drivers should interact with Kubernetes
+sudo apt-get update \
+  && sudo apt-get install -y \
+  kubelet \
+  kubeadm \
+  kubernetes-cni
+
+#deactivate swap 
+sudo swapoff -a
+#remove any swap entry from /etc/fstab.
+#sudo -i
+#sudo echo '' > /etc/fstab
+#sudo su serv 
+
+#Initialize your cluster with kubeadm
+#kubeadm aims to create a secure cluster out of the box via mechanisms such as RBAC.
+
+#You must replace --apiserver-advertise-address with the IP of your host.
+sudo systemctl enable docker.service
+sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=192.168.56.101 --insecure-port=8080
+
+#Configure an unprivileged user-account
+sudo useradd pallet -G sudo -m -s /bin/bash
+sudo passwd pallet
+
+#Configure environmental variables as the new user
+sudo su pallet
+cd $HOME
+sudo whoami
+
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+
+#Flannel provides a software defined network (SDN) using the Linux kernel's overlay and ipvlan modules.
+#Apply your pod network (flannel)
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/k8s-manifests/kube-flannel-rbac.yml
+
+#Allow a single-host cluster
+kubectl taint nodes --all node-role.kubernetes.io/master-
+
+#Check it's working
+#All status: running
+kubectl get all --namespace=kube-system
+#No pods
+kubectl get pods
+
+# Deploy Ingress
+kubectl create namespace ingress-nginx
+kubectl apply --kustomize /tmp/resources/
+
+# apple & banana
+kubectl apply -f /tmp/resources/apple.yml
+kubectl apply -f /tmp/resources/banana.yml
+
+#microk8s.enable dns storage metrics-server
+
+# nexus, takes a few minutes to start
+sudo mkdir /mnt/data
+sudo chmod -R 777 /mnt/data
+kubectl apply -f /tmp/resources/nexus/nexus-storage.yml
+kubectl apply -f /tmp/resources/nexus/nexus.yml
+# ingress
+kubectl apply -f /tmp/resources/ingress.yml
+
 # dashboard
-kubectl apply -f /tmp/resources/dashboard.yml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yaml
 
 # install cert-manager
 kubectl create namespace cert-manager
 kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
-## Install the CustomResourceDefinition resources
-# Not needed: kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.6/deploy/manifests/00-crds.yaml
 ## Install cert-manager itself
 kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.6/deploy/manifests/cert-manager-no-webhook.yaml
 
@@ -69,15 +138,6 @@ kubectl apply -f /tmp/resources/cert_manager/letsencrypt_prod_issuer.yml
 # debug
 # kubectl run my-shell --rm -i --tty --image nicolaka/netshoot -- bash
 
-# apple & banana
-kubectl apply -f /tmp/resources/apple.yml
-kubectl apply -f /tmp/resources/banana.yml
-# nexus, takes a few minutes to start
-#kubectl apply -f /tmp/resources/nexus/nexus.yml
-# ingress
-kubectl apply -f /tmp/resources/ingress.yml
-# wait for pods to be ready
-sleep 30
 
 # Access dashboard locally
 kubectl proxy &
@@ -87,5 +147,3 @@ kubectl proxy &
 #     https://[159.69.207.106]/apple
 #     https://k8stest.domaindrivenarchitecture.org/apple
 #     https://k8stest.domaindrivenarchitecture.org/banana
-
-microk8s.stop # Otherwise we are exposing Nexus
