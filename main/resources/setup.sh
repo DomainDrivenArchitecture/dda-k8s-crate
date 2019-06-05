@@ -1,14 +1,14 @@
-# set network on remote
+# optional: set network on remote
 cd /etc/netplan
 sudo nano 50-cloud-init.yaml
 # Under ethernets: enp0s8: dhcp4: true
 
 # local, needs to be executed without remote part
-ssh-keygen -f "$HOME/.ssh/known_hosts" -R "159.69.207.106"
-scp -r main/resources `(whoami)`@192.168.56.101:
+ssh-keygen -f "$HOME/.ssh/known_hosts" -R "116.203.189.151"
+scp -r main/resources `(whoami)`@116.203.189.151:
 
 # remote,
-ssh serv@192.168.56.101 -L 8001:localhost:8001
+ssh `(whoami)`@116.203.189.151 -L 8001:localhost:8001
 sudo rm -rf /tmp/resources
 mv resources /tmp/
 
@@ -61,7 +61,8 @@ sudo swapoff -a
 
 #You must replace --apiserver-advertise-address with the IP of your host.
 sudo systemctl enable docker.service
-sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=192.168.56.101 --insecure-port=8080
+sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=116.203.189.151
+# TODO: Lokales Netzwerk für diese IP einrichten? Sonst ist es im Moment die Internet IP 
 
 #Configure an unprivileged user-account
 sudo useradd pallet -G sudo -m -s /bin/bash
@@ -144,6 +145,6 @@ kubectl proxy &
 # http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy
 
 # Insepct echo app at:
-#     https://[159.69.207.106]/apple
+#     https://[116.203.189.151]/apple
 #     https://k8stest.domaindrivenarchitecture.org/apple
 #     https://k8stest.domaindrivenarchitecture.org/banana
