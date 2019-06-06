@@ -52,9 +52,7 @@ sudo apt-get update \
 #deactivate swap 
 sudo swapoff -a
 #remove any swap entry from /etc/fstab.
-#sudo -i
-#sudo echo '' > /etc/fstab
-#sudo su serv 
+sudo sed -i '/swap/d' /etc/fstab
 
 #Initialize your cluster with kubeadm
 #kubeadm aims to create a secure cluster out of the box via mechanisms such as RBAC.
@@ -76,7 +74,6 @@ sudo whoami
 mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
-
 
 #Flannel provides a software defined network (SDN) using the Linux kernel's overlay and ipvlan modules.
 #Apply your pod network (flannel)
