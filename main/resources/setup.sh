@@ -3,6 +3,7 @@ cd /etc/netplan
 sudo nano 50-cloud-init.yaml
 # Under ethernets: enp0s8: dhcp4: true
 
+# WARNING: Machine should have 2 CPUs, about 4 GB ram and more than 10 GB space
 # local, needs to be executed without remote part
 ssh-keygen -f "$HOME/.ssh/known_hosts" -R "116.203.189.151"
 scp -r main/resources `(whoami)`@116.203.189.151:
