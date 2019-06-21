@@ -9,6 +9,7 @@ metadata:
     #certmanager.k8s.io/cluster-issuer: letsencrypt-prod
     ingress.kubernetes.io/ssl-redirect: "true"
     ingress.kubernetes.io/rewrite-target: /
+  namespace: ingress-nginx
 spec:
   tls:
   - hosts:

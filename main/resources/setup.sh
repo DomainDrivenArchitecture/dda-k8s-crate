@@ -8,7 +8,7 @@ sudo nano 50-cloud-init.yaml
 ssh-keygen -f "$HOME/.ssh/known_hosts" -R "116.203.189.151"
 scp -r main/resources `(whoami)`@116.203.189.151:
 
-# remote,
+# remote
 ssh `(whoami)`@116.203.189.151 -L 8001:localhost:8001
 sudo rm -rf /tmp/resources
 mv resources /tmp/
