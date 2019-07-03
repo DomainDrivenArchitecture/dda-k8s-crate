@@ -32,12 +32,12 @@ kubectl delete -f /tmp/resources/banana.yml
 kubectl delete -f /tmp/resources/nexus/nexus.yml
 
 #Install Kubernetes apt repo
-apt-get install -y apt-transport-https \
+apt-get update \
+  && apt-get install -y apt-transport-https \
   && curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 
 echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" \
-  | tee -a /etc/apt/sources.list.d/kubernetes.list \
-  && apt-get update 
+  | tee -a /etc/apt/sources.list.d/kubernetes.list
 
 #Install kubelet (run containers), kubeadm (convenience utility) and kubernetes-cni (network components)
 #CNI stands for Container Networking Interface which is a spec that defines how network drivers should interact with Kubernetes
