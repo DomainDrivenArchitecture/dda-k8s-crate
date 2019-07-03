@@ -5,13 +5,15 @@ sudo nano 50-cloud-init.yaml
 
 # WARNING: Machine should have 2 CPUs, about 4 GB ram and more than 10 GB space
 # local, needs to be executed without remote part
-ssh-keygen -f "$HOME/.ssh/known_hosts" -R "116.203.189.151"
-scp -r main/resources `(whoami)`@116.203.189.151:
+ssh-keygen -f "$HOME/.ssh/known_hosts" -R "192.168.56.105"
+scp -r main/resources `(whoami)`@192.168.56.105:
 
 # remote
-ssh `(whoami)`@116.203.189.151 -L 8001:localhost:8001
+ssh `(whoami)`@192.168.56.105 -L 8001:localhost:8001
 sudo rm -rf /tmp/resources
 mv resources /tmp/
+
+sudo -i
 
 # clean up k8s setup
 rm ca*
@@ -29,38 +31,40 @@ kubectl delete -f /tmp/resources/apple.yml
 kubectl delete -f /tmp/resources/banana.yml
 kubectl delete -f /tmp/resources/nexus/nexus.yml
 
-#Docker
-sudo apt-get update \
-  && sudo apt-get install -qy docker.io
-
 #Install Kubernetes apt repo
-sudo apt-get update \
-  && sudo apt-get install -y apt-transport-https \
-  && curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+apt-get install -y apt-transport-https \
+  && curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 
 echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" \
-  | sudo tee -a /etc/apt/sources.list.d/kubernetes.list \
-  && sudo apt-get update 
+  | tee -a /etc/apt/sources.list.d/kubernetes.list \
+  && apt-get update 
 
 #Install kubelet (run containers), kubeadm (convenience utility) and kubernetes-cni (network components)
 #CNI stands for Container Networking Interface which is a spec that defines how network drivers should interact with Kubernetes
-sudo apt-get update \
-  && sudo apt-get install -y \
+apt-get update \
+  && apt-get install -y \
+  docker.io \
   kubelet \
   kubeadm \
   kubernetes-cni
 
 #deactivate swap 
-sudo swapoff -a
+swapoff -a
 #remove any swap entry from /etc/fstab.
-sudo sed -i '/swap/d' /etc/fstab
+sed -i '/swap/d' /etc/fstab
+
+# TODO
+#[preflight] Running pre-flight checks
+#	[WARNING IsDockerSystemdCheck]: detected "cgroupfs" as the Docker cgroup driver. The recommended driver is "systemd". Please follow the guide at https://kubernetes.io/docs/setup/cri/
+
+
 
 #Initialize your cluster with kubeadm
 #kubeadm aims to create a secure cluster out of the box via mechanisms such as RBAC.
 
 #You must replace --apiserver-advertise-address with the IP of your host.
 sudo systemctl enable docker.service
-sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=116.203.189.151
+sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=127.0.0.1
 # TODO: Lokales Netzwerk für diese IP einrichten? Sonst ist es im Moment die Internet IP 
 
 #Configure an unprivileged user-account
@@ -143,6 +147,6 @@ kubectl proxy &
 # http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy
 
 # Insepct echo app at:
-#     https://[116.203.189.151]/apple
+#     https://[192.168.56.105]/apple
 #     https://k8stest.domaindrivenarchitecture.org/apple
 #     https://k8stest.domaindrivenarchitecture.org/banana
