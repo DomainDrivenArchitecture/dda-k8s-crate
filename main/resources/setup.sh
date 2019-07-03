@@ -61,20 +61,18 @@ sed -i '/swap/d' /etc/fstab
 
 #Initialize your cluster with kubeadm
 #kubeadm aims to create a secure cluster out of the box via mechanisms such as RBAC.
-
-#You must replace --apiserver-advertise-address with the IP of your host.
 sudo systemctl enable docker.service
-sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=127.0.0.1
-# TODO: Lokales Netzwerk für diese IP einrichten? Sonst ist es im Moment die Internet IP 
+sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=127.0.0.1 --ignore-preflight-errors=all
 
 #Configure an unprivileged user-account
+# TODO: why not call our new user kube?
 sudo useradd pallet -G sudo -m -s /bin/bash
 sudo passwd pallet
 
 #Configure environmental variables as the new user
 sudo su pallet
 cd $HOME
-sudo whoami
+whoami
 
 mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
