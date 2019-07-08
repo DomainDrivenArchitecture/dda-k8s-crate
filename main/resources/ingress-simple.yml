@@ -2,14 +2,14 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: ingress-simple
-  annotations:
+  #annotations:
     #certmanager.k8s.io/cluster-issuer: selfsigning-issuer
     #certmanager.k8s.io/cluster-issuer: ca-issuer
     #certmanager.k8s.io/cluster-issuer: letsencrypt-staging
     #certmanager.k8s.io/cluster-issuer: letsencrypt-prod
     #ingress.kubernetes.io/ssl-redirect: "true"
     #ingress.kubernetes.io/rewrite-target: /
-  namespace: ingress-simple
+  namespace: ingress-nginx
 spec:
   #tls:
   #- hosts:
@@ -17,7 +17,7 @@ spec:
   #  secretName: echo-cert
   rules:
     #- host: k8stest.domaindrivenarchitecture.org
-      http:
+    - http:
         paths:
           - path: /apple
             backend:

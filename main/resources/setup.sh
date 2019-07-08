@@ -95,8 +95,12 @@ kubectl get all --all-namespaces
 #No pods
 kubectl get pods
 
+# MetalLB
+kubectl apply -f https://raw.githubusercontent.com/google/metallb/v0.7.3/manifests/metallb.yaml
+kubectl apply -f /tmp/resources/metallb.yml
+
 # Deploy Ingress
-kubectl create namespace ingress-simple
+kubectl create namespace ingress-nginx
 kubectl apply --kustomize /tmp/resources/
 
 # apple & banana
