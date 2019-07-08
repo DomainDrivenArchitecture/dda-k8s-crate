@@ -3,35 +3,12 @@ cd /etc/netplan
 sudo nano 50-cloud-init.yaml
 # Under ethernets: enp0s8: dhcp4: true
 
-# WARNING: Machine should have 2 CPUs, about 4 GB ram and more than 10 GB space
-# local, needs to be executed without remote part
-ssh-keygen -f "$HOME/.ssh/known_hosts" -R "192.168.56.105"
-scp -r main/resources `(whoami)`@192.168.56.105:
-
-# remote
-ssh `(whoami)`@192.168.56.105 -L 8001:localhost:8001
-sudo rm -rf /tmp/resources
-mv resources /tmp/
-
-sudo -i
-
-# clean up k8s setup
-rm ca*
-kubectl delete namespace ingress-nginx
-kubectl delete namespace cert-manager
-kubectl delete secret my-ca-key-pair echo-cert
-kubectl delete clusterrole cert-manager cert-manager-edit cert-manager-view
-kubectl delete -f /tmp/resources/cert_manager/ca_issuer.yml
-kubectl delete -f /tmp/resources/cert_manager/selfsigned_issuer.yml
-kubectl delete -f /tmp/resources/cert_manager/letsencrypt_staging_issuer.yml
-kubectl delete -f /tmp/resources/cert_manager/letsencrypt_prod_issuer.yml
-kubectl delete -f /tmp/resources/kustomization.yml
-kubectl delete -f /tmp/resources/ingress.yml
-kubectl delete -f /tmp/resources/apple.yml
-kubectl delete -f /tmp/resources/banana.yml
-kubectl delete -f /tmp/resources/nexus/nexus.yml
+# connect to your server
+ssh-keygen -f "$HOME/.ssh/known_hosts" -R "192.168.56.106"
+ssh `(whoami)`@192.168.56.106 -L 8001:localhost:8001
 
 #Install Kubernetes apt repo
+sudo -i
 apt-get update \
   && apt-get install -y apt-transport-https \
   && curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
@@ -57,27 +34,51 @@ sed -i '/swap/d' /etc/fstab
 #[preflight] Running pre-flight checks
 #	[WARNING IsDockerSystemdCheck]: detected "cgroupfs" as the Docker cgroup driver. The recommended driver is "systemd". Please follow the guide at https://kubernetes.io/docs/setup/cri/
 
-
+#Configure an unprivileged user-account
+useradd k8s -G sudo -m -s /bin/bash
+passwd k8s
 
 #Initialize your cluster with kubeadm
 #kubeadm aims to create a secure cluster out of the box via mechanisms such as RBAC.
-sudo systemctl enable docker.service
+systemctl enable docker.service
 # TODO: etcd not public. Configure IPv6. Look for systemd on port 68.
-sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=127.0.0.1 --ignore-preflight-errors=all
+kubeadm config images pull
+kubeadm init --pod-network-cidr=10.244.0.0/16 \
+  --apiserver-advertise-address=127.0.0.1 --ignore-preflight-errors NumCPU
 
-#Configure an unprivileged user-account
-# TODO: why not call our new user kube?
-sudo useradd pallet -G sudo -m -s /bin/bash
-sudo passwd pallet
+# -------------- on your DevOps system -------------------
+# local, needs to be executed without remote part
+scp -r main/resources k8s@192.168.56.106:
+
+# -------------- on server -------------------
+# local, needs to be executed without remote part
+rm -rf /tmp/resources
+mv /home/k8s/resources /tmp/
 
 #Configure environmental variables as the new user
-sudo su pallet
+sudo su k8s
 cd $HOME
 whoami
 
 mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+# clean up k8s setup
+rm ca*
+kubectl delete namespace ingress-nginx
+kubectl delete namespace cert-manager
+kubectl delete secret my-ca-key-pair echo-cert
+kubectl delete clusterrole cert-manager cert-manager-edit cert-manager-view
+kubectl delete -f /tmp/resources/cert_manager/ca_issuer.yml
+kubectl delete -f /tmp/resources/cert_manager/selfsigned_issuer.yml
+kubectl delete -f /tmp/resources/cert_manager/letsencrypt_staging_issuer.yml
+kubectl delete -f /tmp/resources/cert_manager/letsencrypt_prod_issuer.yml
+kubectl delete -f /tmp/resources/kustomization.yml
+kubectl delete -f /tmp/resources/ingress.yml
+kubectl delete -f /tmp/resources/apple.yml
+kubectl delete -f /tmp/resources/banana.yml
+kubectl delete -f /tmp/resources/nexus/nexus.yml
 
 #Flannel provides a software defined network (SDN) using the Linux kernel's overlay and ipvlan modules.
 #Apply your pod network (flannel)
@@ -90,16 +91,18 @@ kubectl taint nodes --all node-role.kubernetes.io/master-
 #Check it's working
 #All status: running
 kubectl get all --namespace=kube-system
+kubectl get all --all-namespaces
 #No pods
 kubectl get pods
 
 # Deploy Ingress
-kubectl create namespace ingress-nginx
+kubectl create namespace ingress-simple
 kubectl apply --kustomize /tmp/resources/
 
 # apple & banana
 kubectl apply -f /tmp/resources/apple.yml
 kubectl apply -f /tmp/resources/banana.yml
+kubectl apply -f /tmp/resources/ingress-simple.yml
 
 #microk8s.enable dns storage metrics-server
 
