@@ -25,7 +25,7 @@ apt-get update \
   kubeadm \
   kubernetes-cni
 
-#deactivate swap 
+#deactivate swap
 swapoff -a
 #remove any swap entry from /etc/fstab.
 sed -i '/swap/d' /etc/fstab
@@ -41,6 +41,7 @@ passwd k8s
 #Initialize your cluster with kubeadm
 #kubeadm aims to create a secure cluster out of the box via mechanisms such as RBAC.
 systemctl enable docker.service
+# TODO: etcd not public. Configure IPv6. Look for systemd on port 68.
 kubeadm config images pull
 kubeadm init --pod-network-cidr=10.244.0.0/16 \
   --apiserver-advertise-address=127.0.0.1 --ignore-preflight-errors NumCPU
