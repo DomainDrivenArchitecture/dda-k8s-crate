@@ -46,23 +46,23 @@ kubeadm config images pull
 kubeadm init --pod-network-cidr=10.244.0.0/16 \
   --apiserver-advertise-address=127.0.0.1 --ignore-preflight-errors NumCPU
 
+mkdir -p /home/k8s/.kube
+cp -i /etc/kubernetes/admin.conf /home/k8s/.kube/config
+chown -R k8s:k8s /home/k8s/.kube
+
 # -------------- on your DevOps system -------------------
 # local, needs to be executed without remote part
 scp -r main/resources k8s@192.168.56.106:
 
 # -------------- on server -------------------
-# local, needs to be executed without remote part
-rm -rf /tmp/resources
-mv /home/k8s/resources /tmp/
 
 #Configure environmental variables as the new user
-sudo su k8s
-cd $HOME
+su k8s
+cd
 whoami
 
-mkdir -p $HOME/.kube
-sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-sudo chown $(id -u):$(id -g) $HOME/.kube/config
+rm -rf k8s_resources
+mv resources k8s_resources
 
 # clean up k8s setup
 rm ca*
@@ -70,15 +70,15 @@ kubectl delete namespace ingress-nginx
 kubectl delete namespace cert-manager
 kubectl delete secret my-ca-key-pair echo-cert
 kubectl delete clusterrole cert-manager cert-manager-edit cert-manager-view
-kubectl delete -f /tmp/resources/cert_manager/ca_issuer.yml
-kubectl delete -f /tmp/resources/cert_manager/selfsigned_issuer.yml
-kubectl delete -f /tmp/resources/cert_manager/letsencrypt_staging_issuer.yml
-kubectl delete -f /tmp/resources/cert_manager/letsencrypt_prod_issuer.yml
-kubectl delete -f /tmp/resources/kustomization.yml
-kubectl delete -f /tmp/resources/ingress.yml
-kubectl delete -f /tmp/resources/apple.yml
-kubectl delete -f /tmp/resources/banana.yml
-kubectl delete -f /tmp/resources/nexus/nexus.yml
+kubectl delete -f /home/k8s/k8s_resources/cert_manager/ca_issuer.yml
+kubectl delete -f /home/k8s/k8s_resources/cert_manager/selfsigned_issuer.yml
+kubectl delete -f /home/k8s/k8s_resources/cert_manager/letsencrypt_staging_issuer.yml
+kubectl delete -f /home/k8s/k8s_resources/cert_manager/letsencrypt_prod_issuer.yml
+kubectl delete -f /home/k8s/k8s_resources/kustomization.yml
+kubectl delete -f /home/k8s/k8s_resources/ingress.yml
+kubectl delete -f /home/k8s/k8s_resources/apple.yml
+kubectl delete -f /home/k8s/k8s_resources/banana.yml
+kubectl delete -f /home/k8s/k8s_resources/nexus/nexus.yml
 
 #Flannel provides a software defined network (SDN) using the Linux kernel's overlay and ipvlan modules.
 #Apply your pod network (flannel)
@@ -90,33 +90,32 @@ kubectl taint nodes --all node-role.kubernetes.io/master-
 
 #Check it's working
 #All status: running
-kubectl get all --namespace=kube-system
 kubectl get all --all-namespaces
 #No pods
 kubectl get pods
 
 # MetalLB
 kubectl apply -f https://raw.githubusercontent.com/google/metallb/v0.7.3/manifests/metallb.yaml
-kubectl apply -f /tmp/resources/metallb.yml
+kubectl apply -f /home/k8s/k8s_resources/metallb.yml
 
 # Deploy Ingress
 kubectl create namespace ingress-nginx
-kubectl apply --kustomize /tmp/resources/
+kubectl apply --kustomize /home/k8s/k8s_resources/
 
 # apple & banana
-kubectl apply -f /tmp/resources/apple.yml
-kubectl apply -f /tmp/resources/banana.yml
-kubectl apply -f /tmp/resources/ingress-simple.yml
+kubectl apply -f /home/k8s/k8s_resources/apple.yml
+kubectl apply -f /home/k8s/k8s_resources/banana.yml
+kubectl apply -f /home/k8s/k8s_resources/ingress-simple.yml
 
 #microk8s.enable dns storage metrics-server
 
 # nexus, takes a few minutes to start
 sudo mkdir /mnt/data
 sudo chmod -R 777 /mnt/data
-kubectl apply -f /tmp/resources/nexus/nexus-storage.yml
-kubectl apply -f /tmp/resources/nexus/nexus.yml
+kubectl apply -f /home/k8s/k8s_resources/nexus/nexus-storage.yml
+kubectl apply -f /home/k8s/k8s_resources/nexus/nexus.yml
 # ingress
-kubectl apply -f /tmp/resources/ingress.yml
+kubectl apply -f /home/k8s/k8s_resources/ingress.yml
 
 # dashboard
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yaml
@@ -139,10 +138,10 @@ kubectl create secret tls my-ca-key-pair \
    --key=ca.key \
    --namespace=cert-manager
 
-kubectl apply -f /tmp/resources/cert_manager/ca_issuer.yml
-kubectl apply -f /tmp/resources/cert_manager/selfsigned_issuer.yml
-kubectl apply -f /tmp/resources/cert_manager/letsencrypt_staging_issuer.yml
-kubectl apply -f /tmp/resources/cert_manager/letsencrypt_prod_issuer.yml
+kubectl apply -f /home/k8s/k8s_resources/cert_manager/ca_issuer.yml
+kubectl apply -f /home/k8s/k8s_resources/cert_manager/selfsigned_issuer.yml
+kubectl apply -f /home/k8s/k8s_resources/cert_manager/letsencrypt_staging_issuer.yml
+kubectl apply -f /home/k8s/k8s_resources/cert_manager/letsencrypt_prod_issuer.yml
 
 # debug
 # kubectl run my-shell --rm -i --tty --image nicolaka/netshoot -- bash
