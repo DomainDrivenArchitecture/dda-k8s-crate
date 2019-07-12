@@ -94,18 +94,38 @@ kubectl get all --all-namespaces
 #No pods
 kubectl get pods
 
+# create admin_user
+kubectl apply -f k8s_resources/admin_user.yml
+kubectl -n kube-system describe secret admin-user| awk '$1=="token:"{print $2}'
+
+# dashboard
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yaml
+kubectl proxy &
+# http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy
+
 # MetalLB
-kubectl apply -f https://raw.githubusercontent.com/google/metallb/v0.7.3/manifests/metallb.yaml
-kubectl apply -f /home/k8s/k8s_resources/metallb.yml
+kubectl apply -f /home/k8s/k8s_resources/metallb.yml # from https://raw.githubusercontent.com/google/metallb/v0.7.3/manifests/metallb.yaml
+kubectl get pods -n metallb-system  # should all be running
+vi /home/k8s/k8s_resources/metallb_config.yml # adjust ip to your public
+kubectl apply -f /home/k8s/k8s_resources/metallb_config.yml
 
 # Deploy Ingress
-kubectl create namespace ingress-nginx
-kubectl apply --kustomize /home/k8s/k8s_resources/
+kubectl apply -f /home/k8s/k8s_resources/ingress_metallb.yml
 
 # apple & banana
 kubectl apply -f /home/k8s/k8s_resources/apple.yml
 kubectl apply -f /home/k8s/k8s_resources/banana.yml
-kubectl apply -f /home/k8s/k8s_resources/ingress-simple.yml
+kubectl apply -f /home/k8s/k8s_resources/ingress_simple.yml
+
+
+
+####### shelved stuff ###########
+
+
+
+kubectl create namespace ingress-nginx
+kubectl apply --kustomize /home/k8s/k8s_resources/
+
 
 #microk8s.enable dns storage metrics-server
 
@@ -117,8 +137,6 @@ kubectl apply -f /home/k8s/k8s_resources/nexus/nexus.yml
 # ingress
 kubectl apply -f /home/k8s/k8s_resources/ingress.yml
 
-# dashboard
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yaml
 
 # install cert-manager
 kubectl create namespace cert-manager
@@ -146,10 +164,6 @@ kubectl apply -f /home/k8s/k8s_resources/cert_manager/letsencrypt_prod_issuer.ym
 # debug
 # kubectl run my-shell --rm -i --tty --image nicolaka/netshoot -- bash
 
-
-# Access dashboard locally
-kubectl proxy &
-# http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy
 
 # Insepct echo app at:
 #     https://[192.168.56.105]/apple
