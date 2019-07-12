@@ -29,6 +29,8 @@ apt-get update \
 swapoff -a
 #remove any swap entry from /etc/fstab.
 sed -i '/swap/d' /etc/fstab
+# bash completion
+kubectl completion bash >> /etc/bash_completion.d/kubernetes
 
 # TODO
 #[preflight] Running pre-flight checks
@@ -95,12 +97,12 @@ kubectl get all --all-namespaces
 kubectl get pods
 
 # create admin_user
-kubectl apply -f k8s_resources/admin_user.yml
-kubectl -n kube-system describe secret admin-user| awk '$1=="token:"{print $2}'
+kubectl apply -f /home/k8s/k8s_resources/admin_user.yml
 
 # dashboard
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yaml
 kubectl proxy &
+kubectl -n kube-system describe secret admin-user| awk '$1=="token:"{print $2}'
 # http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy
 
 # MetalLB
@@ -110,7 +112,8 @@ vi /home/k8s/k8s_resources/metallb_config.yml # adjust ip to your public
 kubectl apply -f /home/k8s/k8s_resources/metallb_config.yml
 
 # Deploy Ingress
-kubectl apply -f /home/k8s/k8s_resources/ingress_metallb.yml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/mandatory.yaml
+kubectl apply -f /home/k8s/k8s_resources/ingress_using_metallb.yml
 
 # apple & banana
 kubectl apply -f /home/k8s/k8s_resources/apple.yml
