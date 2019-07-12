@@ -1,9 +1,9 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: test-ingress
+  name: am-https-ingress
   annotations:
-    #certmanager.k8s.io/cluster-issuer: selfsigning-issuer
+    certmanager.k8s.io/cluster-issuer: selfsigning-issuer
     certmanager.k8s.io/cluster-issuer: ca-issuer
     #certmanager.k8s.io/cluster-issuer: letsencrypt-staging
     #certmanager.k8s.io/cluster-issuer: letsencrypt-prod
@@ -27,7 +27,7 @@ spec:
             backend:
               serviceName: banana-service
               servicePort: 5678
-          - path: /
-            backend:
-              serviceName: nexus-service
-              servicePort: 8081
+         # - path: /
+         #   backend:
+         #     serviceName: nexus-service
+         #     servicePort: 8081

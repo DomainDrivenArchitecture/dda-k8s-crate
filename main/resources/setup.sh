@@ -91,10 +91,8 @@ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documen
 kubectl taint nodes --all node-role.kubernetes.io/master-
 
 #Check it's working
-#All status: running
-kubectl get all --all-namespaces
-#No pods
-kubectl get pods
+kubectl get all --all-namespaces #All status: running
+kubectl get pods #No pods
 
 # create admin_user
 kubectl apply -f /home/k8s/k8s_resources/admin_user.yml
@@ -118,9 +116,10 @@ kubectl apply -f /home/k8s/k8s_resources/ingress_using_metallb.yml
 # apple & banana
 kubectl apply -f /home/k8s/k8s_resources/apple.yml
 kubectl apply -f /home/k8s/k8s_resources/banana.yml
-kubectl apply -f /home/k8s/k8s_resources/ingress_simple.yml
+kubectl apply -f /home/k8s/k8s_resources/ingress_simple_http.yml
 
-
+# test with curl
+curl http://192.168.56.101/apple -H 'Host: the.test.host'
 
 ####### shelved stuff ###########
 

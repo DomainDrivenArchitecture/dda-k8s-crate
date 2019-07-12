@@ -5,7 +5,8 @@ metadata:
   namespace: ingress-nginx
 spec:
   rules:
-    - http:
+    - host: the.test.host
+      http:
         paths:
           - path: /apple
             backend:
