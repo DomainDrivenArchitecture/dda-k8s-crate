@@ -18,4 +18,4 @@ spec:
   - name: https
     port: 443
     targetPort: http
-
+  externalTrafficPolicy: Local
