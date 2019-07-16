@@ -46,7 +46,7 @@ systemctl enable docker.service
 # TODO: etcd not public. Configure IPv6. Look for systemd on port 68.
 kubeadm config images pull
 kubeadm init --pod-network-cidr=10.244.0.0/16 \
-  --apiserver-advertise-address=127.0.0.1 --ignore-preflight-errors NumCPU
+  --apiserver-advertise-address=127.0.0.1
 
 mkdir -p /home/k8s/.kube
 cp -i /etc/kubernetes/admin.conf /home/k8s/.kube/config
@@ -105,13 +105,14 @@ kubectl -n kube-system describe secret admin-user| awk '$1=="token:"{print $2}'
 
 # MetalLB
 kubectl apply -f /home/k8s/k8s_resources/metallb.yml # from https://raw.githubusercontent.com/google/metallb/v0.7.3/manifests/metallb.yaml
-kubectl get pods -n metallb-system  # should all be running
 vi /home/k8s/k8s_resources/metallb_config.yml # adjust ip to your public
 kubectl apply -f /home/k8s/k8s_resources/metallb_config.yml
+kubectl get pods -n metallb-system  # should all be running
 
 # Deploy Ingress
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/mandatory.yaml
-kubectl apply -f /home/k8s/k8s_resources/ingress_using_metallb.yml
+kubectl apply -f /home/k8s/k8s_resources/ingress_using_mettallb.yml
+kubectl get all --all-namespaces #ingress-nginx   has type: LoadBalancer & external ip
 
 # apple & banana
 kubectl apply -f /home/k8s/k8s_resources/apple.yml
