@@ -17,5 +17,5 @@ spec:
     targetPort: http
   - name: https
     port: 443
-    targetPort: http
+    targetPort: https
   externalTrafficPolicy: Local

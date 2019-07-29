@@ -1,22 +1,18 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: am-https-ingress
+  name: ingress-simple
   annotations:
     certmanager.k8s.io/cluster-issuer: selfsigning-issuer
-    certmanager.k8s.io/cluster-issuer: ca-issuer
-    #certmanager.k8s.io/cluster-issuer: letsencrypt-staging
-    #certmanager.k8s.io/cluster-issuer: letsencrypt-prod
     ingress.kubernetes.io/ssl-redirect: "true"
     ingress.kubernetes.io/rewrite-target: /
-  namespace: ingress-nginx
 spec:
   tls:
   - hosts:
-    - k8stest.domaindrivenarchitecture.org
-    secretName: echo-cert
+    - the.test.host
+    secretName: my-selfsigned-cert
   rules:
-    - host: k8stest.domaindrivenarchitecture.org
+    - host: the.test.host
       http:
         paths:
           - path: /apple
@@ -27,7 +23,3 @@ spec:
             backend:
               serviceName: banana-service
               servicePort: 5678
-         # - path: /
-         #   backend:
-         #     serviceName: nexus-service
-         #     servicePort: 8081

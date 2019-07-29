@@ -117,7 +117,17 @@ kubectl get all --all-namespaces #ingress-nginx   has type: LoadBalancer & exter
 # apple & banana
 kubectl apply -f /home/k8s/k8s_resources/apple.yml
 kubectl apply -f /home/k8s/k8s_resources/banana.yml
-kubectl apply -f /home/k8s/k8s_resources/ingress_simple_http.yml
+
+# install cert-manager
+kubectl create namespace cert-manager
+kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
+## Install cert-manager itself
+kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.6/deploy/manifests/cert-manager-no-webhook.yaml
+
+kubectl apply -f /home/k8s/k8s_resources/cert_manager/selfsigned_issuer.yml
+kubectl apply -f /home/k8s/k8s_resources/selfsigning_cert.yml
+
+kubectl apply -f /home/k8s/k8s_resources/ingress_simple_https.yml
 
 # test with curl
 curl http://192.168.56.101/apple -H 'Host: the.test.host'
@@ -141,11 +151,7 @@ kubectl apply -f /home/k8s/k8s_resources/nexus/nexus.yml
 kubectl apply -f /home/k8s/k8s_resources/ingress.yml
 
 
-# install cert-manager
-kubectl create namespace cert-manager
-kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
-## Install cert-manager itself
-kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.6/deploy/manifests/cert-manager-no-webhook.yaml
+
 
 openssl genrsa -out ca.key 2048
 openssl req -x509 -new -nodes -key ca.key -subj "/CN=domaindrivenarchitecture.org" -days 3650 -reqexts v3_req -extensions v3_ca -out ca.crt
