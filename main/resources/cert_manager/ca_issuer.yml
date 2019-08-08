@@ -5,4 +5,4 @@ metadata:
   namespace: default
 spec:
   ca:
-    secretName: my-ca-key-pair
+    secretName: ca-key-pair
