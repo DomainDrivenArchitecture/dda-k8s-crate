@@ -124,6 +124,16 @@ kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
 ## Install cert-manager itself
 kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.6/deploy/manifests/cert-manager-no-webhook.yaml
 
+
+# OPTION #1: Selfsigned:
+#kubectl apply -f /home/k8s/k8s_resources/cert_manager/selfsigned_issuer.yml
+#kubectl apply -f /home/k8s/k8s_resources/selfsigning_cert.yml
+#kubectl apply -f /home/k8s/k8s_resources/ingress_simple_https.yml
+
+# OPTION #2: CA:
+openssl genrsa -out ca.key 2048
+openssl req -x509 -new -nodes -key ca.key -subj "/CN=the.test.host" -days 365 -reqexts v3_req -extensions v3_ca -out ca.crt
+
 # cert-manager with ca certificates
 # secret anlegen in namespace von cert-manager
 kubectl create secret tls ca-key-pair \
@@ -131,15 +141,12 @@ kubectl create secret tls ca-key-pair \
    --key=ca.key \
    --namespace=cert-manager # needs to be in the cert-manager
 
-kubectl apply -f /home/k8s/k8s_resources/cert_manager/ca_issuer.yml 
+kubectl apply -f /home/k8s/k8s_resources/cert_manager/ca_issuer.yml
 kubectl apply -f /home/k8s/k8s_resources/cert_ca.yml
 kubectl apply -f /home/k8s/k8s_resources/ingress_simple_https_ca.yml
 
+######### OPTIONS END #########
 
-#kubectl apply -f /home/k8s/k8s_resources/cert_manager/selfsigned_issuer.yml
-#kubectl apply -f /home/k8s/k8s_resources/selfsigning_cert.yml
-
-#kubectl apply -f /home/k8s/k8s_resources/ingress_simple_https.yml
 
 # test with curl
 curl http://192.168.56.101/apple -H 'Host: the.test.host'
@@ -161,7 +168,6 @@ kubectl apply -f /home/k8s/k8s_resources/nexus/nexus-storage.yml
 kubectl apply -f /home/k8s/k8s_resources/nexus/nexus.yml
 # ingress
 kubectl apply -f /home/k8s/k8s_resources/ingress.yml
-
 
 
 
