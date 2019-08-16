@@ -5,7 +5,7 @@ sudo nano 50-cloud-init.yaml
 
 # connect to your server
 ssh-keygen -f "$HOME/.ssh/known_hosts" -R "192.168.56.106"
-ssh `(whoami)`@192.168.56.106 -L 8001:localhost:8001
+ssh `(whoami)`@k8s.test.domaindrivenarchitecture.org -L 8001:localhost:8001
 
 #Install Kubernetes apt repo
 sudo -i
@@ -54,7 +54,7 @@ chown -R k8s:k8s /home/k8s/.kube
 
 # -------------- on your DevOps system -------------------
 # local, needs to be executed without remote part
-scp -r main/resources k8s@192.168.56.106:
+scp -r main/resources k8s@k8s.test.domaindrivenarchitecture.org:
 
 # -------------- on server -------------------
 
@@ -118,12 +118,13 @@ kubectl get all --all-namespaces #ingress-nginx   has type: LoadBalancer & exter
 kubectl apply -f /home/k8s/k8s_resources/apple.yml
 kubectl apply -f /home/k8s/k8s_resources/banana.yml
 
+kubectl apply -f /home/k8s/k8s_resources/ingress_simple_https.yml
+
 # install cert-manager
 kubectl create namespace cert-manager
 kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
-## Install cert-manager itself
-kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.6/deploy/manifests/cert-manager-no-webhook.yaml
-
+## Install cert-manager itself (install new version 0.9.1)
+kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v0.9.1/cert-manager.yaml        
 
 # OPTION #1: Selfsigned:
 #kubectl apply -f /home/k8s/k8s_resources/cert_manager/selfsigned_issuer.yml
@@ -132,14 +133,14 @@ kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release
 
 # OPTION #2: CA:
 openssl genrsa -out ca.key 2048
-openssl req -x509 -new -nodes -key ca.key -subj "/CN=the.test.host" -days 365 -reqexts v3_req -extensions v3_ca -out ca.crt
+openssl req -x509 -new -nodes -key ca.key -subj "/CN=k8s.test.domaindrivenarchitecture.org" -days 365 -reqexts v3_req -extensions v3_ca -out ca.crt
 
 # cert-manager with ca certificates
 # secret anlegen in namespace von cert-manager
 kubectl create secret tls ca-key-pair \
    --cert=ca.crt \
    --key=ca.key \
-   --namespace=cert-manager # needs to be in the cert-manager
+   --namespace=default # needs to be in the same namespace as cert-manager (not sure if this still applies for clusterIssuer)
 
 kubectl apply -f /home/k8s/k8s_resources/cert_manager/ca_issuer.yml
 kubectl apply -f /home/k8s/k8s_resources/cert_ca.yml

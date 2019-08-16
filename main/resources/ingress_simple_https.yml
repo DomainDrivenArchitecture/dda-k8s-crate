@@ -9,10 +9,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - the.test.host
+    - k8s.test.domaindrivenarchitecture.org
     secretName: my-selfsigned-cert
   rules:
-    - host: the.test.host
+    - host: k8s.test.domaindrivenarchitecture.org
       http:
         paths:
           - path: /apple
