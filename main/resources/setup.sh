@@ -140,7 +140,7 @@ openssl req -x509 -new -nodes -key ca.key -subj "/CN=k8s.test.domaindrivenarchit
 kubectl create secret tls my-ca-key-pair \
    --cert=ca.crt \
    --key=ca.key \
-   --namespace=default # needs to be in the same namespace as cert-manager (not sure if this still applies for clusterIssuer)
+   --namespace=cert-manager # If using ClusterIssuer, the secret definitly needs to be in the namespace of the cert-manager controller pod
 
 kubectl apply -f /home/k8s/k8s_resources/cert_manager/ca_issuer.yml
 kubectl apply -f /home/k8s/k8s_resources/cert_ca.yml
@@ -151,6 +151,9 @@ kubectl apply -f /home/k8s/k8s_resources/ingress_simple_https_ca.yml
 
 # test with curl
 curl http://192.168.56.101/apple -H 'Host: the.test.host'
+# print certificate used with:
+curl --insecure -v https://10.0.2.12/apple -H 'Host: k8s.test.domaindrivenarchitecture.org' 2>&1 | awk 'BEGIN { cert=0 } /^\* SSL connection/ { cert=1 } /^\*/ { if (cert) print }'
+
 
 ####### shelved stuff ###########
 
