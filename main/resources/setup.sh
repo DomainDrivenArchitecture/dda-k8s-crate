@@ -137,7 +137,7 @@ openssl req -x509 -new -nodes -key ca.key -subj "/CN=k8s.test.domaindrivenarchit
 
 # cert-manager with ca certificates
 # secret anlegen in namespace von cert-manager
-kubectl create secret tls ca-key-pair \
+kubectl create secret tls my-ca-key-pair \
    --cert=ca.crt \
    --key=ca.key \
    --namespace=default # needs to be in the same namespace as cert-manager (not sure if this still applies for clusterIssuer)

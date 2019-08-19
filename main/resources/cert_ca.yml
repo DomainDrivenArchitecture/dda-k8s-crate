@@ -4,7 +4,7 @@ metadata:
   name: test-domaindrivenarchitecture-org-ca
   namespace: default
 spec:
-  secretName: ca-key-pair
+  secretName: my-ca-key-pair
   issuerRef:
     name: ca-issuer
     # We can reference ClusterIssuers by changing the kind here.
