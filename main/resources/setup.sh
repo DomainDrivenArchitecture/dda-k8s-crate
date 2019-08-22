@@ -60,8 +60,8 @@ su k8s
 cd
 whoami # k8s !
 
-rm -rf k8s_resources
-mv resources k8s_resources
+rm -rf /home/k8s/k8s_resources
+mv /home/k8s/resources /home/k8s/k8s_resources
 
 # clean up k8s setup
 rm ca*
@@ -138,15 +138,10 @@ kubectl apply -f /home/k8s/k8s_resources/cert_manager/ca_issuer.yml
 kubectl apply -f /home/k8s/k8s_resources/apple_banana/ingress_simple_ca_https.yml
 # curl https://k8s-ca.test.domaindrivenarchitecture.org/apple
 
-# OPTION #1: Selfsigned:
-#
-#kubectl apply -f /home/k8s/k8s_resources/selfsigning_cert.yml
-#kubectl apply -f /home/k8s/k8s_resources/ingress_simple_https.yml
 
-# OPTION #2: CA:
-#
-# cert-manager with ca certificates
-# secret anlegen in namespace von cert-manager
+kubectl apply -f /home/k8s/k8s_resources/cert_manager/letsencrypt_staging_issuer.yml
+kubectl apply -f /home/k8s/k8s_resources/apple_banana/ingress_simple_le_staging_https.yml
+# curl https://k8s-le-staging.test.domaindrivenarchitecture.org/apple
 
 
 
