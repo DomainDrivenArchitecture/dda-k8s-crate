@@ -146,59 +146,17 @@ kubectl apply -f /home/k8s/k8s_resources/cert_manager/letsencrypt_prod_issuer.ym
 kubectl apply -f /home/k8s/k8s_resources/apple_banana/ingress_simple_le_prod_https.yml
 # curl https://k8s-le-prod.test.domaindrivenarchitecture.org/apple
 
-
+# nexus, takes a few minutes to start
+sudo mkdir /mnt/data
+sudo chown -R k8s:k8s /mnt/data
+sudo chmod -R 700 /mnt/data
+kubectl apply -f /home/k8s/k8s_resources/nexus/nexus-storage.yml
+kubectl apply -f /home/k8s/k8s_resources/nexus/nexus.yml
+kubectl apply -f /home/k8s/k8s_resources/nexus/ingress_nexus_https.yml
+# curl https://k8s-nexus.test.domaindrivenarchitecture.org/
+# cat /mnt/data/admin.password
 
 ######### OPTIONS END #########
 
-
-# test with curl
-curl http://192.168.56.101/apple -H 'Host: the.test.host'
-# print certificate used with:
-curl --insecure -v https://10.0.2.12/apple -H 'Host: k8s.test.domaindrivenarchitecture.org' 2>&1 | awk 'BEGIN { cert=0 } /^\* SSL connection/ { cert=1 } /^\*/ { if (cert) print }'
-
-
-####### shelved stuff ###########
-
-
-
-kubectl create namespace ingress-nginx
-kubectl apply --kustomize /home/k8s/k8s_resources/
-
-
-#microk8s.enable dns storage metrics-server
-
-# nexus, takes a few minutes to start
-sudo mkdir /mnt/data
-sudo chmod -R 777 /mnt/data
-kubectl apply -f /home/k8s/k8s_resources/nexus/nexus-storage.yml
-kubectl apply -f /home/k8s/k8s_resources/nexus/nexus.yml
-# ingress
-kubectl apply -f /home/k8s/k8s_resources/ingress.yml
-
-
-
-openssl genrsa -out ca.key 2048
-openssl req -x509 -new -nodes -key ca.key -subj "/CN=domaindrivenarchitecture.org" -days 3650 -reqexts v3_req -extensions v3_ca -out ca.crt
-
-#kubectl create secret generic ca-key-pair \
-#  --from-file=tls.key=./ca.key \
-#  --from-file=tls.crt=./ca.crt \
-#  --namespace=default
-kubectl create secret tls my-ca-key-pair \
-   --cert=ca.crt \
-   --key=ca.key \
-   --namespace=cert-manager
-
-kubectl apply -f /home/k8s/k8s_resources/cert_manager/ca_issuer.yml
-kubectl apply -f /home/k8s/k8s_resources/cert_manager/selfsigned_issuer.yml
-kubectl apply -f /home/k8s/k8s_resources/cert_manager/letsencrypt_staging_issuer.yml
-kubectl apply -f /home/k8s/k8s_resources/cert_manager/letsencrypt_prod_issuer.yml
-
 # debug
 # kubectl run my-shell --rm -i --tty --image nicolaka/netshoot -- bash
-
-
-# Insepct echo app at:
-#     https://[192.168.56.105]/apple
-#     https://k8stest.domaindrivenarchitecture.org/apple
-#     https://k8stest.domaindrivenarchitecture.org/banana
