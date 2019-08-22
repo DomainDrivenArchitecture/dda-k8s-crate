@@ -65,19 +65,19 @@ mv resources k8s_resources
 
 # clean up k8s setup
 rm ca*
-kubectl delete namespace ingress-nginx
-kubectl delete namespace cert-manager
-kubectl delete secret my-ca-key-pair echo-cert
-kubectl delete clusterrole cert-manager cert-manager-edit cert-manager-view
-kubectl delete -f /home/k8s/k8s_resources/cert_manager/ca_issuer.yml
-kubectl delete -f /home/k8s/k8s_resources/cert_manager/selfsigned_issuer.yml
-kubectl delete -f /home/k8s/k8s_resources/cert_manager/letsencrypt_staging_issuer.yml
-kubectl delete -f /home/k8s/k8s_resources/cert_manager/letsencrypt_prod_issuer.yml
-kubectl delete -f /home/k8s/k8s_resources/kustomization.yml
-kubectl delete -f /home/k8s/k8s_resources/ingress.yml
-kubectl delete -f /home/k8s/k8s_resources/apple.yml
-kubectl delete -f /home/k8s/k8s_resources/banana.yml
-kubectl delete -f /home/k8s/k8s_resources/nexus/nexus.yml
+#kubectl delete namespace ingress-nginx
+#kubectl delete namespace cert-manager
+#kubectl delete secret my-ca-key-pair echo-cert
+#kubectl delete clusterrole cert-manager cert-manager-edit cert-manager-view
+#kubectl delete -f /home/k8s/k8s_resources/cert_manager/ca_issuer.yml
+#kubectl delete -f /home/k8s/k8s_resources/cert_manager/selfsigned_issuer.yml
+#kubectl delete -f /home/k8s/k8s_resources/cert_manager/letsencrypt_staging_issuer.yml
+#kubectl delete -f /home/k8s/k8s_resources/cert_manager/letsencrypt_prod_issuer.yml
+#kubectl delete -f /home/k8s/k8s_resources/kustomization.yml
+#kubectl delete -f /home/k8s/k8s_resources/ingress.yml
+#kubectl delete -f /home/k8s/k8s_resources/apple.yml
+#kubectl delete -f /home/k8s/k8s_resources/banana.yml
+#kubectl delete -f /home/k8s/k8s_resources/nexus/nexus.yml
 
 #Flannel provides a software defined network (SDN) using the Linux kernel's overlay and ipvlan modules.
 #Apply your pod network (flannel)
@@ -126,33 +126,28 @@ kubectl apply -f /home/k8s/k8s_resources/cert_manager/selfsigned_issuer.yml
 kubectl apply -f /home/k8s/k8s_resources/apple_banana/ingress_simple_selfsigned_https.yml
 # curl https://k8s-selfsigned.test.domaindrivenarchitecture.org/apple
 
+openssl genrsa -out ca.key 2048
+openssl req -x509 -new -nodes -key ca.key -subj "/CN=test.domaindrivenarchitecture.org" \
+  -days 365 -reqexts v3_req -extensions v3_ca -out ca.crt
+kubectl create secret tls test-domaindrivenarchitecture-org-ca-key-pair \
+   --cert=ca.crt \
+   --key=ca.key \
+   --namespace=cert-manager # If using ClusterIssuer, the secret definitly needs to be in the namespace of the cert-manager controller pod
+kubectl apply -f /home/k8s/k8s_resources/cert_manager/ca_cert.yml
+kubectl apply -f /home/k8s/k8s_resources/cert_manager/ca_issuer.yml
 kubectl apply -f /home/k8s/k8s_resources/apple_banana/ingress_simple_ca_https.yml
+# curl https://k8s-ca.test.domaindrivenarchitecture.org/apple
 
 # OPTION #1: Selfsigned:
-#kubectl apply -f /home/k8s/k8s_resources/cert_manager/selfsigned_issuer.yml
+#
 #kubectl apply -f /home/k8s/k8s_resources/selfsigning_cert.yml
 #kubectl apply -f /home/k8s/k8s_resources/ingress_simple_https.yml
 
 # OPTION #2: CA:
-openssl genrsa -out ca.key 2048
-openssl req -x509 -new -nodes -key ca.key -subj "/CN=k8s.test.domaindrivenarchitecture.org" -days 365 -reqexts v3_req -extensions v3_ca -out ca.crt
-
+#
 # cert-manager with ca certificates
 # secret anlegen in namespace von cert-manager
-kubectl create secret tls my-ca-key-pair \
-   --cert=ca.crt \
-   --key=ca.key \
-   --namespace=cert-manager # If using ClusterIssuer, the secret definitly needs to be in the namespace of the cert-manager controller pod
 
-kubectl apply -f /home/k8s/k8s_resources/cert_manager/ca_issuer.yml
-kubectl apply -f /home/k8s/k8s_resources/cert_ca.yml
-kubectl apply -f /home/k8s/k8s_resources/ingress_simple_https_ca.yml
-
-# apple & banana
-kubectl apply -f /home/k8s/k8s_resources/apple.yml
-kubectl apply -f /home/k8s/k8s_resources/banana.yml
-#kubectl apply -f /home/k8s/k8s_resources/ingress_simple_http.yml
-kubectl apply -f /home/k8s/k8s_resources/ingress_simple_https.yml
 
 
 ######### OPTIONS END #########

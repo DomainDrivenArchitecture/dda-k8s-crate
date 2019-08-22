@@ -4,14 +4,14 @@ metadata:
   name: test-domaindrivenarchitecture-org-ca
   namespace: default
 spec:
-  secretName: my-ca-key-pair
+  secretName: test-domaindrivenarchitecture-org-ca-key-pair
   issuerRef:
     name: ca-issuer
     # We can reference ClusterIssuers by changing the kind here.
     # The default value is Issuer (i.e. a locally namespaced Issuer)
     kind: ClusterIssuer
-  commonName: k8s.test.domaindrivenarchitecture.org
+  commonName: test.domaindrivenarchitecture.org
   organization:
-  - Example CA
+  - meissa GmbH
   dnsNames:
-  - k8s.test.domaindrivenarchitecture.org
+  - test.domaindrivenarchitecture.org
