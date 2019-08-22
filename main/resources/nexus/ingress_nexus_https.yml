@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-nexus
+  annotations:
+    certmanager.k8s.io/cluster-issuer: letsencrypt-prod-issuer
+    ingress.kubernetes.io/ssl-redirect: "true"
+    ingress.kubernetes.io/rewrite-target: /
+  namespace: default
+spec:
+  tls:
+  - hosts:
+    - k8s-nexus.test.domaindrivenarchitecture.org
+    secretName: k8s-nexus-test-domaindrivenarchitecture-org
+  rules:
+    - host: k8s-nexus.test.domaindrivenarchitecture.org
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: nexus-service
+              servicePort: 8081

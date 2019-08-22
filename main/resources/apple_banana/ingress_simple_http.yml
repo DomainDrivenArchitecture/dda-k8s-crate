@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-simple-http
+spec:
+  rules:
+    - host: k8s.test.domaindrivenarchitecture.org
+      http:
+        paths:
+          - path: /apple
+            backend:
+              serviceName: apple-service
+              servicePort: 5678
+          - path: /banana
+            backend:
+              serviceName: banana-service
+              servicePort: 5678
