@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: ingress-simple-ca
+  name: ingress-simple-ca-https
   annotations:
     certmanager.k8s.io/cluster-issuer: ca-issuer
     ingress.kubernetes.io/ssl-redirect: "true"
@@ -9,10 +9,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - k8s.test.domaindrivenarchitecture.org
-    secretName: test-domaindrivenarchitecture-org-ca
+    - k8s-ca.test.domaindrivenarchitecture.org
+    secretName: k8s-ca-test-domaindrivenarchitecture-org-ca
   rules:
-    - host: k8s.test.domaindrivenarchitecture.org
+    - host: k8s-ca.test.domaindrivenarchitecture.org
       http:
         paths:
           - path: /apple

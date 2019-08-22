@@ -4,7 +4,7 @@ sudo nano 50-cloud-init.yaml
 # Under ethernets: enp0s8: dhcp4: true
 
 # connect to your server
-ssh-keygen -f "$HOME/.ssh/known_hosts" -R "192.168.56.106"
+ssh-keygen -f "$HOME/.ssh/known_hosts" -R "k8s.test.domaindrivenarchitecture.org"
 ssh `(whoami)`@k8s.test.domaindrivenarchitecture.org -L 8001:localhost:8001
 
 #Install Kubernetes apt repo
@@ -32,10 +32,6 @@ sed -i '/swap/d' /etc/fstab
 # bash completion
 kubectl completion bash >> /etc/bash_completion.d/kubernetes
 
-# TODO
-#[preflight] Running pre-flight checks
-#	[WARNING IsDockerSystemdCheck]: detected "cgroupfs" as the Docker cgroup driver. The recommended driver is "systemd". Please follow the guide at https://kubernetes.io/docs/setup/cri/
-
 #Configure an unprivileged user-account
 useradd k8s -G sudo -m -s /bin/bash
 passwd k8s
@@ -60,8 +56,9 @@ scp -r main/resources k8s@k8s.test.domaindrivenarchitecture.org:
 
 #Configure environmental variables as the new user
 su k8s
+
 cd
-whoami
+whoami # k8s !
 
 rm -rf k8s_resources
 mv resources k8s_resources
@@ -100,8 +97,8 @@ kubectl apply -f /home/k8s/k8s_resources/admin_user.yml
 # dashboard
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yaml
 kubectl proxy &
-kubectl -n kube-system describe secret admin-user| awk '$1=="token:"{print $2}'
 # http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy
+kubectl -n kube-system describe secret admin-user| awk '$1=="token:"{print $2}'
 
 # MetalLB
 kubectl apply -f /home/k8s/k8s_resources/metallb.yml # from https://raw.githubusercontent.com/google/metallb/v0.7.3/manifests/metallb.yaml
@@ -114,17 +111,22 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/mast
 kubectl apply -f /home/k8s/k8s_resources/ingress_using_mettallb.yml
 kubectl get all --all-namespaces #ingress-nginx   has type: LoadBalancer & external ip
 
-# apple & banana
-kubectl apply -f /home/k8s/k8s_resources/apple.yml
-kubectl apply -f /home/k8s/k8s_resources/banana.yml
-
-kubectl apply -f /home/k8s/k8s_resources/ingress_simple_https.yml
-
 # install cert-manager
 kubectl create namespace cert-manager
 kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
-## Install cert-manager itself (install new version 0.9.1)
 kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v0.9.1/cert-manager.yaml        
+
+# apple & banana
+kubectl apply -f /home/k8s/k8s_resources/apple_banana/apple.yml
+kubectl apply -f /home/k8s/k8s_resources/apple_banana/banana.yml
+kubectl apply -f /home/k8s/k8s_resources/apple_banana/ingress_simple_http.yml
+# curl http://k8s.test.domaindrivenarchitecture.org/apple
+
+kubectl apply -f /home/k8s/k8s_resources/cert_manager/selfsigned_issuer.yml
+kubectl apply -f /home/k8s/k8s_resources/apple_banana/ingress_simple_selfsigned_https.yml
+# curl https://k8s-selfsigned.test.domaindrivenarchitecture.org/apple
+
+kubectl apply -f /home/k8s/k8s_resources/apple_banana/ingress_simple_ca_https.yml
 
 # OPTION #1: Selfsigned:
 #kubectl apply -f /home/k8s/k8s_resources/cert_manager/selfsigned_issuer.yml
@@ -145,6 +147,13 @@ kubectl create secret tls my-ca-key-pair \
 kubectl apply -f /home/k8s/k8s_resources/cert_manager/ca_issuer.yml
 kubectl apply -f /home/k8s/k8s_resources/cert_ca.yml
 kubectl apply -f /home/k8s/k8s_resources/ingress_simple_https_ca.yml
+
+# apple & banana
+kubectl apply -f /home/k8s/k8s_resources/apple.yml
+kubectl apply -f /home/k8s/k8s_resources/banana.yml
+#kubectl apply -f /home/k8s/k8s_resources/ingress_simple_http.yml
+kubectl apply -f /home/k8s/k8s_resources/ingress_simple_https.yml
+
 
 ######### OPTIONS END #########
 

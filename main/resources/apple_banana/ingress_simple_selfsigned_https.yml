@@ -1,0 +1,25 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-simple-selfsigned-https
+  annotations:
+    certmanager.k8s.io/cluster-issuer: selfsigning-issuer
+    ingress.kubernetes.io/ssl-redirect: "true"
+    ingress.kubernetes.io/rewrite-target: /
+spec:
+  tls:
+  - hosts:
+    - k8s-selfsigned.test.domaindrivenarchitecture.org
+    secretName: k8s-selfsigned-test-domaindrivenarchitecture-org
+  rules:
+    - host: k8s-selfsigned.test.domaindrivenarchitecture.org
+      http:
+        paths:
+          - path: /apple
+            backend:
+              serviceName: apple-service
+              servicePort: 5678
+          - path: /banana
+            backend:
+              serviceName: banana-service
+              servicePort: 5678

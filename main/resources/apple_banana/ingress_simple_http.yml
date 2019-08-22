@@ -1,16 +1,8 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: ingress-simple
-  annotations:
-    certmanager.k8s.io/cluster-issuer: selfsigning-issuer
-    ingress.kubernetes.io/ssl-redirect: "true"
-    ingress.kubernetes.io/rewrite-target: /
+  name: ingress-simple-http
 spec:
-  tls:
-  - hosts:
-    - k8s.test.domaindrivenarchitecture.org
-    secretName: my-selfsigned-cert
   rules:
     - host: k8s.test.domaindrivenarchitecture.org
       http:
