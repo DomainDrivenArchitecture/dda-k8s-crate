@@ -149,7 +149,7 @@ kubectl apply -f /home/k8s/k8s_resources/apple_banana/ingress_simple_le_prod_htt
 # nexus, takes a few minutes to start
 sudo mkdir /mnt/data
 sudo chown -R k8s:k8s /mnt/data
-sudo chmod -R 700 /mnt/data
+sudo chmod -R 777 /mnt/data
 kubectl apply -f /home/k8s/k8s_resources/nexus/nexus-storage.yml
 kubectl apply -f /home/k8s/k8s_resources/nexus/nexus.yml
 kubectl apply -f /home/k8s/k8s_resources/nexus/ingress_nexus_https.yml
