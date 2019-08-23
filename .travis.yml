@@ -1,37 +1,32 @@
 dist: trusty
 language: clojure
 
-cache:
-  directories:
-  - $HOME/.m2
-
 services:
   - docker
 
 stages:
-  - build
-  - integrationtest
+  - test
 
-jobs:
-  include:
-    - stage: build
+- stage: test
       script:
-        - # build
-        - lein eastwood
         - lein test
         - lein uberjar
         - md5sum target/uberjar/dda-k8s-standalone.jar > target/uberjar/dda-k8s-standalone.jar.md5
+        - sha256sum target/uberjar/dda-k8s-standalone.jar > target/uberjar/dda-k8s-standalone.jar.sha256
+        - sha512sum target/uberjar/dda-k8s-standalone.jar > target/uberjar/dda-k8s-standalone.jar.sha512
         - # create docker image
         - docker build -t dda-k8s-crate --file integration/docker/image/Dockerfile .
-        - # integration test on docker image level
-        - docker build -t dda-k8s-crate-test --file integration/docker/test/Dockerfile .
+        - docker build -t dda-k8s-crate --file integration/docker/test/Dockerfile .
       deploy:
         - provider: releases
           skip_cleanup: true
           on:
             tags: true
+          overwrite: true
           api_key:
-            secure: "PytWrT6c/R49peVfQkiHHgDH3zUVENDcIHQ7L42TRlvETKHcc5zA2krtN6EbGAnhNe0KMl+YdZQpPJyAQJH1sd9n+c1XVytwnbdQ/j9CACB8j8X/i9D6OBBMLaVod4N9OO6rs415UFnfQw87XTorcKJamAunEIQgYFgxWvbJS/PCiP2E7H/o28fdIt3uTFKaVhab6FS1PG87Pnfxniowgn8S4BisyE86REnR4kodQraD4ApkD3AXmKfsvJ7QY48PSboF+AdoIXo4p8m4TFQhQUOwMYG0+m31qv/S8PAWPAPFalqDJPR204X1jImo9xe2IpnprMgNUEit/jH+Q22ts3ZsCFPSU0knlFe6ecaplV9+0958uhcR4XXBFWDWj1/ynMisXtsufGtkvPDup3a5wKItuv21T/lMiK9zZZNtwsCmcqhvbM3oNvrEO6DueeBukKICijcJIMEIOk1mlcdsscC45AcK2kcvdtCAuVx9HToKomoaQUfcNOAP8S2o69RQmytMKplVD+vCKHdepc2P9jg9ksQ3S5bgwaZMqg8zWUGOMnW49Nw0BotAOp3Y1AKAi/gAj4/1fNbkWR8YFnfHDgexbt0T2tJG+YLOzaDY0/YcPJvNoVSHaJ8vpFYVmoXPka9M5ztdFoRnMeUFPMTmLj38Cd1Ht76J1ueK11Qzk3Y="
+            secure: "I5pLTX6r21Tv80suzjzK0E4+5FVHQ9da2MpH/NN+vpUTb1OXSlOhxMnkgaANPbKOAitVKBOt5+nsy/y29ac0YOmEMnLpdTOsra/azPyO4yVMdW3fkeCbgxkMpgRS/NOrALDs84x45zZ1uYBPZ5gez/OQoM1YIXBz2rRY/c5hrMS0AIlILmDdceFcFakHf/BveLg1ue404MQy6mpHpcnNOPB9orVTMb31qTwlF02427YIDEIN04uVHL9KzOSNUsAcEn3z/iebcUnFrr2KT3BbPe+jGHnnK5wc7/p74mxm2q1dzuuDPsr+Oe7MH8/tQm4l3J758zMAn/uMZOuqIS/DVlCkHA+Qk0ktjn5JYkhlhYPq1rlgl2mF/91+enJGq/Z1d5pFmloTG5mKL499u4/Eyd+yp/PetRczT0O6V/AKPuVaplmY2CdZKtjVgJ5D5MIUrf63ACtWAFGei9q4rIhKRMqDloPbgY+Q3DISMCoYO9K80tUjoTgBCyMaWjLlIwQDAPsA5i3s6D3f61tFvLRbb+fCi12f8W6+lXbd2+je1MkaQbNgK6EuDkIi+jky6/S43DBTJkAIbF2EpaG4tXVDmxO79z1U5xDBW1nGRDzq4J1yUq5G28JEzh6OHPA7LDKIc6WjMEqK5ZEO/qLOlpf8mpAJe/h8sWw5K4NGHLhtrDs="
           file:
             - target/uberjar/dda-k8s-standalone.jar
             - target/uberjar/dda-k8s-standalone.jar.md5
+            - target/uberjar/dda-k8s-standalone.jar.sha256
+            - target/uberjar/dda-k8s-standalone.jar.sha512

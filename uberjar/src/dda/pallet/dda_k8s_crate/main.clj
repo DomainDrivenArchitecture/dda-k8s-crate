@@ -20,7 +20,7 @@
   (:require
     [clojure.string :as str]
     [clojure.tools.cli :as cli]
-    [dda.config.commons.styled-output :as styled]
+    [dda.pallet.core.main-helper :as mh]
     [dda.pallet.core.app :as core-app]
     [dda.pallet.dda-k8s-crate.app :as app]))
 
@@ -47,34 +47,29 @@
     "  - has to be a valid k8sDomainConfig (see: https://github.com/DomainDrivenArchitecture/dda-k8s-crate)"
     ""]))
 
-(defn error-msg [errors]
-  (str "The following errors occurred while parsing your command:\n\n"
-       (str/join \newline errors)))
-
-(defn exit [status msg]
-  (println msg)
-  (System/exit status))
-
 (defn -main [& args]
   (let [{:keys [options arguments errors summary help]} (cli/parse-opts args cli-options)
         verbose (if (contains? options :verbose) 1 0)]
     (cond
-      help (exit 0 (usage summary))
-      errors (exit 1 (error-msg errors))
-      (not= (count arguments) 1) (exit 1 (usage summary))
+      help (mh/exit 0 (usage summary))
+      errors (mh/exit 1 (mh/error-msg errors))
+      (not= (count arguments) 1) (mh/exit 1 (usage summary))
       (:serverspec options) (if (core-app/existing-serverspec
-                                  app/crate-app
-                                  {:domain (first arguments)
-                                   :targets (:targets options)
-                                   :verbosity verbose})
-                                (exit 0 (styled/styled "ALL TESTS PASSED" :green))
-                                (exit 2 (styled/styled "SOME TESTS FAILED" :red)))
-
-      (:configure options) (core-app/existing-configure
-                             app/crate-app
-                             {:domain (first arguments)
-                              :targets (:targets options)})
-      :default (core-app/existing-install
-                 app/crate-app
-                 {:domain (first arguments)
-                  :targets (:targets options)}))))
+                                 app/crate-app
+                                 {:domain (first arguments)
+                                  :targets (:targets options)
+                                  :verbosity verbose})
+                              (mh/exit-test-passed)
+                              (mh/exit-test-failed))
+      (:configure options) (if (core-app/existing-configure
+                                app/crate-app
+                                {:domain (first arguments)
+                                 :targets (:targets options)})
+                             (mh/exit-default-success)
+                             (mh/exit-default-error))
+      :default (if (core-app/existing-install
+                    app/crate-app
+                    {:domain (first arguments)
+                     :targets (:targets options)})
+                 (mh/exit-default-success)
+                 (mh/exit-default-error)))))
