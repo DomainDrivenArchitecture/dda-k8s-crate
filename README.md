@@ -52,6 +52,11 @@ The self-signed issuer does not require a secret or certificate config file. For
 
 The nexus repository manager is the first application we deploy on the Kubernetes cluster. It uses the lestsencrypt-prod-issuer and requires an ingress config file on its own. In addition to the ingress config file a nexus-storage.yml and nexus.yml config file are necessary. The storage is of kind PersistenVolume and differentiates the storage and actualy application of nexus in two seperate Pods. 
 
+### Dashboard
+
+The dashboard allows for debugging and overview of the Kubernetes cluster and should later also provide networking. To secure the dasboard, an ssh proxy is required and the dashboard can then be accessed via a http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy in the browser.
+
+
 
 ## compatability
 dda-pallet is compatible to the following versions
