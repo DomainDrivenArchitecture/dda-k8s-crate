@@ -1,5 +1,5 @@
-(defproject dda/dda-smeagol-crate "0.1.0-SNAPSHOT"
-  :description "Module for installing a server with microk8s"
+(defproject dda/dda-k8s-crate "0.1.0-SNAPSHOT"
+  :description "Module for installing a server with kubeadm"
   :url "https://domaindrivenarchitecture.org"
   :license {:name "Apache License, Version 2.0"
             :url "https://www.apache.org/licenses/LICENSE-2.0.html"}

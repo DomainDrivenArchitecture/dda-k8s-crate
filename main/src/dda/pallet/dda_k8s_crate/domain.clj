@@ -15,13 +15,13 @@
 ; limitations under the License.
 (ns dda.pallet.dda-k8s-crate.domain
   (:require
-    [schema.core :as s]
-    [dda.pallet.commons.secret :as secret]
-    [dda.pallet.dda-k8s-crate.domain.k8s :as k8s]
-    [dda.pallet.dda-k8s-crate.domain.git :as git]
-    [dda.pallet.dda-k8s-crate.domain.user :as user]
-    [dda.pallet.dda-k8s-crate.domain.httpd :as httpd]
-    [dda.pallet.dda-k8s-crate.infra :as infra]))
+   [schema.core :as s]
+   [dda.pallet.commons.secret :as secret]
+   [dda.pallet.dda-k8s-crate.infra.kubectl :as kubectl]
+   [dda.pallet.dda-k8s-crate.infra :as infra]
+   [clojure.java.io :as io]
+   [dda.pallet.dda-k8s-crate.domain.templating :as templating]
+   [selmer.parser :as selmer]))
 
 (def k8sDomain
   {})
@@ -34,5 +34,33 @@
   infra-configuration
   [domain-config :- k8sDomainResolved]
   (let [{:keys []} domain-config]
-    (k8s/k8s-infra-configuration
-     infra/facility)))
+    (infra/facility)))
+
+; Print all yml files, iterate over them and replace with selmer and create 
+; mapping between filename and string in sequence
+
+(defn list-files-in-dir
+  "Lists all the filenames found in a directory"
+  [path-to-dir]
+  (file-seq
+   (clojure.java.io/file "/home/krj/repo/dda-pallet/dda-k8s-crate/main/resources")))
+
+(defn test
+  ; Filters all files without extension
+  []
+  (for [file-name (filter #(.isFile %) (list-files-in-dir "bla"))]
+    (print (keyword (apply str (drop-last 4 (.getName file-name)))))))
+
+(defn create-map-with-path-content-mapping-helper
+  [map]
+  (for [file-name (filter #(.isFile %) (list-files-in-dir "bla"))]
+    (assoc (keyword (apply str (drop-last 4 (.getName file-name)))))))
+
+(defn create-map-with-path-content-mapping
+  []
+  (create-map-with-path-content-mapping-helper {}))
+
+  ;(selmer/render-file
+   ;(.getAbsolutePath file-name)
+   ;(get templating/template-associate-map
+    ;    (keyword (apply str (drop-last 4 (.getName file-name))))))

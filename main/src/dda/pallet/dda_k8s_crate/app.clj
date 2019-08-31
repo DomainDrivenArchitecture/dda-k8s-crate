@@ -16,18 +16,18 @@
 
 (ns dda.pallet.dda-k8s-crate.app
   (:require
-    [schema.core :as s]
-    [dda.pallet.commons.secret :as secret]
-    [dda.config.commons.map-utils :as mu]
-    [dda.pallet.core.app :as core-app]
-    [dda.pallet.dda-config-crate.infra :as config-crate]
-    [dda.pallet.dda-serverspec-crate.app :as serverspec]
-    [dda.pallet.dda-user-crate.app :as user]
-    [dda.pallet.dda-git-crate.app :as git]
-    [dda.pallet.dda-httpd-crate.app :as httpd]
-    [dda.pallet.dda-config-crate.infra :as config-crate]
-    [dda.pallet.dda-k8s-crate.infra :as infra]
-    [dda.pallet.dda-k8s-crate.domain :as domain]))
+   [schema.core :as s]
+   [dda.pallet.commons.secret :as secret]
+   [dda.config.commons.map-utils :as mu]
+   [dda.pallet.core.app :as core-app]
+   [dda.pallet.dda-config-crate.infra :as config-crate]
+   [dda.pallet.dda-serverspec-crate.app :as serverspec]
+   [dda.pallet.dda-user-crate.app :as user]
+   [dda.pallet.dda-git-crate.app :as git]
+   [dda.pallet.dda-httpd-crate.app :as httpd]
+   [dda.pallet.dda-config-crate.infra :as config-crate]
+   [dda.pallet.dda-k8s-crate.infra :as infra]
+   [dda.pallet.dda-k8s-crate.domain :as domain]))
 
 (def with-k8s infra/with-k8s)
 
@@ -39,7 +39,7 @@
 (def k8sAppConfig
   {:group-specific-config
    {s/Keyword (merge
-                InfraResult)}})
+               InfraResult)}})
 
 (s/defn ^:always-validate
   app-configuration-resolved :- k8sAppConfig
@@ -47,9 +47,9 @@
    & options]
   (let [{:keys [group-key] :or {group-key infra/facility}} options]
     (mu/deep-merge
-      {:group-specific-config
-       {group-key
-        (domain/infra-configuration resolved-domain-config)}})))
+     {:group-specific-config
+      {group-key
+       (domain/infra-configuration resolved-domain-config)}})))
 
 (s/defn ^:always-validate
   app-configuration :- k8sAppConfig
@@ -64,11 +64,11 @@
    domain-config :- k8sDomainResolved]
   (let [app-config (app-configuration-resolved domain-config)]
     (core-app/pallet-group-spec
-      app-config [(config-crate/with-config app-config)
-                  with-k8s])))
+     app-config [(config-crate/with-config app-config)
+                 with-k8s])))
 
 (def crate-app (core-app/make-dda-crate-app
-                 :facility infra/facility
-                 :domain-schema k8sDomain
-                 :domain-schema-resolved k8sDomainResolved
-                 :default-domain-file "k8s.edn"))
+                :facility infra/facility
+                :domain-schema k8sDomain
+                :domain-schema-resolved k8sDomainResolved
+                :default-domain-file "k8s.edn"))

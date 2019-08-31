@@ -16,44 +16,35 @@
 
 (ns dda.pallet.dda-k8s-crate.infra
   (:require
-    [schema.core :as s]
-    [clojure.tools.logging :as logging]
-    [pallet.actions :as actions]
-    [dda.pallet.core.infra :as core-infra]
-    [dda.pallet.dda-k8s-crate.infra.k8s :as k8s]))
+   [schema.core :as s]
+   [clojure.tools.logging :as logging]
+   [pallet.actions :as actions]
+   [dda.pallet.core.infra :as core-infra]
+   [selmer.parser :as selmer]
+   [dda.pallet.dda-k8s-crate.infra.kubectl :as kubectl]))
 
 (def facility :dda-k8s)
 
-(def k8sInfra k8s/k8sInfra)
+; the infra config
+(s/def k8sInfra
+  ;TODO: I think we have somewhere a shema excactly for IPs
+  {:external-ip s/Str})
 
-(defn- install-microk8s
+(selmer/render-file "metallb_config.yml" {:external-ip "test"})
+
+(defn- install-k8s
   [facility]
   (actions/as-action
-   (logging/info (str facility "-install system: microk8s"))))
-  ; # TODO: Install App-ServiceAccount for app
-  ;
-  ; # inspect namespaces & dashboard port
-  ; # kubectl get all --all-namespaces
-  ; # kubectl -n kube-system get service kubernetes-dashboard
-  ;
-  ; # TODO: install letsencrypt - see: https://github.com/jetstack/cert-manager or https://medium.com/google-cloud/kubernetes-w-lets-encrypt-cloud-dns-c888b2ff8c0e or https://akomljen.com/get-automatic-https-with-lets-encrypt-and-kubernetes-ingress/
-  ;
-  ; # TODO: install an example app
-  ; # https://github.com/sonatype/docker-nexus
-  ; # https://github.com/xetus-oss/docker-archiva
-
-  ; # TODO: till dash is insecure, pls stop after finish development
-  ; microk8s.stop
-
-
+   (logging/info (str facility "-install system: kubeadm")))
+  (kubectl/install-kubernetes-apt-repositories))
 
 (s/defmethod core-infra/dda-install facility
   [core-infra config]
-  (install-microk8s facility))
+  (install-k8s facility))
 
 (def dda-k8s-crate
   (core-infra/make-dda-crate-infra
-    :facility facility))
+   :facility facility))
 
 (def with-k8s
   (core-infra/create-infra-plan dda-k8s-crate))

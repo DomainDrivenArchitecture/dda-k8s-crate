@@ -18,11 +18,11 @@
 (ns dda.pallet.dda-k8s-crate.main
   (:gen-class)
   (:require
-    [clojure.string :as str]
-    [clojure.tools.cli :as cli]
-    [dda.pallet.core.main-helper :as mh]
-    [dda.pallet.core.app :as core-app]
-    [dda.pallet.dda-k8s-crate.app :as app]))
+   [clojure.string :as str]
+   [clojure.tools.cli :as cli]
+   [dda.pallet.core.main-helper :as mh]
+   [dda.pallet.core.app :as core-app]
+   [dda.pallet.dda-k8s-crate.app :as app]))
 
 (def cli-options
   [["-h" "--help"]

@@ -9,4 +9,4 @@ data:
     - name: default
       protocol: layer2
       addresses:
-      - 192.168.56.101/32
+      -   {{external-ip}}/32

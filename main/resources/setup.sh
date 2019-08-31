@@ -54,6 +54,8 @@ scp -r main/resources k8s@k8s.test.domaindrivenarchitecture.org:
 
 # -------------- on server -------------------
 
+# TODO: need to make sure that we execute the code in pallet as the correct user
+
 #Configure environmental variables as the new user
 su k8s
 

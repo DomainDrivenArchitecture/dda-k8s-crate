@@ -14,7 +14,7 @@ This crate uses Kuberentes to initialize and build a single host Kubernetes clus
 
 This crate should fullfill certain requirements for the installed Kubernetes cluster
 
-* a small k8s all in one system for serving one application. TODO: stimmt nicht ganz 
+* a small k8s all in one system for serving one application.
 * is compatible with k8s
 * providing ingress for app to be installed (replacement of traditional reverse-proxy httpd)
 * support letsencrypt (dynamic created by https) for a defined fqdn or injected static https certs.
