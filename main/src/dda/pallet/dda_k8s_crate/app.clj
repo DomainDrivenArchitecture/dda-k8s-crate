@@ -21,11 +21,6 @@
    [dda.config.commons.map-utils :as mu]
    [dda.pallet.core.app :as core-app]
    [dda.pallet.dda-config-crate.infra :as config-crate]
-   [dda.pallet.dda-serverspec-crate.app :as serverspec]
-   [dda.pallet.dda-user-crate.app :as user]
-   [dda.pallet.dda-git-crate.app :as git]
-   [dda.pallet.dda-httpd-crate.app :as httpd]
-   [dda.pallet.dda-config-crate.infra :as config-crate]
    [dda.pallet.dda-k8s-crate.infra :as infra]
    [dda.pallet.dda-k8s-crate.domain :as domain]))
 
