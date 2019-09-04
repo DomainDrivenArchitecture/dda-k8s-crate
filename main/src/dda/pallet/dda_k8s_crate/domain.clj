@@ -17,18 +17,34 @@
   (:require
    [schema.core :as s]
    [dda.pallet.commons.secret :as secret]
+   [dda.pallet.dda-k8s-crate.domain.user :as user]
    [dda.pallet.dda-k8s-crate.infra.kubectl :as kubectl]
    [dda.pallet.dda-k8s-crate.infra :as infra]
    [clojure.java.io :as io]
    [dda.pallet.dda-k8s-crate.domain.templating :as templating]
    [selmer.parser :as selmer]))
 
+(def k8sUser
+  {:user {:name s/Str
+          :password secret/Secret
+          (s/optional-key :ssh) {:ssh-public-key secret/Secret
+                                 :ssh-private-key secret/Secret}}})
+
+(def k8sUserResolved
+  (secret/create-resolved-schema k8sUser))
+
 (def k8sDomain
-  {})
+  (merge {k8sUser}))
 
 (def k8sDomainResolved (secret/create-resolved-schema k8sDomain))
 
 (def InfraResult {infra/facility infra/k8sInfra})
+
+(s/defn ^:always-validate
+  user-domain-configuration
+  [domain-config :- k8sDomainResolved]
+  (let [{:keys [password ssh name]} (:user domain-config)]
+    (user/domain-configuration name password ssh)))
 
 (s/defn ^:always-validate
   infra-configuration

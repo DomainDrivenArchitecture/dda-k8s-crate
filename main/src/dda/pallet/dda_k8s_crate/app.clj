@@ -21,6 +21,7 @@
    [dda.config.commons.map-utils :as mu]
    [dda.pallet.core.app :as core-app]
    [dda.pallet.dda-config-crate.infra :as config-crate]
+   [dda.pallet.dda-user-crate.app :as user]
    [dda.pallet.dda-k8s-crate.infra :as infra]
    [dda.pallet.dda-k8s-crate.domain :as domain]))
 
@@ -34,7 +35,8 @@
 (def k8sAppConfig
   {:group-specific-config
    {s/Keyword (merge
-               InfraResult)}})
+               InfraResult
+               user/InfraResult)}})
 
 (s/defn ^:always-validate
   app-configuration-resolved :- k8sAppConfig
@@ -42,6 +44,8 @@
    & options]
   (let [{:keys [group-key] :or {group-key infra/facility}} options]
     (mu/deep-merge
+     (user/app-configuration-resolved
+      (domain/user-domain-configuration resolved-domain-config) :group-key group-key)
      {:group-specific-config
       {group-key
        (domain/infra-configuration resolved-domain-config)}})))
@@ -60,6 +64,7 @@
   (let [app-config (app-configuration-resolved domain-config)]
     (core-app/pallet-group-spec
      app-config [(config-crate/with-config app-config)
+                 user/with-user
                  with-k8s])))
 
 (def crate-app (core-app/make-dda-crate-app
