@@ -23,3 +23,5 @@ spec:
             backend:
               serviceName: banana-service
               servicePort: 5678
+
+# Am Anfang reicht ingress_simple_le_prod_issuer_https zusammen mit prod_issuer

@@ -20,3 +20,5 @@ spec:
             backend:
               serviceName: nexus-service
               servicePort: 8081
+
+# Domain name (fqdn) muss konfiguerbar sein
