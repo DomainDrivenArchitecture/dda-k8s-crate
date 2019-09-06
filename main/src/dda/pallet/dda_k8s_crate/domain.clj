@@ -25,10 +25,11 @@
    [selmer.parser :as selmer]))
 
 (s/def k8sUser
-  {:user {:name s/Str
+  {:user {:name s/Keyword
           :password secret/Secret
-          (s/optional-key :ssh) {:ssh-public-key secret/Secret
-                                 :ssh-private-key secret/Secret}}})
+          (s/optional-key :ssh) {:ssh-authorized-keys [secret/Secret]
+                                 :ssh-key {:public-key secret/Secret
+                                           :private-key secret/Secret}}}})
 
 (def k8sUserResolved
   (secret/create-resolved-schema k8sUser))
@@ -50,7 +51,7 @@
   infra-configuration
   [domain-config :- k8sDomainResolved]
   (let [{:keys []} domain-config]
-    (infra/facility)))
+    infra/facility))
 
 ; Print all yml files, iterate over them and replace with selmer and create 
 ; mapping between filename and string in sequence
