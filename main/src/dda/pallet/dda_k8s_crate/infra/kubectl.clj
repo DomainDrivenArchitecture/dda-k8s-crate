@@ -55,6 +55,7 @@
     {:sudo-user "k8s"
      :script-dir "/home/k8s"
      :script-env {:HOME "/home/k8s"}}
+    (actions/exec-checked-script "sleep" ("sleep" "30"))
     (actions/exec-checked-script "apply config file" ("kubectl" "apply" "-f" ~path-on-server))))
 
 (defn prepare-master-node
@@ -101,8 +102,8 @@
 
 (defn configure-ingress-and-cert-manager
   [facility]
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_prod_https.yml")
-  ;(kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/letsencrypt_prod_issuer.yml") ;TODO not working
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_staging_https.yml")
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/letsencrypt_staging_issuer.yml") ;TODO not working
   )
 
 (defn install-nexus
@@ -197,6 +198,12 @@
    :mode "755"
    :content (selmer/render-file "cert_manager/letsencrypt_prod_issuer.yml" {}))
   (actions/remote-file
+   "/home/k8s/k8s_resources/cert_manager/letsencrypt_staging_issuer.yml"
+   :literal true
+   :owner owner
+   :mode "755"
+   :content (selmer/render-file "cert_manager/letsencrypt_staging_issuer.yml" {}))
+  (actions/remote-file
    "/home/k8s/k8s_resources/apple_banana/apple.yml"
    :literal true
    :owner owner
@@ -208,6 +215,12 @@
    :owner owner
    :mode "755"
    :content (selmer/render-file "apple_banana/banana.yml" {}))
+  (actions/remote-file
+   "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_staging_https.yml"
+   :literal true
+   :owner owner
+   :mode "755"
+   :content (selmer/render-file "apple_banana/ingress_simple_le_staging_https.yml" {}))
   (actions/remote-file
    "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_prod_https.yml"
    :literal true
@@ -239,7 +252,3 @@
 ;     (str user-home "/.bashrc.d/team-pass.sh")
 ;     :literal true
 ;     :content "# Load the custom .*-pass I have
-
-; TODO: copy local files to host with template abstraction
-
-; TODO: Execute code beyond line 60 in setup.sh as k8s user 
