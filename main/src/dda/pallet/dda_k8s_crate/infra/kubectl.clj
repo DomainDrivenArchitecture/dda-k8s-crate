@@ -2,7 +2,12 @@
   (:require
    [clojure.tools.logging :as logging]
    [schema.core :as s]
-   [pallet.actions :as actions]))
+   [pallet.actions :as actions]
+   [selmer.parser :as selmer]))
+
+(s/def k8s-infra-config
+  {:external-ip s/Str
+   :host-name s/Str})
 
 ; should act somewhat as an interface to the kubectl commands
 
@@ -66,6 +71,69 @@
   (actions/exec-script ("cp" "-i" "/etc/kubernetes/admin.conf"
                              "/home/k8s/.kube/config"))
   (actions/exec-script ("chown" "-R" "k8s:k8s" "/home/k8s/.kube")))
+
+(s/defn create-dirs
+  [owner :- s/Str]
+  (actions/directory
+   "/home/k8s/k8s_resources"
+   :owner owner)
+  (actions/directory
+   "/home/k8s/k8s_resources/nexus"
+   :owner owner)
+  (actions/directory
+   "/home/k8s/k8s_resources/cert_manager"
+   :owner owner)
+  (actions/directory
+   "/home/k8s/k8s_resources/apple_banana"
+   :owner owner))
+
+(s/defn move-yaml-to-server
+  [config :- k8s-infra-config
+   owner :- s/Str]
+  (create-dirs owner)
+  (actions/remote-file
+   "/home/k8s/k8s_resources/admin_user.yml"
+   :literal true
+   :owner owner
+   :mode "755"
+   :content (selmer/render-file "admin_user.yml" {}))
+  (actions/remote-file
+   "/home/k8s/k8s_resources/metallb.yml"
+   :literal true
+   :owner owner
+   :mode "755"
+   :content (selmer/render-file "metallb.yml" {}))
+  (actions/remote-file
+   "/home/k8s/k8s_resources/metallb_config.yml"
+   :literal true
+   :owner owner
+   :mode "755"
+   :content (selmer/render-file "metallb_config.yml" {:external-ip (:external-ip config)}))
+  (actions/remote-file
+   "/home/k8s/k8s_resources/ingress_using_mettallb.yml"
+   :literal true
+   :owner owner
+   :mode "755"
+   :content (selmer/render-file "ingress_using_mettallb.yml" {}))
+  (actions/remote-file
+   "/home/k8s/k8s_resources/apple_banana/apple.yml"
+   :literal true
+   :owner owner
+   :mode "755"
+   :content (selmer/render-file "/apple_banana/apple.yml" {}))
+  (actions/remote-file
+   "/home/k8s/k8s_resources/apple_banana/banana.yml"
+   :literal true
+   :owner owner
+   :mode "755"
+   :content (selmer/render-file "/apple_banana/banana.yml" {}))
+  (actions/remote-file
+   "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_prod_https.yml"
+   :literal true
+   :owner owner
+   :mode "755"
+   :content (selmer/render-file "/apple_banana/ingress_simple_le_prod_https.yml" {})))
+
 
 ; Reminder: remote file with String as content:
 ;(actions/remote-file

@@ -24,7 +24,7 @@
    [dda.pallet.dda-k8s-crate.domain.templating :as templating]
    [selmer.parser :as selmer]))
 
-(def k8sUser
+(s/def k8sUser
   {:user {:name s/Str
           :password secret/Secret
           (s/optional-key :ssh) {:ssh-public-key secret/Secret
@@ -34,7 +34,7 @@
   (secret/create-resolved-schema k8sUser))
 
 (def k8sDomain
-  (merge {k8sUser}))
+  k8sUser)
 
 (def k8sDomainResolved (secret/create-resolved-schema k8sDomain))
 

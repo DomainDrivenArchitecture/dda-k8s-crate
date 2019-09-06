@@ -36,7 +36,8 @@
   [facility]
   (actions/as-action
    (logging/info (str facility "-install system: kubeadm")))
-  (kubectl/install-kubernetes-apt-repositories))
+  ;(kubectl/install-kubernetes-apt-repositories)
+  (kubectl/move-yaml-to-server {:external-ip "123"} "k8s"))
 
 (s/defmethod core-infra/dda-install facility
   [core-infra config]
