@@ -51,7 +51,7 @@
   infra-configuration
   [domain-config :- k8sDomainResolved]
   (let [{:keys []} domain-config]
-    infra/facility))
+    {infra/facility {}}))
 
 ; Print all yml files, iterate over them and replace with selmer and create 
 ; mapping between filename and string in sequence

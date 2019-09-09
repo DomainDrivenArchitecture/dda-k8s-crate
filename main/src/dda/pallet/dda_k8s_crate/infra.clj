@@ -26,9 +26,9 @@
 (def facility :dda-k8s)
 
 ; the infra config
-(s/def k8sInfra
+(s/def k8sInfra {})
   ;TODO: I think we have somewhere a shema excactly for IPs
-  {:external-ip s/Str})
+  ;{:external-ip s/Str})
 
 (selmer/render-file "metallb_config.yml" {:external-ip "test"})
 

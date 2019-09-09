@@ -35,7 +35,7 @@
 (def k8sAppConfig
   {:group-specific-config
    {s/Keyword (merge
-               InfraResult
+               ;InfraResult
                user/InfraResult)}})
 
 (s/defn ^:always-validate
@@ -45,10 +45,10 @@
   (let [{:keys [group-key] :or {group-key infra/facility}} options]
     (mu/deep-merge
      (user/app-configuration-resolved
-      (domain/user-domain-configuration resolved-domain-config) :group-key group-key)
-     {:group-specific-config
-      {group-key
-       (domain/infra-configuration resolved-domain-config)}})))
+      (domain/user-domain-configuration resolved-domain-config) :group-key group-key))))
+     ;{:group-specific-config
+      ;{group-key
+       ;(domain/infra-configuration resolved-domain-config))
 
 (s/defn ^:always-validate
   app-configuration :- k8sAppConfig
