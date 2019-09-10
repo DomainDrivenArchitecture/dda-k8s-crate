@@ -19,7 +19,7 @@
     (str facility "-install system: install kubernetes repository")))
   (actions/package-manager :update)
   (actions/package "apt-transport-https")
-  (actions/package-source 
+  (actions/package-source
    "kubernetes"
    :aptitude
    {:url "http://apt.kubernetes.io/"
@@ -34,15 +34,15 @@
    (logging/info
     (str facility "-install system: apt install kubeadm")))
   (actions/package-manager :update)
-  (actions/package ["docker.io" "kubelet" "kubeadm" "kubernetes-cni"]))
+  (actions/packages :aptitude ["docker.io" "kubelet" "kubeadm" "kubernetes-cni"]))
 
 (defn deactivate-swap
   "deactivate swap on the server"
   [facility]
   (actions/as-action
    (logging/info (str facility "-install system: disable swap")))
-  (actions/exec-checked-script ("swapoff" "-a"))
-  (actions/exec-checked-script ("sed" "-i" "'/swap/d'" "/etc/fstab")))
+  (actions/exec-checked-script "turn swap off" ("swapoff" "-a"))
+  (actions/exec-checked-script "remove active swap" ("sed" "-i" "'/swap/d'" "/etc/fstab")))
 
 ; TODO: add k8s user with user-crate in app-namespace
 
@@ -52,29 +52,29 @@
   (actions/as-action
    (logging/info
     (str facility "-install system: kubectl apply -f " path-on-server)))
-  (actions/exec-checked-script ("kubectl" "apply" "-f" ~path-on-server)))
+  (actions/exec-checked-script "apply main config file" ("kubectl" "apply" "-f" ~path-on-server)))
 
 (defn activate-kubectl-bash-completion
   "apply kubectl config file"
   [facility]
   (actions/as-action
    (logging/info (str facility "-install system: activate bash completion")))
-  (actions/exec-checked-script
-   ("kubectl" "completion" "bash" ">>" "/etc/bash_completion.d/kubernetes")))
+  (actions/exec-checked-script "add k8s to bash completion"
+                               ("kubectl" "completion" "bash" ">>" "/etc/bash_completion.d/kubernetes")))
 
 (defn initialize-cluster
   "apply kubectl config file"
   [facility]
   (actions/as-action
    (logging/info (str facility "-install system: activate bash completion")))
-  (actions/exec-checked-script ("systemctl" "enable" "docker.service"))
-  (actions/exec-checked-script ("kubeadm" "config" "images" "pull"))
-  (actions/exec-checked-script ("kubeadm" "init" "--pod-network-cidr=10.244.0.0/16" "pull"
-                                  "--apiserver-advertise-address=127.0.0.1"))
-  (actions/exec-checked-script ("mkdir" "-p" "/home/k8s/.kube"))
-  (actions/exec-checked-script ("cp" "-i" "/etc/kubernetes/admin.conf"
-                             "/home/k8s/.kube/config"))
-  (actions/exec-checked-script ("chown" "-R" "k8s:k8s" "/home/k8s/.kube")))
+  (actions/exec-checked-script "enable docker.service" ("systemctl" "enable" "docker.service"))
+  (actions/exec-checked-script "pull k8s images" ("kubeadm" "config" "images" "pull"))
+  (actions/exec-checked-script "init k8s" ("kubeadm" "init" "--pod-network-cidr=10.244.0.0/16" "pull"
+                                                     "--apiserver-advertise-address=127.0.0.1"))
+  (actions/exec-checked-script "mk .kube dir" ("mkdir" "-p" "/home/k8s/.kube"))
+  (actions/exec-checked-script "copy admin config for k8s" ("cp" "-i" "/etc/kubernetes/admin.conf"
+                                                                 "/home/k8s/.kube/config"))
+  (actions/exec-checked-script "change owner of k8s dir" ("chown" "-R" "k8s:k8s" "/home/k8s/.kube")))
 
 (s/defn create-dirs
   [owner :- s/Str]

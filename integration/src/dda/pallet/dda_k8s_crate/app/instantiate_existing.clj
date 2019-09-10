@@ -16,8 +16,8 @@
 
 (ns dda.pallet.dda-k8s-crate.app.instantiate-existing
   (:require
-    [dda.pallet.core.app :as core-app]
-    [dda.pallet.dda-k8s-crate.app :as app]))
+   [dda.pallet.core.app :as core-app]
+   [dda.pallet.dda-k8s-crate.app :as app]))
 
 (defn install
   [& options]
