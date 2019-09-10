@@ -19,12 +19,13 @@
     (str facility "-install system: install kubernetes repository")))
   (actions/package-manager :update)
   (actions/package "apt-transport-https")
-  (actions/exec-checked-script
-   ("curl" "-s" "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
-           "|" "apt-key" "add" "-"))
-  (actions/exec-checked-script 
-   ("echo" "'deb http://apt.kubernetes.io/ kubernetes-xenial main'"
-           "|" "tee" "-a" "/etc/apt/sources.list.d/kubernetes.list")))
+  (actions/package-source 
+   "kubernetes"
+   :aptitude
+   {:url "http://apt.kubernetes.io/"
+    :release "kubernetes-xenial"
+    :scopes ["main"]
+    :key-url "https://packages.cloud.google.com/apt/doc/apt-key.gpg"}))
 
 (defn install-kubeadm
   "apply kubectl config file"
