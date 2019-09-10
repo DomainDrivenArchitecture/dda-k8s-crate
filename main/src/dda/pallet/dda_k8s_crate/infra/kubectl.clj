@@ -16,21 +16,21 @@
   [facility]
   (actions/as-action
    (logging/info
-    (str facility "-install system: install kubernetes repository"))
-   (actions/package-manager :update)
-   (actions/package "apt-transport-https")
-   (actions/exec-script
-    ("curl" "-s" "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
-            "|" "apt-key" "add" "-"))))
+    (str facility "-install system: install kubernetes repository")))
+  (actions/package-manager :update)
+  (actions/package "apt-transport-https")
+  (actions/exec-script
+   ("curl" "-s" "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
+           "|" "apt-key" "add" "-")))
 
 (defn install-kubeadm
   "apply kubectl config file"
   [facility]
   (actions/as-action
    (logging/info
-    (str facility "-install system: apt install kubeadm"))
-   (actions/package-manager :update)
-   (actions/package ["docker.io" "kubelet" "kubeadm" "kubernetes-cni"])))
+    (str facility "-install system: apt install kubeadm")))
+  (actions/package-manager :update)
+  (actions/package ["docker.io" "kubelet" "kubeadm" "kubernetes-cni"]))
 
 (defn deactivate-swap
   "deactivate swap on the server"
@@ -69,7 +69,7 @@
                                   "--apiserver-advertise-address=127.0.0.1"))
   (actions/exec-script ("mkdir" "-p" "/home/k8s/.kube"))
   (actions/exec-script ("cp" "-i" "/etc/kubernetes/admin.conf"
-                             "/home/k8s/.kube/config"))
+                             "/home/k8s/.kube/config")owner)
   (actions/exec-script ("chown" "-R" "k8s:k8s" "/home/k8s/.kube")))
 
 (s/defn create-dirs
