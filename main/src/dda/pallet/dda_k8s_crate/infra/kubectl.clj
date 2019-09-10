@@ -120,19 +120,19 @@
    :literal true
    :owner owner
    :mode "755"
-   :content (selmer/render-file "/apple_banana/apple.yml" {}))
+   :content (selmer/render-file "apple_banana/apple.yml" {}))
   (actions/remote-file
    "/home/k8s/k8s_resources/apple_banana/banana.yml"
    :literal true
    :owner owner
    :mode "755"
-   :content (selmer/render-file "/apple_banana/banana.yml" {}))
+   :content (selmer/render-file "apple_banana/banana.yml" {}))
   (actions/remote-file
    "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_prod_https.yml"
    :literal true
    :owner owner
    :mode "755"
-   :content (selmer/render-file "/apple_banana/ingress_simple_le_prod_https.yml" {})))
+   :content (selmer/render-file "apple_banana/ingress_simple_le_prod_https.yml" {})))
 
 
 ; Reminder: remote file with String as content:
