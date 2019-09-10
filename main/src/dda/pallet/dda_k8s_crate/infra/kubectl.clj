@@ -3,6 +3,7 @@
    [clojure.tools.logging :as logging]
    [schema.core :as s]
    [pallet.actions :as actions]
+   [pallet.action :as action]
    [selmer.parser :as selmer]))
 
 (s/def k8s-infra-config
@@ -52,7 +53,67 @@
   (actions/as-action
    (logging/info
     (str facility "-install system: kubectl apply -f " path-on-server)))
-  (actions/exec-checked-script "apply main config file" ("kubectl" "apply" "-f" ~path-on-server)))
+  (action/with-action-options
+    {:sudo-user "k8s"
+     :script-dir "/home/k8s"
+     :script-env {:HOME "/home/k8s"}}
+    (actions/exec-checked-script "apply config file" ("kubectl" "apply" "-f" ~path-on-server))))
+
+(defn kubectl-apply
+  "apply needed files and options"
+  [facility]
+  (kubectl-apply-f facility "https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml")
+  (kubectl-apply-f facility "https://raw.githubusercontent.com/coreos/flannel/master/Documentation/k8s-manifests/kube-flannel-rbac.yml")
+  (action/with-action-options
+    {:sudo-user "k8s"
+     :script-dir "/home/k8s"
+     :script-env {:HOME "/home/k8s"}}
+    (actions/exec-script ("kubectl" "taint" "nodes" "--all" "node-role.kubernetes.io/master-" "||" "true"))) ;needs to fail so no checked script
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/admin_user.yml")
+  (kubectl-apply-f facility "https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yaml")
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/metallb.yml")
+  ;TODO vi /home/k8s/k8s_resources/metallb_config.yml # adjust ip to your public
+  (kubectl-apply-f facility " /home/k8s/k8s_resources/metallb_config.yml")
+  (kubectl-apply-f facility "https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/mandatory.yaml")
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/ingress_using_mettallb.yml")
+  (action/with-action-options
+    {:sudo-user "k8s"
+     :script-dir "/home/k8s"
+     :script-env {:HOME "/home/k8s"}}
+    (actions/exec-checked-script "create cert-manager ns" ("kubectl" "create" "namespace" "cert-manager"))
+    (actions/exec-checked-script "label cert-manager ns" ("kubectl" "label" "namespace" "cert-manager" "certmanager.k8s.io/disable-validation=true")))
+  (kubectl-apply-f facility "https://github.com/jetstack/cert-manager/releases/download/v0.9.1/cert-manager.yaml")
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/apple.yml")
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/banana.yml")
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_http.yml")
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/selfsigned_issuer.yml")
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_selfsigned_https.yml")
+  (action/with-action-options
+    {:sudo-user "k8s"
+     :script-dir "/home/k8s"
+     :script-env {:HOME "/home/k8s"}}
+    (actions/exec-checked-script "create cert key" ("openssl" "genrsa" "-out" "ca.key" "2048"))
+    (actions/exec-checked-script "" ("openssl" "req" "-x509" "-new" "-nodes" "-key" "ca.key" "-subj" "'/CN=test.domaindrivenarchitecture.org'"
+                                               "-days" "365" "-reqexts" "v3_req" "-extensions" "v3_ca" "-out" "ca.crt"))
+    (actions/exec-checked-script "create cert key secret" ("kubectl" "create" "secret" "tls" "test-domaindrivenarchitecture-org-ca-key-pair"
+                                                                     "--cert=ca.crt"
+                                                                     "--key=ca.key"
+                                                                     "--namespace=cert-manager"))
+    (kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/ca_cert.yml")
+    (kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/ca_issuer.yml")
+    (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_ca_https.yml")
+    (kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/letsencrypt_staging_issuer.yml")
+    (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_staging_https.yml")
+    (kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/letsencrypt_prod_issuer.yml")
+    (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_prod_https.yml")
+    (actions/directory
+     "/mnt/data"
+     :owner "k8s"
+     :group "k8s"
+     :mode "777")
+    (kubectl-apply-f facility "/home/k8s/k8s_resources/nexus/nexus-storage.yml")
+    (kubectl-apply-f facility "/home/k8s/k8s_resources/nexus/nexus.yml")
+    (kubectl-apply-f facility "/home/k8s/k8s_resources/nexus/ingress_nexus_https.yml")))
 
 (defn activate-kubectl-bash-completion
   "apply kubectl config file"
@@ -66,10 +127,10 @@
   "apply kubectl config file"
   [facility]
   (actions/as-action
-   (logging/info (str facility "-install system: activate bash completion")))
+   (logging/info (str facility "-install system: init cluster")))
   (actions/exec-checked-script "enable docker.service" ("systemctl" "enable" "docker.service"))
   (actions/exec-checked-script "pull k8s images" ("kubeadm" "config" "images" "pull"))
-  (actions/exec-checked-script "init k8s" ("kubeadm" "init" "--pod-network-cidr=10.244.0.0/16" "pull"
+  (actions/exec-checked-script "init k8s" ("kubeadm" "init" "--pod-network-cidr=10.244.0.0/16"
                                                      "--apiserver-advertise-address=127.0.0.1"))
   (actions/exec-checked-script "mk .kube dir" ("mkdir" "-p" "/home/k8s/.kube"))
   (actions/exec-checked-script "copy admin config for k8s" ("cp" "-i" "/etc/kubernetes/admin.conf"

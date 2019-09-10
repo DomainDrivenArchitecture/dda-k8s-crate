@@ -36,10 +36,13 @@
   [facility]
   (actions/as-action
    (logging/info (str facility "-install system: kubeadm")))
-  (kubectl/install-kubernetes-apt-repositories facility)
-  (kubectl/install-kubeadm facility)
-  (kubectl/deactivate-swap facility)
-  (kubectl/move-yaml-to-server {:external-ip "123" :host-name "k8s"} "k8s"))
+  ;(kubectl/install-kubernetes-apt-repositories facility)
+  ;(kubectl/install-kubeadm facility)
+  ;(kubectl/deactivate-swap facility)
+  ;(kubectl/move-yaml-to-server {:external-ip "123" :host-name "k8s"} "k8s")
+  ;(kubectl/activate-kubectl-bash-completion facility)
+  ;(kubectl/initialize-cluster facility)
+  (kubectl/kubectl-apply facility))
 
 (s/defmethod core-infra/dda-install facility
   [core-infra config]
