@@ -21,7 +21,10 @@
   (actions/package "apt-transport-https")
   (actions/exec-script
    ("curl" "-s" "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
-           "|" "apt-key" "add" "-")))
+           "|" "apt-key" "add" "-"))
+  (actions/exec-script 
+   ("echo" "\"deb http://apt.kubernetes.io/ kubernetes-xenial main\""
+           "|" "tee" "-a" "/etc/apt/sources.list.d/kubernetes.list")))
 
 (defn install-kubeadm
   "apply kubectl config file"

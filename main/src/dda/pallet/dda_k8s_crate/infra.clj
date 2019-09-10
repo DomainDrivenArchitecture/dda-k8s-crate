@@ -26,9 +26,9 @@
 (def facility :dda-k8s)
 
 ; the infra config
-(s/def k8sInfra {})
+(s/def k8sInfra
   ;TODO: I think we have somewhere a shema excactly for IPs
-  ;{:external-ip s/Str})
+  {:external-ip s/Str})
 
 (selmer/render-file "metallb_config.yml" {:external-ip "test"})
 
@@ -36,8 +36,10 @@
   [facility]
   (actions/as-action
    (logging/info (str facility "-install system: kubeadm")))
-  ;(kubectl/install-kubernetes-apt-repositories)
-  (kubectl/move-yaml-to-server {:external-ip "123"} "k8s"))
+  (kubectl/install-kubernetes-apt-repositories facility)
+  (kubectl/install-kubeadm facility)
+  (kubectl/deactivate-swap facility)
+  (kubectl/move-yaml-to-server {:external-ip "123" :host-name "k8s"} "k8s"))
 
 (s/defmethod core-infra/dda-install facility
   [core-infra config]
