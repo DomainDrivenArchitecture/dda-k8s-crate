@@ -72,11 +72,10 @@
   (kubectl-apply-f facility "/home/k8s/k8s_resources/admin_user.yml")
   (kubectl-apply-f facility "https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yaml")
   (kubectl-apply-f facility "/home/k8s/k8s_resources/metallb.yml")
-  ;TODO vi /home/k8s/k8s_resources/metallb_config.yml # adjust ip to your public
   (kubectl-apply-f facility " /home/k8s/k8s_resources/metallb_config.yml")
   (kubectl-apply-f facility "https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/mandatory.yaml")
   (kubectl-apply-f facility "/home/k8s/k8s_resources/ingress_using_mettallb.yml")
-  (action/with-action-options
+  (action/with-action-options ;n2
     {:sudo-user "k8s"
      :script-dir "/home/k8s"
      :script-env {:HOME "/home/k8s"}}
@@ -85,10 +84,9 @@
   (kubectl-apply-f facility "https://github.com/jetstack/cert-manager/releases/download/v0.9.1/cert-manager.yaml")
   (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/apple.yml")
   (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/banana.yml")
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_http.yml")
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/selfsigned_issuer.yml")
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_selfsigned_https.yml")
-  (action/with-action-options
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_prod_https.yml")
+  ;(kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/letsencrypt_prod_issuer.yml") ;TODO not working
+  (action/with-action-options ;n2
     {:sudo-user "k8s"
      :script-dir "/home/k8s"
      :script-env {:HOME "/home/k8s"}}
@@ -98,22 +96,15 @@
     (actions/exec-checked-script "create cert key secret" ("kubectl" "create" "secret" "tls" "test-domaindrivenarchitecture-org-ca-key-pair"
                                                                      "--cert=ca.crt"
                                                                      "--key=ca.key"
-                                                                     "--namespace=cert-manager"))
-    (kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/ca_cert.yml")
-    (kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/ca_issuer.yml")
-    (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_ca_https.yml")
-    (kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/letsencrypt_staging_issuer.yml")
-    (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_staging_https.yml")
-    (kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/letsencrypt_prod_issuer.yml")
-    (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_prod_https.yml")
-    (actions/directory
-     "/mnt/data"
-     :owner "k8s"
-     :group "k8s"
-     :mode "777")
-    (kubectl-apply-f facility "/home/k8s/k8s_resources/nexus/nexus-storage.yml")
-    (kubectl-apply-f facility "/home/k8s/k8s_resources/nexus/nexus.yml")
-    (kubectl-apply-f facility "/home/k8s/k8s_resources/nexus/ingress_nexus_https.yml")))
+                                                                     "--namespace=cert-manager")))
+  (actions/directory
+   "/mnt/data"
+   :owner "k8s"
+   :group "k8s"
+   :mode "777")
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/nexus/nexus-storage.yml")
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/nexus/nexus.yml")
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/nexus/ingress_nexus_https.yml"))
 
 (defn activate-kubectl-bash-completion
   "apply kubectl config file"
@@ -181,6 +172,12 @@
    :mode "755"
    :content (selmer/render-file "ingress_using_mettallb.yml" {}))
   (actions/remote-file
+   "/home/k8s/k8s_resources/cert_manager/letsencrypt_prod_issuer.yml"
+   :literal true
+   :owner owner
+   :mode "755"
+   :content (selmer/render-file "cert_manager/letsencrypt_prod_issuer.yml" {}))
+  (actions/remote-file
    "/home/k8s/k8s_resources/apple_banana/apple.yml"
    :literal true
    :owner owner
@@ -197,7 +194,25 @@
    :literal true
    :owner owner
    :mode "755"
-   :content (selmer/render-file "apple_banana/ingress_simple_le_prod_https.yml" {})))
+   :content (selmer/render-file "apple_banana/ingress_simple_le_prod_https.yml" {}))
+  (actions/remote-file
+   "/home/k8s/k8s_resources/nexus/ingress_nexus_https.yml"
+   :literal true
+   :owner owner
+   :mode "755"
+   :content (selmer/render-file "nexus/ingress_nexus_https.yml" {}))
+  (actions/remote-file
+   "/home/k8s/k8s_resources/nexus/nexus-storage.yml"
+   :literal true
+   :owner owner
+   :mode "755"
+   :content (selmer/render-file "nexus/nexus-storage.yml" {}))
+  (actions/remote-file
+   "/home/k8s/k8s_resources/nexus/nexus.yml"
+   :literal true
+   :owner owner
+   :mode "755"
+   :content (selmer/render-file "nexus/nexus.yml" {})))
 
 
 ; Reminder: remote file with String as content:
