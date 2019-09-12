@@ -45,8 +45,6 @@
   (actions/exec-checked-script "turn swap off" ("swapoff" "-a"))
   (actions/exec-checked-script "remove active swap" ("sed" "-i" "'/swap/d'" "/etc/fstab")))
 
-; TODO: add k8s user with user-crate in app-namespace
-
 (defn kubectl-apply-f
   "apply kubectl config file"
   [facility path-on-server]
@@ -59,8 +57,7 @@
      :script-env {:HOME "/home/k8s"}}
     (actions/exec-checked-script "apply config file" ("kubectl" "apply" "-f" ~path-on-server))))
 
-(defn kubectl-apply
-  "apply needed files and options"
+(defn prepare-master-node
   [facility]
   (kubectl-apply-f facility "https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml")
   (kubectl-apply-f facility "https://raw.githubusercontent.com/coreos/flannel/master/Documentation/k8s-manifests/kube-flannel-rbac.yml")
@@ -74,7 +71,10 @@
   (kubectl-apply-f facility "/home/k8s/k8s_resources/metallb.yml")
   (kubectl-apply-f facility " /home/k8s/k8s_resources/metallb_config.yml")
   (kubectl-apply-f facility "https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/mandatory.yaml")
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/ingress_using_mettallb.yml")
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/ingress_using_mettallb.yml"))
+
+(defn install-cert-manager
+  [facility]
   (action/with-action-options ;n2
     {:sudo-user "k8s"
      :script-dir "/home/k8s"
@@ -82,10 +82,6 @@
     (actions/exec-checked-script "create cert-manager ns" ("kubectl" "create" "namespace" "cert-manager"))
     (actions/exec-checked-script "label cert-manager ns" ("kubectl" "label" "namespace" "cert-manager" "certmanager.k8s.io/disable-validation=true")))
   (kubectl-apply-f facility "https://github.com/jetstack/cert-manager/releases/download/v0.9.1/cert-manager.yaml")
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/apple.yml")
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/banana.yml")
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_prod_https.yml")
-  ;(kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/letsencrypt_prod_issuer.yml") ;TODO not working
   (action/with-action-options ;n2
     {:sudo-user "k8s"
      :script-dir "/home/k8s"
@@ -96,7 +92,21 @@
     (actions/exec-checked-script "create cert key secret" ("kubectl" "create" "secret" "tls" "test-domaindrivenarchitecture-org-ca-key-pair"
                                                                      "--cert=ca.crt"
                                                                      "--key=ca.key"
-                                                                     "--namespace=cert-manager")))
+                                                                     "--namespace=cert-manager"))))
+
+(defn install-apple-banana
+  [facility]
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/apple.yml")
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/banana.yml"))
+
+(defn configure-ingress-and-cert-manager
+  [facility]
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_prod_https.yml")
+  ;(kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/letsencrypt_prod_issuer.yml") ;TODO not working
+  )
+
+(defn install-nexus
+  [facility]
   (actions/directory
    "/mnt/data"
    :owner "k8s"
@@ -105,6 +115,15 @@
   (kubectl-apply-f facility "/home/k8s/k8s_resources/nexus/nexus-storage.yml")
   (kubectl-apply-f facility "/home/k8s/k8s_resources/nexus/nexus.yml")
   (kubectl-apply-f facility "/home/k8s/k8s_resources/nexus/ingress_nexus_https.yml"))
+
+(defn kubectl-apply
+  "apply needed files and options"
+  [facility]
+  (prepare-master-node facility)
+  (install-cert-manager facility)
+  (install-apple-banana facility)
+  (configure-ingress-and-cert-manager facility)
+  (install-nexus facility))
 
 (defn activate-kubectl-bash-completion
   "apply kubectl config file"
