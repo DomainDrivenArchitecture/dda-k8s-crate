@@ -100,8 +100,9 @@
   (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/apple.yml")
   (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/banana.yml"))
 
+; TODO: implement prod/staging flag
 (defn configure-ingress-and-cert-manager
-  [facility]
+  [facility config]
   (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_staging_https.yml")
   (kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/letsencrypt_staging_issuer.yml") ;TODO not working
   )

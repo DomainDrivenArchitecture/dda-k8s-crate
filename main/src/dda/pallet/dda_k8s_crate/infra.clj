@@ -26,14 +26,17 @@
 (def facility :dda-k8s)
 
 ; the infra config
-(s/def k8sInfra
+(s/def ddaK8sConfig
   ;TODO: I think we have somewhere a shema excactly for IPs / use in metallb
-  {:external-ip s/Str})
+  {:external-ip s/Str         ; TODO: not in use yet
+   :letsencrypt-prod s/Bool}  ; Letsencrypt environment: true -> prod | false -> staging
+  )
 
 (selmer/render-file "metallb_config.yml" {:external-ip "test"})
 
-(defn- install-k8s
-  [facility]
+(s/defn- install-k8s
+  [facility :- s/Keyword
+   config :- ddaK8sConfig]
   (actions/as-action
    (logging/info (str facility "-install system: kubeadm")))
   (kubectl/install-kubernetes-apt-repositories facility)
@@ -46,7 +49,7 @@
 
 (s/defmethod core-infra/dda-install facility
   [core-infra config]
-  (install-k8s facility))
+  (install-k8s (:facility core-infra) config))
 
 (def dda-k8s-crate
   (core-infra/make-dda-crate-infra

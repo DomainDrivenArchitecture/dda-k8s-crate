@@ -31,11 +31,10 @@
                                  :ssh-key {:public-key secret/Secret
                                            :private-key secret/Secret}}}})
 
-(def k8sUserResolved
-  (secret/create-resolved-schema k8sUser))
-
 (def k8sDomain
-  k8sUser)
+  (merge
+   {:letsencrypt-prod s/Bool} ; Letsencrypt environment: true -> prod | false -> staging
+   k8sUser))
 
 (def k8sDomainResolved (secret/create-resolved-schema k8sDomain))
 
