@@ -102,10 +102,11 @@
 
 ; TODO: implement prod/staging flag
 (defn configure-ingress-and-cert-manager
-  [facility config]
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_staging_https.yml")
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/letsencrypt_staging_issuer.yml") ;TODO not working
-  )
+  [facility letsencrypt-prod]
+  (if letsencrypt-prod
+    (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_prod_https.yml")
+    (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_staging_https.yml"))
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/letsencrypt_staging_issuer.yml")) ;TODO not working
 
 (defn install-nexus
   [facility]
@@ -120,12 +121,13 @@
 
 (defn kubectl-apply
   "apply needed files and options"
-  [facility]
-  (prepare-master-node facility)
-  (install-cert-manager facility)
-  (install-apple-banana facility)
-  (configure-ingress-and-cert-manager facility)
-  (install-nexus facility))
+  [facility config]
+  (let [{:keys [letsencrypt-prod]} config]
+    (prepare-master-node facility)
+    (install-cert-manager facility)
+    (install-apple-banana facility)
+    (configure-ingress-and-cert-manager facility letsencrypt-prod)
+    (install-nexus facility)))
 
 (defn activate-kubectl-bash-completion
   "apply kubectl config file"

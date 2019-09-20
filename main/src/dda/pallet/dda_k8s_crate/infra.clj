@@ -45,7 +45,7 @@
   (kubectl/move-yaml-to-server {:external-ip "123" :host-name "k8s"} "k8s")
   (kubectl/activate-kubectl-bash-completion facility)
   (kubectl/initialize-cluster facility)
-  (kubectl/kubectl-apply facility))
+  (kubectl/kubectl-apply facility config))
 
 (s/defmethod core-infra/dda-install facility
   [core-infra config]
