@@ -10,10 +10,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - k8s-nexus.test.domaindrivenarchitecture.org
-    secretName: k8s-nexus-test-domaindrivenarchitecture-org
+    - {{nexus-host-name}}
+    secretName: {{nexus-secret-name}}
   rules:
-    - host: k8s-nexus.test.domaindrivenarchitecture.org
+    - host: {{nexus-host-name}}
       http:
         paths:
           - path: /

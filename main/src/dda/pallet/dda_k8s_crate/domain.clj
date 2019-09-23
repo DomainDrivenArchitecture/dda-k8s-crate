@@ -38,7 +38,7 @@
 
 (def k8sDomainResolved (secret/create-resolved-schema k8sDomain))
 
-(def InfraResult {infra/facility infra/k8sInfra})
+(def InfraResult {infra/facility infra/ddaK8sConfig})
 
 (s/defn ^:always-validate
   user-domain-configuration

@@ -4,11 +4,19 @@
    [schema.core :as s]
    [pallet.actions :as actions]
    [pallet.action :as action]
-   [selmer.parser :as selmer]))
+   [selmer.parser :as selmer]
+   [clojure.string :as str]))
 
-(s/def k8s-infra-config
+(s/def kubectl-config
   {:external-ip s/Str
-   :host-name s/Str})
+   :host-name s/Str
+   :letsencrypt-prod s/Bool   ; Letsencrypt environment: true -> prod | false -> staging
+   :nexus-host-name s/Str
+   :nexus-secret-name s/Str})
+
+(defn get-secret-name-from-host-name
+  [host-name]
+  (str/replace host-name #"\." "-"))
 
 ; should act somewhat as an interface to the kubectl commands
 
@@ -167,7 +175,7 @@
    :owner owner))
 
 (s/defn move-yaml-to-server
-  [config :- k8s-infra-config
+  [config :- kubectl-config
    owner :- s/Str]
   (create-dirs owner)
   (actions/remote-file
@@ -235,7 +243,10 @@
    :literal true
    :owner owner
    :mode "755"
-   :content (selmer/render-file "nexus/ingress_nexus_https.yml" {}))
+   :content (selmer/render-file "nexus/ingress_nexus_https.yml"
+                                {:nexus-host-name (:nexus-host-name config)
+                                 :nexus-secret-name
+                                 (get-secret-name-from-host-name (:nexus-host-name config))}))
   (actions/remote-file
    "/home/k8s/k8s_resources/nexus/nexus-storage.yml"
    :literal true
@@ -248,6 +259,21 @@
    :owner owner
    :mode "755"
    :content (selmer/render-file "nexus/nexus.yml" {})))
+
+(s/defn install
+  [facility
+   config :- kubectl-config]
+  (actions/as-action
+   (logging/info (str facility "-install system: kubeadm")))
+  (install-kubernetes-apt-repositories facility)
+  (install-kubeadm facility)
+  (deactivate-swap facility)
+  (move-yaml-to-server config)
+  (activate-kubectl-bash-completion facility)
+  (initialize-cluster facility)
+  (kubectl-apply facility config))
+
+
 
 
 ; Reminder: remote file with String as content:
