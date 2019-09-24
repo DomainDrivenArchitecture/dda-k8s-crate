@@ -24,6 +24,8 @@
    [dda.pallet.dda-k8s-crate.domain.templating :as templating]
    [selmer.parser :as selmer]))
 
+(def InfraResult {infra/facility infra/ddaK8sConfig})
+
 (s/def k8sUser
   {:user {:name s/Keyword
           :password secret/Secret
@@ -31,9 +33,15 @@
                                  :ssh-key {:public-key secret/Secret
                                            :private-key secret/Secret}}}})
 
-(def k8sDomain
+(s/def k8sDomain
+  {:kubectl {:external-ip s/Str
+             :host-name s/Str
+             (s/optional-key :letsencrypt-prod) s/Bool
+             :nexus-host-name s/Str}})
+
+(def k8sDomainConfig
   (merge
-   {:letsencrypt-prod s/Bool} ; Letsencrypt environment: true -> prod | false -> staging
+   k8sDomain
    k8sUser))
 
 (def k8sDomainResolved (secret/create-resolved-schema k8sDomain))
@@ -47,36 +55,11 @@
     (user/domain-configuration name password ssh)))
 
 (s/defn ^:always-validate
-  infra-configuration
+  infra-configuration :- InfraResult
   [domain-config :- k8sDomainResolved]
-  (let [{:keys []} domain-config]
-    {infra/facility {}}))
-
-; Print all yml files, iterate over them and replace with selmer and create 
-; mapping between filename and string in sequence
-
-(defn list-files-in-dir
-  "Lists all the filenames found in a directory"
-  [path-to-dir]
-  (file-seq
-   (clojure.java.io/file "/home/krj/repo/dda-pallet/dda-k8s-crate/main/resources")))
-
-(defn test
-  ; Filters all files without extension
-  []
-  (for [file-name (filter #(.isFile %) (list-files-in-dir "bla"))]
-    (print (keyword (apply str (drop-last 4 (.getName file-name)))))))
-
-(defn create-map-with-path-content-mapping-helper
-  [map]
-  (for [file-name (filter #(.isFile %) (list-files-in-dir "bla"))]
-    (assoc (keyword (apply str (drop-last 4 (.getName file-name)))))))
-
-(defn create-map-with-path-content-mapping
-  []
-  (create-map-with-path-content-mapping-helper {}))
-
-  ;(selmer/render-file
-   ;(.getAbsolutePath file-name)
-   ;(get templating/template-associate-map
-    ;    (keyword (apply str (drop-last 4 (.getName file-name))))))
+  {infra/facility 
+   {:kubectl-config   {:external-ip "test"
+                       :host-name "test"
+                       :letsencrypt-prod true   ; Letsencrypt environment: true -> prod | false -> staging
+                       :nexus-host-name "test"
+                       :nexus-secret-name "test"}}})

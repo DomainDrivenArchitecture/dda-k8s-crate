@@ -16,3 +16,6 @@
   (testing
    "test user domain config"
     (is (map? (sut/domain-configuration name user-password ssh)))))
+
+(def domain-config-1
+  )

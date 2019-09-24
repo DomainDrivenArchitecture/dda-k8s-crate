@@ -104,6 +104,7 @@
                                                                      "--key=ca.key"
                                                                      "--namespace=cert-manager"))))
 
+; TODO make optional
 (defn install-apple-banana
   [facility]
   (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/apple.yml")
