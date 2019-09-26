@@ -173,7 +173,11 @@
    :owner owner)
   (actions/directory
    "/home/k8s/k8s_resources/apple_banana"
+   :owner owner)
+  (actions/directory
+   "/home/k8s/k8s_resources/basic"
    :owner owner))
+
 
 (s/defn move-basic-yaml-to-server
   [owner :- s/Str]
