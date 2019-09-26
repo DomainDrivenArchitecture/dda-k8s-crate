@@ -64,7 +64,7 @@
     {:sudo-user "k8s"
      :script-dir "/home/k8s"
      :script-env {:HOME "/home/k8s"}}
-    (actions/exec-checked-script "sleep" ("sleep" "30"))
+    (actions/exec-checked-script "sleep" ("sleep" "180"))
     (actions/exec-checked-script "apply config file" ("kubectl" "apply" "-f" ~path-on-server))))
 
 (defn prepare-master-node
@@ -175,7 +175,7 @@
    "/home/k8s/k8s_resources/apple_banana"
    :owner owner))
 
-(defn move-basic-yaml-to-server
+(s/defn move-basic-yaml-to-server
   [owner :- s/Str]
   (actions/remote-file
    "/home/k8s/k8s_resources/basic/cert-manager.yaml"
