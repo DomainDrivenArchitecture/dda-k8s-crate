@@ -188,11 +188,11 @@
    :mode "755"
    :content (selmer/render-file "basic/cert-manager.yaml" {}))
   (actions/remote-file
-   "/home/k8s/k8s_resources/basic/kube-fannel-rbac.yml"
+   "/home/k8s/k8s_resources/basic/kube-flannel-rbac.yml"
    :literal true
    :owner owner
    :mode "755"
-   :content (selmer/render-file "basic/kube-fannel-rbac.yml" {}))
+   :content (selmer/render-file "basic/kube-flannel-rbac.yml" {}))
   (actions/remote-file
    "/home/k8s/k8s_resources/basic/kube-flannel.yml"
    :literal true
