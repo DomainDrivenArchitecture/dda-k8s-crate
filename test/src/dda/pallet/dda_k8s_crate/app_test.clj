@@ -21,7 +21,8 @@
 
 (s/set-fn-validation! true)
 
-(def domain-input {:user {:name :k8s
+(def domain-input {:letsencrypt-prod true
+                   :user {:name :k8s
                           :password {:plain "xxx"}                                  ; k8s user pwd on os level
                           :ssh
                           {:ssh-authorized-keys [{:plain "ssh-rsa AAAA..LL comment"}] ; ssh authorized keys

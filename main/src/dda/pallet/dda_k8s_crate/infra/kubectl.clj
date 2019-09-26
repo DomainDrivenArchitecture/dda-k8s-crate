@@ -16,7 +16,8 @@
 
 (defn get-secret-name-from-host-name
   [host-name]
-  (str/replace host-name #"\." "-"))
+  "meissa")
+  ;(str/replace host-name #"\." "-")) TODO
 
 ; should act somewhat as an interface to the kubectl commands
 
@@ -68,18 +69,18 @@
 
 (defn prepare-master-node
   [facility]
-  (kubectl-apply-f facility "https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml")
-  (kubectl-apply-f facility "https://raw.githubusercontent.com/coreos/flannel/master/Documentation/k8s-manifests/kube-flannel-rbac.yml")
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/basic/kube-flannel.yml")
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/basic/kube-flannel-rbac.yml")
   (action/with-action-options
     {:sudo-user "k8s"
      :script-dir "/home/k8s"
      :script-env {:HOME "/home/k8s"}}
     (actions/exec-script ("kubectl" "taint" "nodes" "--all" "node-role.kubernetes.io/master-" "||" "true"))) ;needs to fail so no checked script
   (kubectl-apply-f facility "/home/k8s/k8s_resources/admin_user.yml")
-  (kubectl-apply-f facility "https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yaml")
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/basic/kubernetes-dashboard.yaml")
   (kubectl-apply-f facility "/home/k8s/k8s_resources/metallb.yml")
   (kubectl-apply-f facility " /home/k8s/k8s_resources/metallb_config.yml")
-  (kubectl-apply-f facility "https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/mandatory.yaml")
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/basic/mandatory.yaml")
   (kubectl-apply-f facility "/home/k8s/k8s_resources/ingress_using_mettallb.yml"))
 
 (defn install-cert-manager
@@ -90,7 +91,7 @@
      :script-env {:HOME "/home/k8s"}}
     (actions/exec-checked-script "create cert-manager ns" ("kubectl" "create" "namespace" "cert-manager"))
     (actions/exec-checked-script "label cert-manager ns" ("kubectl" "label" "namespace" "cert-manager" "certmanager.k8s.io/disable-validation=true")))
-  (kubectl-apply-f facility "https://github.com/jetstack/cert-manager/releases/download/v0.9.1/cert-manager.yaml")
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/basic/cert-manager.yaml")
   (action/with-action-options ;n2
     {:sudo-user "k8s"
      :script-dir "/home/k8s"
@@ -153,7 +154,7 @@
   (actions/exec-checked-script "enable docker.service" ("systemctl" "enable" "docker.service"))
   (actions/exec-checked-script "pull k8s images" ("kubeadm" "config" "images" "pull"))
   (actions/exec-checked-script "init k8s" ("kubeadm" "init" "--pod-network-cidr=10.244.0.0/16"
-                                                     "--apiserver-advertise-address=127.0.0.1"))
+                                                     "--apiserver-advertise-address=127.0.0.1")) ;fails here if you have less than 2 cpus
   (actions/exec-checked-script "mk .kube dir" ("mkdir" "-p" "/home/k8s/.kube"))
   (actions/exec-checked-script "copy admin config for k8s" ("cp" "-i" "/etc/kubernetes/admin.conf"
                                                                  "/home/k8s/.kube/config"))
@@ -174,10 +175,44 @@
    "/home/k8s/k8s_resources/apple_banana"
    :owner owner))
 
+(defn move-basic-yaml-to-server
+  [owner :- s/Str]
+  (actions/remote-file
+   "/home/k8s/k8s_resources/basic/cert-manager.yaml"
+   :literal true
+   :owner owner
+   :mode "755"
+   :content (selmer/render-file "basic/cert-manager.yaml" {}))
+  (actions/remote-file
+   "/home/k8s/k8s_resources/basic/kube-fannel-rbac.yml"
+   :literal true
+   :owner owner
+   :mode "755"
+   :content (selmer/render-file "basic/kube-fannel-rbac.yml" {}))
+  (actions/remote-file
+   "/home/k8s/k8s_resources/basic/kube-flannel.yml"
+   :literal true
+   :owner owner
+   :mode "755"
+   :content (selmer/render-file "basic/kube-flannel.yml" {}))
+  (actions/remote-file
+   "/home/k8s/k8s_resources/basic/kubernetes-dashboard.yaml"
+   :literal true
+   :owner owner
+   :mode "755"
+   :content (selmer/render-file "basic/kubernetes-dashboard.yaml" {}))
+  (actions/remote-file
+   "/home/k8s/k8s_resources/basic/mandatory.yaml"
+   :literal true
+   :owner owner
+   :mode "755"
+   :content (selmer/render-file "basic/mandatory.yaml" {})))
+
 (s/defn move-yaml-to-server
   [config :- kubectl-config
    owner :- s/Str]
   (create-dirs owner)
+  (move-basic-yaml-to-server owner)
   (actions/remote-file
    "/home/k8s/k8s_resources/admin_user.yml"
    :literal true
@@ -268,7 +303,7 @@
   (install-kubernetes-apt-repositories facility)
   (install-kubeadm facility)
   (deactivate-swap facility)
-  (move-yaml-to-server config)
+  (move-yaml-to-server config "k8s")
   (activate-kubectl-bash-completion facility)
   (initialize-cluster facility)
   (kubectl-apply facility config))
