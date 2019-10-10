@@ -109,11 +109,15 @@
   (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/apple.yml")
   (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/banana.yml"))
 
+;TODO: check if working
 (defn configure-ingress-and-cert-manager
   [facility letsencrypt-prod]
   (if letsencrypt-prod
     (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_prod_https.yml")
-    (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_staging_https.yml"))) ;TODO check if working
+    (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_staging_https.yml"))
+  (if letsencrypt-prod
+    (kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/letsencrypt_prod_issuer.yml")
+    (kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/letsencrypt_staging_issuer.yml")))
 
 (defn install-nexus
   [facility]
