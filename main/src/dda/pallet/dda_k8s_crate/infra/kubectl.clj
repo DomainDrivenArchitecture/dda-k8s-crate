@@ -109,13 +109,11 @@
   (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/apple.yml")
   (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/banana.yml"))
 
-; TODO: implement prod/staging flag
 (defn configure-ingress-and-cert-manager
   [facility letsencrypt-prod]
   (if letsencrypt-prod
     (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_prod_https.yml")
-    (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_staging_https.yml"))
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/letsencrypt_staging_issuer.yml")) ;TODO not working
+    (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_staging_https.yml"))) ;TODO check if working
 
 (defn install-nexus
   [facility]
@@ -215,89 +213,92 @@
 (s/defn move-yaml-to-server
   [config :- kubectl-config
    owner :- s/Str]
-  (create-dirs owner)
-  (move-basic-yaml-to-server owner)
-  (actions/remote-file
-   "/home/k8s/k8s_resources/admin_user.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "admin_user.yml" {}))
-  (actions/remote-file
-   "/home/k8s/k8s_resources/metallb.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "metallb.yml" {}))
-  (actions/remote-file
-   "/home/k8s/k8s_resources/metallb_config.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "metallb_config.yml" {:external-ip (:external-ip config)}))
-  (actions/remote-file
-   "/home/k8s/k8s_resources/ingress_using_mettallb.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "ingress_using_mettallb.yml" {}))
-  (actions/remote-file
-   "/home/k8s/k8s_resources/cert_manager/letsencrypt_prod_issuer.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "cert_manager/letsencrypt_prod_issuer.yml" {}))
-  (actions/remote-file
-   "/home/k8s/k8s_resources/cert_manager/letsencrypt_staging_issuer.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "cert_manager/letsencrypt_staging_issuer.yml" {}))
-  (actions/remote-file
-   "/home/k8s/k8s_resources/apple_banana/apple.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "apple_banana/apple.yml" {}))
-  (actions/remote-file
-   "/home/k8s/k8s_resources/apple_banana/banana.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "apple_banana/banana.yml" {}))
-  (actions/remote-file
-   "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_staging_https.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "apple_banana/ingress_simple_le_staging_https.yml" {}))
-  (actions/remote-file
-   "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_prod_https.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "apple_banana/ingress_simple_le_prod_https.yml" {}))
-  (actions/remote-file
-   "/home/k8s/k8s_resources/nexus/ingress_nexus_https.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "nexus/ingress_nexus_https.yml"
-                                {:nexus-host-name (:nexus-host-name config)
-                                 :nexus-secret-name
-                                 (get-secret-name-from-host-name (:nexus-host-name config))}))
-  (actions/remote-file
-   "/home/k8s/k8s_resources/nexus/nexus-storage.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "nexus/nexus-storage.yml" {}))
-  (actions/remote-file
-   "/home/k8s/k8s_resources/nexus/nexus.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "nexus/nexus.yml" {})))
+  (let [{:keys [letsencrypt-prod]} config]
+    (create-dirs owner)
+    (move-basic-yaml-to-server owner)
+    (actions/remote-file
+     "/home/k8s/k8s_resources/admin_user.yml"
+     :literal true
+     :owner owner
+     :mode "755"
+     :content (selmer/render-file "admin_user.yml" {}))
+    (actions/remote-file
+     "/home/k8s/k8s_resources/metallb.yml"
+     :literal true
+     :owner owner
+     :mode "755"
+     :content (selmer/render-file "metallb.yml" {}))
+    (actions/remote-file
+     "/home/k8s/k8s_resources/metallb_config.yml"
+     :literal true
+     :owner owner
+     :mode "755"
+     :content (selmer/render-file "metallb_config.yml" {:external-ip (:external-ip config)}))
+    (actions/remote-file
+     "/home/k8s/k8s_resources/ingress_using_mettallb.yml"
+     :literal true
+     :owner owner
+     :mode "755"
+     :content (selmer/render-file "ingress_using_mettallb.yml" {}))
+    (if letsencrypt-prod
+      (actions/remote-file
+       "/home/k8s/k8s_resources/cert_manager/letsencrypt_prod_issuer.yml"
+       :literal true
+       :owner owner
+       :mode "755"
+       :content (selmer/render-file "cert_manager/letsencrypt_prod_issuer.yml" {}))
+      (actions/remote-file
+       "/home/k8s/k8s_resources/cert_manager/letsencrypt_staging_issuer.yml"
+       :literal true
+       :owner owner
+       :mode "755"
+       :content (selmer/render-file "cert_manager/letsencrypt_staging_issuer.yml" {})))
+    (actions/remote-file
+     "/home/k8s/k8s_resources/apple_banana/apple.yml"
+     :literal true
+     :owner owner
+     :mode "755"
+     :content (selmer/render-file "apple_banana/apple.yml" {}))
+    (actions/remote-file
+     "/home/k8s/k8s_resources/apple_banana/banana.yml"
+     :literal true
+     :owner owner
+     :mode "755"
+     :content (selmer/render-file "apple_banana/banana.yml" {}))
+    (if letsencrypt-prod
+      (actions/remote-file
+       "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_prod_https.yml"
+       :literal true
+       :owner owner
+       :mode "755"
+       :content (selmer/render-file "apple_banana/ingress_simple_le_prod_https.yml" {}))
+      (actions/remote-file
+       "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_staging_https.yml"
+       :literal true
+       :owner owner
+       :mode "755"
+       :content (selmer/render-file "apple_banana/ingress_simple_le_staging_https.yml" {})))
+    (actions/remote-file
+     "/home/k8s/k8s_resources/nexus/ingress_nexus_https.yml"
+     :literal true
+     :owner owner
+     :mode "755"
+     :content (selmer/render-file "nexus/ingress_nexus_https.yml"
+                                  {:nexus-host-name (:nexus-host-name config)
+                                   :nexus-secret-name
+                                   (get-secret-name-from-host-name (:nexus-host-name config))}))
+    (actions/remote-file
+     "/home/k8s/k8s_resources/nexus/nexus-storage.yml"
+     :literal true
+     :owner owner
+     :mode "755"
+     :content (selmer/render-file "nexus/nexus-storage.yml" {}))
+    (actions/remote-file
+     "/home/k8s/k8s_resources/nexus/nexus.yml"
+     :literal true
+     :owner owner
+     :mode "755"
+     :content (selmer/render-file "nexus/nexus.yml" {}))))
 
 (s/defn install
   [facility
