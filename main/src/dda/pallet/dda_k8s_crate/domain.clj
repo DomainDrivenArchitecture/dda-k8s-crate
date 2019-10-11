@@ -17,66 +17,55 @@
   (:require
    [schema.core :as s]
    [dda.pallet.commons.secret :as secret]
-   [dda.pallet.dda-k8s-crate.domain.user :as user]
    [dda.pallet.dda-k8s-crate.infra.kubectl :as kubectl]
    [dda.pallet.dda-k8s-crate.infra :as infra]
    [clojure.java.io :as io]
    [dda.pallet.dda-k8s-crate.domain.templating :as templating]
-   [selmer.parser :as selmer]))
-
-(s/def k8sUser
-  {:user {:name s/Keyword
-          :password secret/Secret
-          (s/optional-key :ssh) {:ssh-authorized-keys [secret/Secret]
-                                 :ssh-key {:public-key secret/Secret
-                                           :private-key secret/Secret}}}})
-
-(def k8sDomain
-  (merge
-   {:letsencrypt-prod s/Bool} ; Letsencrypt environment: true -> prod | false -> staging
-   k8sUser))
-
-(def k8sDomainResolved (secret/create-resolved-schema k8sDomain))
+   [selmer.parser :as selmer]
+   [clojure.string :as str]))
 
 (def InfraResult {infra/facility infra/ddaK8sConfig})
 
-(s/defn ^:always-validate
-  user-domain-configuration
+(s/def k8sUser
+  {:dda-user {:name s/Keyword
+              :password secret/Secret
+              (s/optional-key :ssh) {:ssh-authorized-keys [secret/Secret]
+                                     :ssh-key {:public-key secret/Secret
+                                               :private-key secret/Secret}}}})
+
+(s/def k8sDomain
+  {:kubectl {:external-ip s/Str
+             :host-name s/Str
+             (s/optional-key :letsencrypt-prod) s/Bool
+             :nexus-host-name s/Str}})
+
+(def k8sDomainConfig
+  (merge
+   k8sDomain
+   k8sUser))
+
+(def k8sDomainResolved (secret/create-resolved-schema k8sDomainConfig))
+
+(def InfraResult {infra/facility infra/ddaK8sConfig})
+
+(s/defn ^:always-validate user-domain-configuration
   [domain-config :- k8sDomainResolved]
-  (let [{:keys [password ssh name]} (:user domain-config)]
-    (user/domain-configuration name password ssh)))
+  (let [{:keys [dda-user]} domain-config
+        ssh (:ssh dda-user)]
+    {(keyword (:name dda-user))
+     (merge
+      {:clear-password (:password dda-user)
+       :settings #{:bashrc-d}}
+      (if ssh {:ssh-key (:ssh-key ssh)})
+      (if ssh {:ssh-authorized-keys (:ssh-authorized-keys ssh)}))}))
 
 (s/defn ^:always-validate
-  infra-configuration
+  infra-configuration :- InfraResult
   [domain-config :- k8sDomainResolved]
-  (let [{:keys []} domain-config]
-    {infra/facility {}}))
-
-; Print all yml files, iterate over them and replace with selmer and create 
-; mapping between filename and string in sequence
-
-(defn list-files-in-dir
-  "Lists all the filenames found in a directory"
-  [path-to-dir]
-  (file-seq
-   (clojure.java.io/file "/home/krj/repo/dda-pallet/dda-k8s-crate/main/resources")))
-
-(defn test
-  ; Filters all files without extension
-  []
-  (for [file-name (filter #(.isFile %) (list-files-in-dir "bla"))]
-    (print (keyword (apply str (drop-last 4 (.getName file-name)))))))
-
-(defn create-map-with-path-content-mapping-helper
-  [map]
-  (for [file-name (filter #(.isFile %) (list-files-in-dir "bla"))]
-    (assoc (keyword (apply str (drop-last 4 (.getName file-name)))))))
-
-(defn create-map-with-path-content-mapping
-  []
-  (create-map-with-path-content-mapping-helper {}))
-
-  ;(selmer/render-file
-   ;(.getAbsolutePath file-name)
-   ;(get templating/template-associate-map
-    ;    (keyword (apply str (drop-last 4 (.getName file-name))))))
+  (let [{:keys [external-ip host-name letsencrypt-prod nexus-host-name]} (:kubectl domain-config)]
+    {infra/facility
+     {:kubectl-config   {:external-ip external-ip
+                         :host-name host-name
+                         :letsencrypt-prod letsencrypt-prod   ; Letsencrypt environment: true -> prod | false -> staging
+                         :nexus-host-name nexus-host-name
+                         :nexus-secret-name (str/replace nexus-host-name #"\." "-")}}}))

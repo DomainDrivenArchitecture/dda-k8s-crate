@@ -29,38 +29,38 @@
 
 (def InfraResult domain/InfraResult)
 
-(def k8sDomain domain/k8sDomain)
-(def k8sDomainResolved domain/k8sDomainResolved)
+(def k8sDomainConfig domain/k8sDomainConfig)
+
+(def k8sDomainResolvedConfig domain/k8sDomainResolved)
 
 (def k8sAppConfig
   {:group-specific-config
-   {s/Keyword (merge
-               ;InfraResult
-               user/InfraResult)}})
+   {s/Keyword (merge InfraResult
+                     user/InfraResult)}})
 
 (s/defn ^:always-validate
   app-configuration-resolved :- k8sAppConfig
-  [resolved-domain-config :- k8sDomainResolved
+  [resolved-domain-config :- k8sDomainResolvedConfig
    & options]
   (let [{:keys [group-key] :or {group-key infra/facility}} options]
     (mu/deep-merge
      (user/app-configuration-resolved
-      (domain/user-domain-configuration resolved-domain-config) :group-key group-key))))
-     ;{:group-specific-config
-      ;{group-key
-       ;(domain/infra-configuration resolved-domain-config))
+      (domain/user-domain-configuration resolved-domain-config) :group-key group-key)
+     {:group-specific-config
+      {group-key
+       (domain/infra-configuration resolved-domain-config)}})))
 
 (s/defn ^:always-validate
   app-configuration :- k8sAppConfig
-  [domain-config :- k8sDomain
+  [domain-config :- k8sDomainConfig
    & options]
-  (let [resolved-domain-config (secret/resolve-secrets domain-config k8sDomain)]
+  (let [resolved-domain-config (secret/resolve-secrets domain-config k8sDomainConfig)]
     (apply app-configuration-resolved resolved-domain-config options)))
 
 (s/defmethod ^:always-validate
   core-app/group-spec infra/facility
   [crate-app
-   domain-config :- k8sDomainResolved]
+   domain-config :- k8sDomainResolvedConfig]
   (let [app-config (app-configuration-resolved domain-config)]
     (core-app/pallet-group-spec
      app-config [(config-crate/with-config app-config)
@@ -69,6 +69,6 @@
 
 (def crate-app (core-app/make-dda-crate-app
                 :facility infra/facility
-                :domain-schema k8sDomain
-                :domain-schema-resolved k8sDomainResolved
+                :domain-schema k8sDomainConfig
+                :domain-schema-resolved k8sDomainResolvedConfig
                 :default-domain-file "k8s.edn"))

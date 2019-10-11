@@ -27,24 +27,21 @@
 
 ; the infra config
 (def ddaK8sConfig
-  ;TODO: I think we have somewhere a shema excactly for IPs / use in metallb
   {:kubectl-config kubectl/kubectl-config})
-
-(selmer/render-file "metallb_config.yml" {:external-ip "test"})
 
 (s/defn install-k8s
   [facility :- s/Keyword
    config :- ddaK8sConfig]
-  ; TODO: Refactor function calling to kubectl namespace and logging as well
   (kubectl/install facility (:kubectl-config config)))
 
 (s/defmethod core-infra/dda-install facility
-  [core-infra config]
-  (install-k8s (:facility core-infra) config))
+  [dda-crate config]
+  (install-k8s (:facility dda-crate) config))
 
 (def dda-k8s-crate
   (core-infra/make-dda-crate-infra
-   :facility facility))
+   :facility facility
+   :infra-schema ddaK8sConfig))
 
 (def with-k8s
   (core-infra/create-infra-plan dda-k8s-crate))
