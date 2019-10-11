@@ -284,7 +284,7 @@
      :owner owner
      :mode "755"
      :content (selmer/render-file "nexus/ingress_nexus_https.yml"
-                                  {:nexus-host-name (:nexus-host-name config)
+                                  {:nexus-host-name "meissa";(:nexus-host-name config) #TODO
                                    :nexus-secret-name
                                    (get-secret-name-from-host-name (:nexus-host-name config))}))
     (actions/remote-file
