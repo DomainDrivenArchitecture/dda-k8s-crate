@@ -17,7 +17,8 @@
   (:require
    [clojure.test :refer :all]
    [schema.core :as s]
-   [dda.pallet.dda-k8s-crate.app :as sut]))
+   [dda.pallet.dda-k8s-crate.app :as sut]
+   [dda.pallet.dda-k8s-crate.domain-test :as test-domain]))
 
 (s/set-fn-validation! true)
 
@@ -32,7 +33,7 @@
 (deftest app-config
   (testing
    "test plan-def"
-    (is (map? (sut/app-configuration domain-input)))))
+    (is (map? (sut/app-configuration test-domain/test-domain-conf)))))
 
 (deftest plan-def
   (testing

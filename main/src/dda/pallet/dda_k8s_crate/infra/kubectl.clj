@@ -14,13 +14,6 @@
    :nexus-host-name s/Str
    :nexus-secret-name s/Str})
 
-(defn get-secret-name-from-host-name
-  [host-name]
-  "meissa")
-  ;(str/replace host-name #"\." "-")) TODO
-
-; should act somewhat as an interface to the kubectl commands
-
 (defn install-kubernetes-apt-repositories
   "apply kubectl config file"
   [facility]
@@ -179,7 +172,6 @@
    "/home/k8s/k8s_resources/basic"
    :owner owner))
 
-
 (s/defn move-basic-yaml-to-server
   [owner :- s/Str]
   (actions/remote-file
@@ -286,7 +278,7 @@
    :content (selmer/render-file "nexus/ingress_nexus_https.yml"
                                 {:nexus-host-name (:nexus-host-name config)
                                  :nexus-secret-name
-                                 (get-secret-name-from-host-name (:nexus-host-name config))}))
+                                 (:nexus-secret-name config)}))
   (actions/remote-file
    "/home/k8s/k8s_resources/nexus/nexus-storage.yml"
    :literal true
@@ -312,12 +304,3 @@
   (activate-kubectl-bash-completion facility)
   (initialize-cluster facility)
   (kubectl-apply facility config))
-
-
-
-
-; Reminder: remote file with String as content:
-;(actions/remote-file
-;     (str user-home "/.bashrc.d/team-pass.sh")
-;     :literal true
-;     :content "# Load the custom .*-pass I have

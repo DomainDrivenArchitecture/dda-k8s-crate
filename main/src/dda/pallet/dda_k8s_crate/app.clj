@@ -46,8 +46,8 @@
     (mu/deep-merge
      (user/app-configuration-resolved
       (domain/user-domain-configuration resolved-domain-config) :group-key group-key))
-     {:group-specific-config
-      {group-key
+    {:group-specific-config
+     {group-key
       (domain/infra-configuration resolved-domain-config)}}))
 
 (s/defn ^:always-validate

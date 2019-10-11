@@ -18,10 +18,3 @@
    [clojure.test :refer :all]
    [schema.core :as s]
    [dda.pallet.dda-k8s-crate.infra.kubectl :as sut]))
-
-(deftest get-secret-name-from-host-name
-  (testing
-   "Test function get-secret-name-from-host-name"
-    (is (= (sut/get-secret-name-from-host-name
-            "k8s-nexus.test.domaindrivenarchitecture.org")
-           "k8s-nexus-test-domaindrivenarchitecture-org"))))
