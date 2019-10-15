@@ -7,10 +7,10 @@
 
 (s/def test-conf-user
   {:dda-user {:name :k8s
-          :password "password"                                 ; k8s user pwd on os level
-          :ssh {:ssh-authorized-keys ["ssh-rsa AAAA..LL comment"] ; ssh authorized keys
-                :ssh-key {:public-key "ssh-rsa AAAA..LL comment"  ; ssh-key for git sync
-                          :private-key "SOME_PRIVATE_SSH_KEY"}}}})
+              :password "password"                                 ; k8s user pwd on os level
+              :ssh {:ssh-authorized-keys ["ssh-rsa AAAA..LL comment"] ; ssh authorized keys
+                    :ssh-key {:public-key "ssh-rsa AAAA..LL comment"  ; ssh-key for git sync
+                              :private-key "SOME_PRIVATE_SSH_KEY"}}}})
 
 (s/def test-conf-kubectl
   {:kubectl {:external-ip "external-ip"
@@ -29,7 +29,7 @@
     (is (= {:k8s {:clear-password "password"
                   :settings #{:bashrc-d}
                   :ssh-authorized-keys ["ssh-rsa AAAA..LL comment"]
-                  :ssh-key {:private-key "SOME_PRIVATE_SSH_KEY", 
+                  :ssh-key {:private-key "SOME_PRIVATE_SSH_KEY"
                             :public-key "ssh-rsa AAAA..LL comment"}}}
            (sut/user-domain-configuration test-domain-conf)))
     (is (= {:dda-k8s {:kubectl-config {:external-ip "external-ip"
@@ -42,8 +42,7 @@
                   :settings #{:bashrc-d}
                   :ssh-authorized-keys ["ssh-rsa AAAA..LL comment"]
                   :ssh-key {:private-key "SOME_PRIVATE_SSH_KEY", :public-key "ssh-rsa AAAA..LL comment"}}}
-           (sut/user-domain-configuration test-domain-conf)))
-    ))
+           (sut/user-domain-configuration test-domain-conf)))))
 
 (deftest test-input-for-user-domain
   (testing

@@ -56,7 +56,7 @@
      (merge
       {:clear-password (:password dda-user)
        :settings #{:bashrc-d}}
-      (if ssh {:ssh-key (:ssh-key ssh)}) 
+      (if ssh {:ssh-key (:ssh-key ssh)})
       (if ssh {:ssh-authorized-keys (:ssh-authorized-keys ssh)}))}))
 
 (s/defn ^:always-validate

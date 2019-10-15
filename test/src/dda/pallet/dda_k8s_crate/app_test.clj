@@ -22,18 +22,10 @@
 
 (s/set-fn-validation! true)
 
-(def domain-input {:letsencrypt-prod true
-                   :user {:name :k8s
-                          :password {:plain "xxx"}                                  ; k8s user pwd on os level
-                          :ssh
-                          {:ssh-authorized-keys [{:plain "ssh-rsa AAAA..LL comment"}] ; ssh authorized keys
-                           :ssh-key {:public-key {:plain "ssh-rsa AAAA..LL comment"}  ; ssh-key for git sync
-                                     :private-key {:plain "SOME_PRIVATE_SSH_KEY"}}}}})
-
 (deftest app-config
   (testing
    "test plan-def"
-    (is (map? (sut/app-configuration test-domain/test-domain-conf)))))
+    (is (map? (sut/app-configuration-resolved test-domain/test-domain-conf)))))
 
 (deftest plan-def
   (testing
