@@ -45,14 +45,14 @@
   (let [{:keys [group-key] :or {group-key infra/facility}} options]
     (mu/deep-merge
      (user/app-configuration-resolved
-      (domain/user-domain-configuration resolved-domain-config) :group-key group-key))
-    {:group-specific-config
-     {group-key
-      (domain/infra-configuration resolved-domain-config)}}))
+      (domain/user-domain-configuration resolved-domain-config) :group-key group-key)
+     {:group-specific-config
+      {group-key
+       (domain/infra-configuration resolved-domain-config)}})))
 
 (s/defn ^:always-validate
   app-configuration :- k8sAppConfig
-  [domain-config :- k8sDomainResolvedConfig
+  [domain-config :- k8sDomainConfig
    & options]
   (let [resolved-domain-config (secret/resolve-secrets domain-config k8sDomainConfig)]
     (apply app-configuration-resolved resolved-domain-config options)))
