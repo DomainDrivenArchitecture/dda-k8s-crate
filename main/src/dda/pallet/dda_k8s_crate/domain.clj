@@ -17,7 +17,6 @@
   (:require
    [schema.core :as s]
    [dda.pallet.commons.secret :as secret]
-   [dda.pallet.dda-k8s-crate.domain.user :as user]
    [dda.pallet.dda-k8s-crate.infra.kubectl :as kubectl]
    [dda.pallet.dda-k8s-crate.infra :as infra]
    [clojure.java.io :as io]
@@ -29,10 +28,10 @@
 
 (s/def k8sUser
   {:dda-user {:name s/Keyword
-          :password secret/Secret
-          (s/optional-key :ssh) {:ssh-authorized-keys [secret/Secret]
-                                 :ssh-key {:public-key secret/Secret
-                                           :private-key secret/Secret}}}})
+              :password secret/Secret
+              (s/optional-key :ssh) {:ssh-authorized-keys [secret/Secret]
+                                     :ssh-key {:public-key secret/Secret
+                                               :private-key secret/Secret}}}})
 
 (s/def k8sDomain
   {:kubectl {:external-ip s/Str
@@ -49,11 +48,16 @@
 
 (def InfraResult {infra/facility infra/ddaK8sConfig})
 
-(s/defn ^:always-validate
-  user-domain-configuration
+(s/defn ^:always-validate user-domain-configuration
   [domain-config :- k8sDomainResolved]
-  (let [{:keys [password ssh name]} (:dda-user domain-config)]
-    (user/domain-configuration name password ssh)))
+  (let [{:keys [dda-user]} domain-config
+        ssh (:ssh dda-user)]
+    {(keyword (:name dda-user))
+     (merge
+      {:clear-password (:password dda-user)
+       :settings #{:bashrc-d}}
+      (if ssh {:ssh-key (:ssh-key ssh)}) 
+      (if ssh {:ssh-authorized-keys (:ssh-authorized-keys ssh)}))}))
 
 (s/defn ^:always-validate
   infra-configuration :- InfraResult
