@@ -1,6 +1,6 @@
 {:kubectl {:external-ip "external-ip"
            :host-name "hostname"
-           :letsencrypt-prod true
+           :letsencrypt-prod false
            :nexus-host-name "nexus-host-name"}
  :dda-user {:name :k8s
         :password {:plain "xxx"}                                  ; k8s user pwd on os level

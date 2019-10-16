@@ -49,7 +49,7 @@
 
 (defn kubectl-apply-f
   "apply kubectl config file"
-  [facility path-on-server]
+  [facility path-on-server & [should-sleep?]]
   (actions/as-action
    (logging/info
     (str facility "-install system: kubectl apply -f " path-on-server)))
@@ -57,7 +57,8 @@
     {:sudo-user "k8s"
      :script-dir "/home/k8s"
      :script-env {:HOME "/home/k8s"}}
-    (actions/exec-checked-script "sleep" ("sleep" "180"))
+    (when should-sleep?
+      (actions/exec-checked-script "sleep" ("sleep" "180")))
     (actions/exec-checked-script "apply config file" ("kubectl" "apply" "-f" ~path-on-server))))
 
 (defn prepare-master-node
@@ -100,7 +101,7 @@
 ; TODO make optional
 (defn install-apple-banana
   [facility]
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/apple.yml")
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/apple.yml" true)
   (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/banana.yml"))
 
 ;TODO: check if working
