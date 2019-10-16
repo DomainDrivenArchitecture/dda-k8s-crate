@@ -1,4 +1,4 @@
-# 
+# https://github.com/jetstack/cert-manager/releases/download/v0.11.0/cert-manager.yaml
 ---
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
@@ -6108,7 +6108,7 @@ spec:
                 fieldPath: metadata.namespace
           resources:
             {}
-
+            
 
 ---
 # Source: cert-manager/templates/deployment.yaml
@@ -6168,7 +6168,7 @@ spec:
             requests:
               cpu: 10m
               memory: 32Mi
-
+            
 
 ---
 # Source: cert-manager/templates/webhook-deployment.yaml
@@ -6218,7 +6218,7 @@ spec:
                 fieldPath: metadata.namespace
           resources:
             {}
-
+            
           volumeMounts:
           - name: certs
             mountPath: /certs
