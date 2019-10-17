@@ -73,7 +73,7 @@
   (kubectl-apply-f facility "/home/k8s/k8s_resources/admin_user.yml")
   (kubectl-apply-f facility "/home/k8s/k8s_resources/basic/kubernetes-dashboard.yaml")
   (kubectl-apply-f facility "/home/k8s/k8s_resources/metallb.yml")
-  (kubectl-apply-f facility " /home/k8s/k8s_resources/metallb_config.yml")
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/metallb_config.yml")
   (kubectl-apply-f facility "/home/k8s/k8s_resources/basic/mandatory.yaml")
   (kubectl-apply-f facility "/home/k8s/k8s_resources/ingress_using_mettallb.yml"))
 
@@ -98,7 +98,7 @@
                                                                      "--key=ca.key"
                                                                      "--namespace=cert-manager"))))
 
-; TODO make optional
+;TODO: make optional
 (defn install-apple-banana
   [facility]
   (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/apple.yml" true)
@@ -111,8 +111,8 @@
     (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_prod_https.yml")
     (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_staging_https.yml"))
   (if letsencrypt-prod
-    (kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/letsencrypt_prod_issuer.yml")
-    (kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/letsencrypt_staging_issuer.yml")))
+    (kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/letsencrypt_prod_issuer.yml" true)
+    (kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/letsencrypt_staging_issuer.yml" true)))
 
 (defn install-nexus
   [facility]
