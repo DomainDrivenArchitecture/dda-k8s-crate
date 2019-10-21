@@ -109,10 +109,10 @@
   [facility letsencrypt-prod]
   (if letsencrypt-prod
     (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_prod_https.yml")
-    (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_staging_https.yml"))
-  (if letsencrypt-prod
-    (kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/letsencrypt_prod_issuer.yml" true)
-    (kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/letsencrypt_staging_issuer.yml" true)))
+    (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_staging_https.yml")))
+  ;if letsencrypt-prod
+    ;(kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/letsencrypt_prod_issuer.yml" true)
+    ;(kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/letsencrypt_staging_issuer.yml" true)))
 
 (defn install-nexus
   [facility]
@@ -130,10 +130,10 @@
   [facility config]
   (let [{:keys [letsencrypt-prod]} config]
     (prepare-master-node facility)
-    (install-cert-manager facility)
+    ;(install-cert-manager facility)
     (install-apple-banana facility)
-    (configure-ingress-and-cert-manager facility letsencrypt-prod)
-    (install-nexus facility)))
+    (configure-ingress-and-cert-manager facility letsencrypt-prod)))
+    ;(install-nexus facility)))
 
 (defn activate-kubectl-bash-completion
   "apply kubectl config file"
@@ -300,10 +300,10 @@
    config :- kubectl-config]
   (actions/as-action
    (logging/info (str facility "-install system: kubeadm")))
-  (install-kubernetes-apt-repositories facility)
-  (install-kubeadm facility)
-  (deactivate-swap facility)
+  ;(install-kubernetes-apt-repositories facility)
+  ;(install-kubeadm facility)
+  ;(deactivate-swap facility))
+  ;(activate-kubectl-bash-completion facility)
+  ;(initialize-cluster facility)
   (move-yaml-to-server config "k8s")
-  (activate-kubectl-bash-completion facility)
-  (initialize-cluster facility)
   (kubectl-apply facility config))
