@@ -303,7 +303,7 @@
   (install-kubernetes-apt-repositories facility)
   (install-kubeadm facility)
   (deactivate-swap facility)
-  (move-yaml-to-server config "k8s")
   (activate-kubectl-bash-completion facility)
   (initialize-cluster facility)
+  (move-yaml-to-server config "k8s")
   (kubectl-apply facility config))
