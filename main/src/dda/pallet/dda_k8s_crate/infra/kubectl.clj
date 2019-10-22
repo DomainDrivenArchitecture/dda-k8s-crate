@@ -14,12 +14,12 @@
    :nexus-host-name s/Str
    :nexus-secret-name s/Str})
 
-(defn install-kubernetes-apt-repositories
+(defn init-kubernetes-apt-repositories
   "apply kubectl config file"
   [facility]
   (actions/as-action
    (logging/info
-    (str facility "-install system: install kubernetes repository")))
+    (str facility "-init system: install kubernetes repository")))
   (actions/package-manager :update)
   (actions/package "apt-transport-https")
   (actions/package-source
@@ -300,10 +300,16 @@
    config :- kubectl-config]
   (actions/as-action
    (logging/info (str facility "-install system: kubeadm")))
-  (install-kubernetes-apt-repositories facility)
   (install-kubeadm facility)
   (deactivate-swap facility)
   (activate-kubectl-bash-completion facility)
   (initialize-cluster facility)
   (move-yaml-to-server config "k8s")
   (kubectl-apply facility config))
+
+(s/defn init
+  [facility
+   config :- kubectl-config]
+  (actions/as-action
+   (logging/info (str facility "-init")))
+  (init-kubernetes-apt-repositories facility))

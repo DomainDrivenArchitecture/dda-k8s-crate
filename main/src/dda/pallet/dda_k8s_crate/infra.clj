@@ -29,14 +29,13 @@
 (def ddaK8sConfig
   {:kubectl-config kubectl/kubectl-config})
 
-(s/defn install-k8s
-  [facility :- s/Keyword
-   config :- ddaK8sConfig]
-  (kubectl/install facility (:kubectl-config config)))
+(s/defmethod core-infra/dda-init facility
+  [dda-crate config]
+  (kubectl/init (:facility dda-crate) (:kubectl-config config)))
 
 (s/defmethod core-infra/dda-install facility
   [dda-crate config]
-  (install-k8s (:facility dda-crate) config))
+  (kubectl/install (:facility dda-crate) (:kubectl-config config)))
 
 (def dda-k8s-crate
   (core-infra/make-dda-crate-infra
