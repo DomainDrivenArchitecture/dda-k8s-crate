@@ -59,7 +59,9 @@
      :script-env {:HOME "/home/k8s"}}
     (when should-sleep?
       (actions/exec-checked-script "sleep" ("sleep" "180")))
-    (actions/exec-checked-script "apply config file" ("kubectl" "apply" "-f" ~path-on-server))))
+    (actions/exec-checked-script 
+     "apply config file" 
+     ("kubectl" "apply" "-f" ~path-on-server))))
 
 (defn prepare-master-node
   [facility]
@@ -300,8 +302,8 @@
    config :- kubectl-config]
   (actions/as-action
    (logging/info (str facility "-install system: kubeadm")))
-  (install-kubeadm facility)
   (deactivate-swap facility)
+  (install-kubeadm facility)
   (activate-kubectl-bash-completion facility)
   (initialize-cluster facility)
   (move-yaml-to-server config "k8s")
