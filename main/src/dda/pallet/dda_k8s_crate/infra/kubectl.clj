@@ -150,14 +150,16 @@
   [facility]
   (actions/as-action
    (logging/info (str facility "-install system: init cluster")))
-  (actions/exec-checked-script "enable docker.service" ("systemctl" "enable" "docker.service"))
-  (actions/exec-checked-script "pull k8s images" ("kubeadm" "config" "images" "pull"))
-  (actions/exec-checked-script "init k8s" ("kubeadm" "init" "--pod-network-cidr=10.244.0.0/16"
-                                                     "--apiserver-advertise-address=127.0.0.1")) ;fails here if you have less than 2 cpus
-  (actions/exec-checked-script "mk .kube dir" ("mkdir" "-p" "/home/k8s/.kube"))
-  (actions/exec-checked-script "copy admin config for k8s" ("cp" "-i" "/etc/kubernetes/admin.conf"
-                                                                 "/home/k8s/.kube/config"))
-  (actions/exec-checked-script "change owner of k8s dir" ("chown" "-R" "k8s:k8s" "/home/k8s/.kube")))
+  (actions/exec-checked-script 
+   "initialize cluster" 
+   ("systemctl" "enable" "docker.service")
+   ("kubeadm" "config" "images" "pull")
+   ("kubeadm" "init" "--pod-network-cidr=10.244.0.0/16"
+              "--apiserver-advertise-address=127.0.0.1") ;fails here if you have less than 2 cpus
+   ("mkdir" "-p" "/home/k8s/.kube")
+   ("cp" "-i" "/etc/kubernetes/admin.conf"
+         "/home/k8s/.kube/config")
+   ("chown" "-R" "k8s:k8s" "/home/k8s/.kube")))
 
 (s/defn create-dirs
   [owner :- s/Str]
@@ -306,7 +308,12 @@
   (install-kubeadm facility)
   (activate-kubectl-bash-completion facility)
   (initialize-cluster facility)
+
+  ; TODO: use remote dir instead of single file copies
+  ; separate plain copy from templating stuff
   (move-yaml-to-server config "k8s")
+
+  ; TODO: as - user is not working!
   (kubectl-apply facility config))
 
 (s/defn init
