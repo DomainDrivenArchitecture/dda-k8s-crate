@@ -52,6 +52,7 @@
    ("kubeadm" "config" "images" "pull")
    ("kubeadm" "init" "--pod-network-cidr=10.244.0.0/16"
               "--apiserver-advertise-address=127.0.0.1") ;fails here if you have less than 2 cpus
+   ("kubectl" "taint" "nodes" "--all" "node-role.kubernetes.io/master-")
    ))
 
 (s/defn user-install-k8s-env
@@ -60,16 +61,36 @@
   (actions/as-action (logging/info (str facility " - user-install-k8s-env")))
   (actions/exec-checked-script
    "user-install-k8s-env"
-   ("mkdir" "-p" ~str("/home/" user "/.kube"))
+   ("mkdir" "-p" ~(str "/home/" user "/.kube"))
    ("cp" "-i" "/etc/kubernetes/admin.conf"
-         ~str("/home/" user "/.kube/config"))
-   ("chown" "-R" ~str(user ":" user) ~str("/home/" user "/.kube"))))
+         ~(str "/home/" user "/.kube/config"))
+   ("chown" "-R" ~(str user ":" user) ~(str "/home/" user "/.kube"))))
 
-(defn user-configure-copy-yml
-  [facility]
+(s/defn user-configure-copy-yml
+  [facility
+   user :- s/Str]
   (actions/as-action
    (logging/info (str facility " - user-configure-k8s-yml")))
-  )
+  (doseq [path ["/k8s_resources"
+                "/k8s_resources/flannel"
+                "/k8s_resources/admin"
+                "/k8s_resources/cert_manager"
+                "/k8s_resources/apple_banana"
+                "/k8s_resources/nexus"]]
+    (actions/directories
+     (str "/home/" user path)
+     :group user
+     :owner user))
+  (doseq [path ["flannel/kube-flannel-rbac.yml"
+                "flannel/kube-flannel.yml"
+                "admin/admin_user.yml"]]
+    (actions/remote-file
+     (str "/home/" user "/k8s_resources/" path)
+     :literal true
+     :group user
+     :owner user
+     :mode "755"
+     :content (selmer/render-file path {}))))
 
 (defn kubectl-apply-f
   "apply kubectl config file"
@@ -85,10 +106,9 @@
 
 (defn prepare-master-node
   [facility]
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/basic/kube-flannel.yml")
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/basic/kube-flannel-rbac.yml")
-  (actions/exec-script ("sudo" "-H" "-u" "k8s" "bash" "-c" "'kubectl" "taint" "nodes" "--all" "node-role.kubernetes.io/master-" "||" "true'")) ;needs to fail so no checked script
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/admin_user.yml")
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/flannel/kube-flannel.yml")
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/flannel/kube-flannel-rbac.yml")
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/admin/admin_user.yml")
   (kubectl-apply-f facility "/home/k8s/k8s_resources/basic/kubernetes-dashboard.yaml")
   (kubectl-apply-f facility "/home/k8s/k8s_resources/metallb.yml")
   (kubectl-apply-f facility "/home/k8s/k8s_resources/metallb_config.yml")
@@ -145,24 +165,6 @@
     (configure-ingress-and-cert-manager facility letsencrypt-prod)
     (install-nexus facility)))
 
-(s/defn create-dirs
-  [owner :- s/Str]
-  (actions/directory
-   "/home/k8s/k8s_resources"
-   :owner owner)
-  (actions/directory
-   "/home/k8s/k8s_resources/nexus"
-   :owner owner)
-  (actions/directory
-   "/home/k8s/k8s_resources/cert_manager"
-   :owner owner)
-  (actions/directory
-   "/home/k8s/k8s_resources/apple_banana"
-   :owner owner)
-  (actions/directory
-   "/home/k8s/k8s_resources/basic"
-   :owner owner))
-
 (s/defn move-basic-yaml-to-server
   [owner :- s/Str]
   (actions/remote-file
@@ -171,18 +173,6 @@
    :owner owner
    :mode "755"
    :content (selmer/render-file "basic/cert-manager.yaml" {}))
-  (actions/remote-file
-   "/home/k8s/k8s_resources/basic/kube-flannel-rbac.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "basic/kube-flannel-rbac.yml" {}))
-  (actions/remote-file
-   "/home/k8s/k8s_resources/basic/kube-flannel.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "basic/kube-flannel.yml" {}))
   (actions/remote-file
    "/home/k8s/k8s_resources/basic/kubernetes-dashboard.yaml"
    :literal true
@@ -199,14 +189,7 @@
 (s/defn move-yaml-to-server
   [config :- kubectl-config
    owner :- s/Str]
-  (create-dirs owner)
   (move-basic-yaml-to-server owner)
-  (actions/remote-file
-   "/home/k8s/k8s_resources/admin_user.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "admin_user.yml" {}))
   (actions/remote-file
    "/home/k8s/k8s_resources/metallb.yml"
    :literal true
@@ -295,14 +278,7 @@
    config :- kubectl-config]
   (actions/as-action (logging/info (str facility " - system-install")))
   (system-install-k8s facility)
-  (system-install-kubectl-bash-completion facility)
-
-  ; TODO: use remote dir instead of single file copies
-  ; separate plain copy from templating stuff
-  (move-yaml-to-server config "k8s")
-
-  ; TODO: as - user is not working!
-  (kubectl-apply facility config))
+  (system-install-kubectl-bash-completion facility))
 
 (s/defn user-install
   [facility
@@ -310,7 +286,6 @@
    config :- kubectl-config]
   (actions/as-action (logging/info (str facility " - user-install")))
   (user-install-k8s-env facility user))
-
 
 (s/defn system-configure
   [facility
@@ -322,5 +297,12 @@
   [facility
    user :- s/Str
    config :- kubectl-config]
-  (actions/as-action (logging/info (str facility " - user-configure"))) 
-  (user-configure-copy-yml facility))
+  (actions/as-action (logging/info (str facility " - user-configure")))
+  ; TODO run cleanup for being able do reaply??
+  (user-configure-copy-yml facility user)
+  
+  ; TODO: use remote dir instead of single file copies
+  ; separate plain copy from templating stuff
+  (move-yaml-to-server config user)
+  ; TODO: as - user is not working!
+  (kubectl-apply facility config))
