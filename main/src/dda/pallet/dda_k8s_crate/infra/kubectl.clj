@@ -54,18 +54,18 @@
               "--apiserver-advertise-address=127.0.0.1") ;fails here if you have less than 2 cpus
    ))
 
-(defn user-install-k8s-env
-  [facility]
-  (actions/as-action
-   (logging/info (str facility " - user-install-k8s-env")))
+(s/defn user-install-k8s-env
+  [facility
+   user :- s/Str]
+  (actions/as-action (logging/info (str facility " - user-install-k8s-env")))
   (actions/exec-checked-script
    "user-install-k8s-env"
-   ("mkdir" "-p" "/home/k8s/.kube")
+   ("mkdir" "-p" ~str("/home/" user "/.kube"))
    ("cp" "-i" "/etc/kubernetes/admin.conf"
-         "/home/k8s/.kube/config")
-   ("chown" "-R" "k8s:k8s" "/home/k8s/.kube")))
+         ~str("/home/" user "/.kube/config"))
+   ("chown" "-R" ~str(user ":" user) ~str("/home/" user "/.kube"))))
 
-(defn user-configure-k8s-yml
+(defn user-configure-copy-yml
   [facility]
   (actions/as-action
    (logging/info (str facility " - user-configure-k8s-yml")))
@@ -293,7 +293,7 @@
 (s/defn system-install
   [facility
    config :- kubectl-config]
-  (actions/as-action (logging/info (str facility "system-install")))
+  (actions/as-action (logging/info (str facility " - system-install")))
   (system-install-k8s facility)
   (system-install-kubectl-bash-completion facility)
 
@@ -304,15 +304,23 @@
   ; TODO: as - user is not working!
   (kubectl-apply facility config))
 
+(s/defn user-install
+  [facility
+   user :- s/Str
+   config :- kubectl-config]
+  (actions/as-action (logging/info (str facility " - user-install")))
+  (user-install-k8s-env facility user))
+
+
 (s/defn system-configure
   [facility
    config :- kubectl-config]
-  (actions/as-action (logging/info (str facility "system-configure")))
+  (actions/as-action (logging/info (str facility " - system-configure")))
   (system-configure-k8s facility))
 
 (s/defn user-configure
   [facility
    user :- s/Str
    config :- kubectl-config]
-  (actions/as-action (logging/info (str facility "system-configure")))
-  (system-configure-k8s facility))
+  (actions/as-action (logging/info (str facility " - user-configure"))) 
+  (user-configure-copy-yml facility))
