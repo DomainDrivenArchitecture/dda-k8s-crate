@@ -5,23 +5,16 @@
    [dda.pallet.dda-k8s-crate.domain :as sut]
    [dda.pallet.commons.secret :as secret]))
 
-(s/def test-conf-user
-  {:dda-user {:name :k8s
-              :password "password"                                 ; k8s user pwd on os level
-              :ssh {:ssh-authorized-keys ["ssh-rsa AAAA..LL comment"] ; ssh authorized keys
-                    :ssh-key {:public-key "ssh-rsa AAAA..LL comment"  ; ssh-key for git sync
-                              :private-key "SOME_PRIVATE_SSH_KEY"}}}})
-
-(s/def test-conf-kubectl
-  {:kubectl {:external-ip "external-ip"
+(s/def test-domain-conf
+  {:user :k8s
+   :password "password"                                 ; k8s user pwd on os level
+   :ssh {:ssh-authorized-keys ["ssh-rsa AAAA..LL comment"] ; ssh authorized keys
+         :ssh-key {:public-key "ssh-rsa AAAA..LL comment"  ; ssh-key for git sync
+                   :private-key "SOME_PRIVATE_SSH_KEY"}}
+   :kubectl {:external-ip "external-ip"
              :host-name "hostname"
              :letsencrypt-prod true
              :nexus-host-name "nexus-host-name"}})
-
-(def test-domain-conf
-  (merge
-   test-conf-user
-   test-conf-kubectl))
 
 (deftest test-input-to-domain
   (testing

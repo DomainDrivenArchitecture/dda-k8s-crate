@@ -26,35 +26,27 @@
 
 (def InfraResult {infra/facility infra/ddaK8sConfig})
 
-(s/def k8sUser
-  {:dda-user {:name s/Keyword
-              :password secret/Secret
-              (s/optional-key :ssh) {:ssh-authorized-keys [secret/Secret]
-                                     :ssh-key {:public-key secret/Secret
-                                               :private-key secret/Secret}}}})
-
 (s/def k8sDomain
-  {:kubectl {:external-ip s/Str
+  {:user s/Keyword
+   :password secret/Secret
+   (s/optional-key :ssh) {:ssh-authorized-keys [secret/Secret]
+                          :ssh-key {:public-key secret/Secret
+                                    :private-key secret/Secret}}
+   :kubectl {:external-ip s/Str
              :host-name s/Str
              (s/optional-key :letsencrypt-prod) s/Bool
              :nexus-host-name s/Str}})
 
-(def k8sDomainConfig
-  (merge
-   k8sDomain
-   k8sUser))
-
-(def k8sDomainResolved (secret/create-resolved-schema k8sDomainConfig))
+(def k8sDomainResolved (secret/create-resolved-schema k8sDomain))
 
 (def InfraResult {infra/facility infra/ddaK8sConfig})
 
 (s/defn ^:always-validate user-domain-configuration
   [domain-config :- k8sDomainResolved]
-  (let [{:keys [dda-user]} domain-config
-        ssh (:ssh dda-user)]
-    {(keyword (:name dda-user))
+  (let [{:keys [user password ssh]} domain-config]
+    {user
      (merge
-      {:clear-password (:password dda-user)
+      {:clear-password password
        :settings #{:bashrc-d}}
       (if ssh {:ssh-key (:ssh-key ssh)})
       (if ssh {:ssh-authorized-keys (:ssh-authorized-keys ssh)}))}))

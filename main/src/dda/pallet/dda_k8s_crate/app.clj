@@ -27,11 +27,11 @@
 
 (def with-k8s infra/with-k8s)
 
-(def InfraResult domain/InfraResult)
-
-(def k8sDomainConfig domain/k8sDomainConfig)
+(def k8sDomainConfig domain/k8sDomain)
 
 (def k8sDomainResolvedConfig domain/k8sDomainResolved)
+
+(def InfraResult domain/InfraResult)
 
 (def k8sAppConfig
   {:group-specific-config
