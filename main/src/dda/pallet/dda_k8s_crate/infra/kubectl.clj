@@ -40,19 +40,20 @@
   [facility]
   (actions/as-action
    (logging/info (str facility " -system-install-kubectl-bash-completion")))
-  (actions/exec-checked-script "add k8s to bash completion"
-                               ("kubectl" "completion" "bash" ">>" "/etc/bash_completion.d/kubernetes")))
+  (actions/exec-checked-script 
+   "add k8s to bash completion"
+   ("kubectl" "completion" "bash" ">>" "/etc/bash_completion.d/kubernetes")))
 
-(defn system-configure-k8s
+(defn system-install-k8s-base-config
   [facility]
-  (actions/as-action (logging/info (str facility " - system-configure-k8s")))
+  (actions/as-action (logging/info (str facility " - system-install-k8s-base-config")))
   (actions/exec-checked-script
    "system-configure-k8s"
    ("systemctl" "enable" "docker.service")
    ("kubeadm" "config" "images" "pull")
    ("kubeadm" "init" "--pod-network-cidr=10.244.0.0/16"
               "--apiserver-advertise-address=127.0.0.1") ;fails here if you have less than 2 cpus
-   ("kubectl" "taint" "nodes" "--all" "node-role.kubernetes.io/master-")
+   ;("kubectl" "taint" "nodes" "--all" "node-role.kubernetes.io/master-")
    ))
 
 (s/defn user-install-k8s-env
@@ -278,7 +279,9 @@
    config :- kubectl-config]
   (actions/as-action (logging/info (str facility " - system-install")))
   (system-install-k8s facility)
+  (system-install-k8s-base-config facility)
   (system-install-kubectl-bash-completion facility))
+
 
 (s/defn user-install
   [facility
@@ -291,7 +294,7 @@
   [facility
    config :- kubectl-config]
   (actions/as-action (logging/info (str facility " - system-configure")))
-  (system-configure-k8s facility))
+  )
 
 (s/defn user-configure
   [facility
