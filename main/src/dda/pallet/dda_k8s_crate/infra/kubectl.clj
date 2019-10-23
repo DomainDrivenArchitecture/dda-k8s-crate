@@ -45,25 +45,17 @@
   (actions/as-action
    (logging/info
     (str facility "-install system: kubectl apply -f " path-on-server)))
-  (action/with-action-options
-    {:sudo-user "k8s"
-     :script-dir "/home/k8s"
-     :script-env {:HOME "/home/k8s"}}
-    (when should-sleep?
-      (actions/exec-checked-script "sleep" ("sleep" "180")))
-    (actions/exec-checked-script 
-     "apply config file" 
-     ("kubectl" "apply" "-f" ~path-on-server))))
+  (when should-sleep?
+     (actions/exec-checked-script "sleep" ("sleep" "180")))
+  (actions/exec-checked-script
+   "apply config file"
+   ("sudo" "-H" "-u" "k8s" "bash" "-c" "'kubectl" "apply" "-f" ~path-on-server "'")))
 
 (defn prepare-master-node
   [facility]
   (kubectl-apply-f facility "/home/k8s/k8s_resources/basic/kube-flannel.yml")
   (kubectl-apply-f facility "/home/k8s/k8s_resources/basic/kube-flannel-rbac.yml")
-  (action/with-action-options
-    {:sudo-user "k8s"
-     :script-dir "/home/k8s"
-     :script-env {:HOME "/home/k8s"}}
-    (actions/exec-script ("kubectl" "taint" "nodes" "--all" "node-role.kubernetes.io/master-" "||" "true"))) ;needs to fail so no checked script
+  (actions/exec-script ("sudo" "-H" "-u" "k8s" "bash" "-c" "'kubectl" "taint" "nodes" "--all" "node-role.kubernetes.io/master-" "||" "true'")) ;needs to fail so no checked script
   (kubectl-apply-f facility "/home/k8s/k8s_resources/admin_user.yml")
   (kubectl-apply-f facility "/home/k8s/k8s_resources/basic/kubernetes-dashboard.yaml")
   (kubectl-apply-f facility "/home/k8s/k8s_resources/metallb.yml")
@@ -73,24 +65,16 @@
 
 (defn install-cert-manager
   [facility]
-  (action/with-action-options ;n2
-    {:sudo-user "k8s"
-     :script-dir "/home/k8s"
-     :script-env {:HOME "/home/k8s"}}
-    (actions/exec-checked-script "create cert-manager ns" ("kubectl" "create" "namespace" "cert-manager"))
-    (actions/exec-checked-script "label cert-manager ns" ("kubectl" "label" "namespace" "cert-manager" "certmanager.k8s.io/disable-validation=true")))
+  (actions/exec-checked-script "create cert-manager ns" ("sudo" "-H" "-u" "k8s" "bash" "-c" "'kubectl" "create" "namespace" "cert-manager'"))
+  (actions/exec-checked-script "label cert-manager ns" ("sudo" "-H" "-u" "k8s" "bash" "-c" "'kubectl" "label" "namespace" "cert-manager" "certmanager.k8s.io/disable-validation=true'"))
   (kubectl-apply-f facility "/home/k8s/k8s_resources/basic/cert-manager.yaml")
-  (action/with-action-options ;n2
-    {:sudo-user "k8s"
-     :script-dir "/home/k8s"
-     :script-env {:HOME "/home/k8s"}}
-    (actions/exec-checked-script "create cert key" ("openssl" "genrsa" "-out" "ca.key" "2048"))
-    (actions/exec-checked-script "" ("openssl" "req" "-x509" "-new" "-nodes" "-key" "ca.key" "-subj" "'/CN=test.domaindrivenarchitecture.org'"
-                                               "-days" "365" "-reqexts" "v3_req" "-extensions" "v3_ca" "-out" "ca.crt"))
-    (actions/exec-checked-script "create cert key secret" ("kubectl" "create" "secret" "tls" "test-domaindrivenarchitecture-org-ca-key-pair"
+  (actions/exec-checked-script "create cert key" ("sudo" "-H" "-u" "k8s" "bash" "-c" "'openssl" "genrsa" "-out" "ca.key" "2048'"))
+  (actions/exec-checked-script "" ("sudo" "-H" "-u" "k8s" "bash" "-c" "'openssl" "req" "-x509" "-new" "-nodes" "-key" "ca.key" "-subj" "'/CN=test.domaindrivenarchitecture.org'"
+                                               "-days" "365" "-reqexts" "v3_req" "-extensions" "v3_ca" "-out" "ca.crt'"))
+  (actions/exec-checked-script "create cert key secret" ("sudo" "-H" "-u" "k8s" "bash" "-c" "'kubectl" "create" "secret" "tls" "test-domaindrivenarchitecture-org-ca-key-pair"
                                                                      "--cert=ca.crt"
                                                                      "--key=ca.key"
-                                                                     "--namespace=cert-manager"))))
+                                                                     "--namespace=cert-manager'")))
 
 ;TODO: make optional
 (defn install-apple-banana
@@ -296,7 +280,6 @@
    config :- kubectl-config]
   (actions/as-action
    (logging/info (str facility "-install system: kubeadm")))
-  (deactivate-swap facility)
   (install-kubeadm facility)
   (activate-kubectl-bash-completion facility)
   (initialize-cluster facility)
