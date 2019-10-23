@@ -75,6 +75,9 @@
   (doseq [path ["/k8s_resources"
                 "/k8s_resources/flannel"
                 "/k8s_resources/admin"
+                "/k8s_resources/dashboard"
+                "/k8s_resources/metallb"
+                "/k8s_resources/ingress"
                 "/k8s_resources/cert_manager"
                 "/k8s_resources/apple_banana"
                 "/k8s_resources/nexus"]]
@@ -84,7 +87,20 @@
      :owner user))
   (doseq [path ["flannel/kube-flannel-rbac.yml"
                 "flannel/kube-flannel.yml"
-                "admin/admin_user.yml"]]
+                "admin/admin_user.yml"
+                "dashboard/kubernetes-dashboard.yaml"
+                "metallb/metallb.yml"
+                "ingress/mandatory.yaml"
+                "ingress/ingress_using_mettallb.yml"
+                "cert_manager/cert-manager.yaml"
+                "cert_manager/letsencrypt_prod_issuer.yml"
+                "cert_manager/letsencrypt_staging_issuer.yml"
+                "apple_banana/apple.yml"
+                "apple_banana/banana.yml"
+                "apple_banana/ingress_simple_le_staging_https.yml"
+                "apple_banana/ingress_simple_le_prod_https.yml"
+                "nexus/nexus-storage.yml"
+                "nexus/nexus.yml"]]
     (actions/remote-file
      (str "/home/" user "/k8s_resources/" path)
      :literal true
@@ -92,6 +108,24 @@
      :owner user
      :mode "755"
      :content (selmer/render-file path {}))))
+
+(s/defn user-configure-copy-template
+  [config :- kubectl-config
+   owner :- s/Str]
+  (actions/remote-file
+   "/home/k8s/k8s_resources/metallb_config.yml"
+   :literal true
+   :owner owner
+   :mode "755"
+   :content (selmer/render-file "metallb/metallb_config.yml.template" {:external-ip (:external-ip config)}))
+  (actions/remote-file
+   "/home/k8s/k8s_resources/nexus/ingress_nexus_https.yml"
+   :literal true
+   :owner owner
+   :mode "755"
+   :content (selmer/render-file "nexus/ingress_nexus_https.yml.template"
+                                {:nexus-host-name (:nexus-host-name config)
+                                 :nexus-secret-name (:nexus-secret-name config)})))
 
 (defn user-configure-untaint-master
   [facility]
@@ -116,25 +150,32 @@
   [facility]
   (kubectl-apply-f facility "/home/k8s/k8s_resources/flannel/kube-flannel.yml")
   (kubectl-apply-f facility "/home/k8s/k8s_resources/flannel/kube-flannel-rbac.yml")
+  (user-configure-untaint-master facility)
   (kubectl-apply-f facility "/home/k8s/k8s_resources/admin/admin_user.yml")
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/basic/kubernetes-dashboard.yaml")
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/metallb.yml")
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/metallb_config.yml")
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/basic/mandatory.yaml")
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/ingress_using_mettallb.yml"))
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/dashboard/kubernetes-dashboard.yaml")
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/metallb/metallb.yml")
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/metallb/metallb_config.yml")
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/ingress/mandatory.yaml")
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/ingress/ingress_using_mettallb.yml"))
 
 (defn install-cert-manager
   [facility]
-  (actions/exec-checked-script "create cert-manager ns" ("sudo" "-H" "-u" "k8s" "bash" "-c" "'kubectl" "create" "namespace" "cert-manager'"))
-  (actions/exec-checked-script "label cert-manager ns" ("sudo" "-H" "-u" "k8s" "bash" "-c" "'kubectl" "label" "namespace" "cert-manager" "certmanager.k8s.io/disable-validation=true'"))
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/basic/cert-manager.yaml")
-  (actions/exec-checked-script "create cert key" ("sudo" "-H" "-u" "k8s" "bash" "-c" "'openssl" "genrsa" "-out" "ca.key" "2048'"))
-  (actions/exec-checked-script "" ("sudo" "-H" "-u" "k8s" "bash" "-c" "'openssl" "req" "-x509" "-new" "-nodes" "-key" "ca.key" "-subj" "'/CN=test.domaindrivenarchitecture.org'"
-                                               "-days" "365" "-reqexts" "v3_req" "-extensions" "v3_ca" "-out" "ca.crt'"))
-  (actions/exec-checked-script "create cert key secret" ("sudo" "-H" "-u" "k8s" "bash" "-c" "'kubectl" "create" "secret" "tls" "test-domaindrivenarchitecture-org-ca-key-pair"
-                                                                     "--cert=ca.crt"
-                                                                     "--key=ca.key"
-                                                                     "--namespace=cert-manager'")))
+  (actions/exec-checked-script
+   "create cert-manager ns"
+   ("sudo" "-H" "-u" "k8s" "bash" "-c" "'kubectl" "create" "namespace" "cert-manager'"))
+  (actions/exec-checked-script
+   "label cert-manager ns"
+   ("sudo" "-H" "-u" "k8s" "bash" "-c" "'kubectl" "label" "namespace" "cert-manager" "certmanager.k8s.io/disable-validation=true'"))
+  (kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/cert-manager.yaml")
+  (actions/exec-checked-script
+   "create cert key"
+   ("sudo" "-H" "-u" "k8s" "bash" "-c" "'openssl" "genrsa" "-out" "ca.key" "2048'")
+   ("sudo" "-H" "-u" "k8s" "bash" "-c" "'openssl" "req" "-x509" "-new" "-nodes" "-key" "ca.key" "-subj" "'/CN=test.domaindrivenarchitecture.org'"
+           "-days" "365" "-reqexts" "v3_req" "-extensions" "v3_ca" "-out" "ca.crt'")
+   ("sudo" "-H" "-u" "k8s" "bash" "-c" "'kubectl" "create" "secret" "tls" "test-domaindrivenarchitecture-org-ca-key-pair"
+           "--cert=ca.crt"
+           "--key=ca.key"
+           "--namespace=cert-manager'")))
 
 ;TODO: make optional
 (defn install-apple-banana
@@ -173,107 +214,6 @@
     (configure-ingress-and-cert-manager facility letsencrypt-prod)
     (install-nexus facility)))
 
-(s/defn move-basic-yaml-to-server
-  [owner :- s/Str]
-  (actions/remote-file
-   "/home/k8s/k8s_resources/basic/cert-manager.yaml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "basic/cert-manager.yaml" {}))
-  (actions/remote-file
-   "/home/k8s/k8s_resources/basic/kubernetes-dashboard.yaml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "basic/kubernetes-dashboard.yaml" {}))
-  (actions/remote-file
-   "/home/k8s/k8s_resources/basic/mandatory.yaml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "basic/mandatory.yaml" {})))
-
-(s/defn move-yaml-to-server
-  [config :- kubectl-config
-   owner :- s/Str]
-  (move-basic-yaml-to-server owner)
-  (actions/remote-file
-   "/home/k8s/k8s_resources/metallb.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "metallb.yml" {}))
-  (actions/remote-file
-   "/home/k8s/k8s_resources/metallb_config.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "metallb_config.yml" {:external-ip (:external-ip config)}))
-  (actions/remote-file
-   "/home/k8s/k8s_resources/ingress_using_mettallb.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "ingress_using_mettallb.yml" {}))
-  (actions/remote-file
-   "/home/k8s/k8s_resources/cert_manager/letsencrypt_prod_issuer.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "cert_manager/letsencrypt_prod_issuer.yml" {}))
-  (actions/remote-file
-   "/home/k8s/k8s_resources/cert_manager/letsencrypt_staging_issuer.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "cert_manager/letsencrypt_staging_issuer.yml" {}))
-  (actions/remote-file
-   "/home/k8s/k8s_resources/apple_banana/apple.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "apple_banana/apple.yml" {}))
-  (actions/remote-file
-   "/home/k8s/k8s_resources/apple_banana/banana.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "apple_banana/banana.yml" {}))
-  (actions/remote-file
-   "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_staging_https.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "apple_banana/ingress_simple_le_staging_https.yml" {}))
-  (actions/remote-file
-   "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_prod_https.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "apple_banana/ingress_simple_le_prod_https.yml" {}))
-  (actions/remote-file
-   "/home/k8s/k8s_resources/nexus/ingress_nexus_https.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "nexus/ingress_nexus_https.yml"
-                                {:nexus-host-name (:nexus-host-name config)
-                                 :nexus-secret-name
-                                 (:nexus-secret-name config)}))
-  (actions/remote-file
-   "/home/k8s/k8s_resources/nexus/nexus-storage.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "nexus/nexus-storage.yml" {}))
-  (actions/remote-file
-   "/home/k8s/k8s_resources/nexus/nexus.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "nexus/nexus.yml" {})))
-
 (s/defn init
   [facility
    config :- kubectl-config]
@@ -308,12 +248,9 @@
    user :- s/Str
    config :- kubectl-config]
   (actions/as-action (logging/info (str facility " - user-configure")))
-  ; TODO run cleanup for being able do reaply??
+  ; TODO run cleanup for being able do reaply config??
   (user-configure-copy-yml facility user)
+  (user-configure-copy-template config user)
   
-  ; TODO: use remote dir instead of single file copies
-  ; separate plain copy from templating stuff
-  (move-yaml-to-server config user)
-  (user-configure-untaint-master facility)
   ; TODO: as - user is not working!
   (kubectl-apply facility config))
