@@ -17,10 +17,8 @@
 (ns dda.pallet.dda-k8s-crate.infra
   (:require
    [schema.core :as s]
-   [clojure.tools.logging :as logging]
-   [pallet.actions :as actions]
    [dda.pallet.core.infra :as core-infra]
-   [selmer.parser :as selmer]
+   [dda.pallet.dda-k8s-crate.infra.base :as base]
    [dda.pallet.dda-k8s-crate.infra.kubectl :as kubectl]))
 
 (def facility :dda-k8s)
@@ -35,6 +33,7 @@
 
 (s/defmethod core-infra/dda-install facility
   [dda-crate config]
+  (base/install (:facility dda-crate))
   (kubectl/install (:facility dda-crate) (:kubectl-config config)))
 
 (def dda-k8s-crate

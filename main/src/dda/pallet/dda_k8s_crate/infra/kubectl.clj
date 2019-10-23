@@ -39,14 +39,6 @@
   (actions/package-manager :update)
   (actions/packages :aptitude ["docker.io" "kubelet" "kubeadm" "kubernetes-cni"]))
 
-(defn deactivate-swap
-  "deactivate swap on the server"
-  [facility]
-  (actions/as-action
-   (logging/info (str facility "-install system: disable swap")))
-  (actions/exec-checked-script "turn swap off" ("swapoff" "-a"))
-  (actions/exec-checked-script "remove active swap" ("sed" "-i" "'/swap/d'" "/etc/fstab")))
-
 (defn kubectl-apply-f
   "apply kubectl config file"
   [facility path-on-server & [should-sleep?]]
