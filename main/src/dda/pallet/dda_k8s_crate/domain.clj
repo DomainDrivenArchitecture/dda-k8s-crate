@@ -54,9 +54,11 @@
 (s/defn ^:always-validate
   infra-configuration :- InfraResult
   [domain-config :- k8sDomainResolved]
-  (let [{:keys [external-ip host-name letsencrypt-prod nexus-host-name]} (:kubectl domain-config)]
+  (let [{:keys [user kubectl]} domain-config
+        {:keys [external-ip host-name letsencrypt-prod nexus-host-name]} kubectl]
     {infra/facility
-     {:kubectl-config   {:external-ip external-ip
+     {:user user
+      :kubectl-config   {:external-ip external-ip
                          :host-name host-name
                          :letsencrypt-prod letsencrypt-prod   ; Letsencrypt environment: true -> prod | false -> staging
                          :nexus-host-name nexus-host-name

@@ -17,34 +17,20 @@
              :nexus-host-name "nexus-host-name"}})
 
 (deftest test-input-to-domain
-  (testing
-   "test if config is valid input for domain functions"
-    (is (= {:k8s {:clear-password "password"
-                  :settings #{:bashrc-d}
-                  :ssh-authorized-keys ["ssh-rsa AAAA..LL comment"]
-                  :ssh-key {:private-key "SOME_PRIVATE_SSH_KEY"
-                            :public-key "ssh-rsa AAAA..LL comment"}}}
-           (sut/user-domain-configuration test-domain-conf)))
-    (is (= {:dda-k8s {:kubectl-config {:external-ip "external-ip"
-                                       :host-name "hostname"
-                                       :letsencrypt-prod true
-                                       :nexus-host-name "nexus-host-name"
-                                       :nexus-secret-name "nexus-host-name"}}}
-           (sut/infra-configuration test-domain-conf)))
-    (is (= {:k8s {:clear-password "password"
-                  :settings #{:bashrc-d}
-                  :ssh-authorized-keys ["ssh-rsa AAAA..LL comment"]
-                  :ssh-key {:private-key "SOME_PRIVATE_SSH_KEY", :public-key "ssh-rsa AAAA..LL comment"}}}
-           (sut/user-domain-configuration test-domain-conf)))))
+  (is (= {:dda-k8s {:user :k8s
+                    :kubectl-config {:external-ip "external-ip"
+                                     :host-name "hostname"
+                                     :letsencrypt-prod true
+                                     :nexus-host-name "nexus-host-name"
+                                     :nexus-secret-name "nexus-host-name"}}}
+         (sut/infra-configuration test-domain-conf))))
 
 (deftest test-input-for-user-domain
-  (testing
-   "test domain together with user app configs and domain configs"
-    (is (= {:k8s {:clear-password "password"
-                  :settings #{:bashrc-d}
-                  :ssh-authorized-keys ["ssh-rsa AAAA..LL comment"]
-                  :ssh-key {:private-key "SOME_PRIVATE_SSH_KEY", :public-key "ssh-rsa AAAA..LL comment"}}}
-           (sut/user-domain-configuration test-domain-conf)))))
+  (is (= {:k8s {:clear-password "password"
+                :settings #{:bashrc-d}
+                :ssh-authorized-keys ["ssh-rsa AAAA..LL comment"]
+                :ssh-key {:private-key "SOME_PRIVATE_SSH_KEY", :public-key "ssh-rsa AAAA..LL comment"}}}
+         (sut/user-domain-configuration test-domain-conf))))
 
 
 

@@ -1,10 +1,10 @@
-{:kubectl {:external-ip "78.47.117.208:"
+{:user :k8s
+ :password {:plain "xxx"}                                  ; k8s user pwd on os level
+ :ssh {:ssh-authorized-keys [{:plain "ssh-rsa AAAA..LL comment"}] ; ssh authorized keys
+       :ssh-key {:public-key {:plain "ssh-rsa AAAA..LL comment"}  ; ssh-key for git sync
+                 :private-key {:plain "SOME_PRIVATE_SSH_KEY"}}}
+ :kubectl {:external-ip "78.47.117.208"
            :host-name "hostname"
            :letsencrypt-prod false
            :nexus-host-name "nexus-host-name"}
- :dda-user {:name :k8s
-            :password {:plain "xxx"}                                  ; k8s user pwd on os level
-            :ssh {:ssh-authorized-keys [{:plain "ssh-rsa AAAA..LL comment"}] ; ssh authorized keys
-                  :ssh-key {:public-key {:plain "ssh-rsa AAAA..LL comment"}  ; ssh-key for git sync
-                            :private-key {:plain "SOME_PRIVATE_SSH_KEY"}}}}
  }
