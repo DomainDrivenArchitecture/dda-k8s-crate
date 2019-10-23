@@ -18,7 +18,7 @@
   [facility]
   (actions/as-action
    (logging/info
-    (str facility "-init system: install kubernetes repository")))
+    (str facility " - init-kubernetes-apt-repositories")))
   (actions/package-manager :update)
   (actions/package "apt-transport-https")
   (actions/package-source
@@ -32,21 +32,20 @@
 (defn system-install-k8s
   [facility]
   (actions/as-action
-   (logging/info
-    (str facility "-system-install-k8s")))
+   (logging/info (str facility " - system-install-k8s")))
   (actions/package-manager :update)
   (actions/packages :aptitude ["docker.io" "kubelet" "kubeadm" "kubernetes-cni"]))
 
 (defn system-install-kubectl-bash-completion
   [facility]
   (actions/as-action
-   (logging/info (str facility "-system-install-kubectl-bash-completion")))
+   (logging/info (str facility " -system-install-kubectl-bash-completion")))
   (actions/exec-checked-script "add k8s to bash completion"
                                ("kubectl" "completion" "bash" ">>" "/etc/bash_completion.d/kubernetes")))
 
 (defn system-configure-k8s
   [facility]
-  (actions/as-action (logging/info (str facility "system-configure-k8s")))
+  (actions/as-action (logging/info (str facility " - system-configure-k8s")))
   (actions/exec-checked-script
    "system-configure-k8s"
    ("systemctl" "enable" "docker.service")
@@ -58,13 +57,19 @@
 (defn user-install-k8s-env
   [facility]
   (actions/as-action
-   (logging/info (str facility "user-install-k8s-env")))
+   (logging/info (str facility " - user-install-k8s-env")))
   (actions/exec-checked-script
    "user-install-k8s-env"
    ("mkdir" "-p" "/home/k8s/.kube")
    ("cp" "-i" "/etc/kubernetes/admin.conf"
          "/home/k8s/.kube/config")
    ("chown" "-R" "k8s:k8s" "/home/k8s/.kube")))
+
+(defn user-configure-k8s-yml
+  [facility]
+  (actions/as-action
+   (logging/info (str facility " - user-configure-k8s-yml")))
+  )
 
 (defn kubectl-apply-f
   "apply kubectl config file"
