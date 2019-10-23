@@ -48,7 +48,7 @@
   [facility]
   (actions/as-action (logging/info (str facility " - system-install-k8s-base-config")))
   (actions/exec-checked-script
-   "system-configure-k8s"
+   "system-install-k8s-base-config"
    ("systemctl" "enable" "docker.service")
    ("kubeadm" "config" "images" "pull")
    ("kubeadm" "init" "--pod-network-cidr=10.244.0.0/16"
@@ -78,7 +78,7 @@
                 "/k8s_resources/cert_manager"
                 "/k8s_resources/apple_banana"
                 "/k8s_resources/nexus"]]
-    (actions/directories
+    (actions/directory
      (str "/home/" user path)
      :group user
      :owner user))
@@ -92,6 +92,13 @@
      :owner user
      :mode "755"
      :content (selmer/render-file path {}))))
+
+(defn user-configure-untaint-master
+  [facility]
+  (actions/as-action (logging/info (str facility " - system-install-k8s-base-config")))
+  (actions/exec-checked-script
+   "user-configure-untaint-master"
+   ("kubectl" "taint" "nodes" "--all" "node-role.kubernetes.io/master-")))
 
 (defn kubectl-apply-f
   "apply kubectl config file"
@@ -307,5 +314,6 @@
   ; TODO: use remote dir instead of single file copies
   ; separate plain copy from templating stuff
   (move-yaml-to-server config user)
+  (user-configure-untaint-master facility)
   ; TODO: as - user is not working!
   (kubectl-apply facility config))
