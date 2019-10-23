@@ -15,7 +15,6 @@
    :nexus-secret-name s/Str})
 
 (defn init-kubernetes-apt-repositories
-  "apply kubectl config file"
   [facility]
   (actions/as-action
    (logging/info
@@ -30,14 +29,42 @@
     :scopes ["main"]
     :key-url "https://packages.cloud.google.com/apt/doc/apt-key.gpg"}))
 
-(defn install-kubeadm
-  "apply kubectl config file"
+(defn system-install-k8s
   [facility]
   (actions/as-action
    (logging/info
-    (str facility "-install system: apt install kubeadm")))
+    (str facility "-system-install-k8s")))
   (actions/package-manager :update)
   (actions/packages :aptitude ["docker.io" "kubelet" "kubeadm" "kubernetes-cni"]))
+
+(defn system-install-kubectl-bash-completion
+  [facility]
+  (actions/as-action
+   (logging/info (str facility "-system-install-kubectl-bash-completion")))
+  (actions/exec-checked-script "add k8s to bash completion"
+                               ("kubectl" "completion" "bash" ">>" "/etc/bash_completion.d/kubernetes")))
+
+(defn system-configure-k8s
+  [facility]
+  (actions/as-action (logging/info (str facility "system-configure-k8s")))
+  (actions/exec-checked-script
+   "system-configure-k8s"
+   ("systemctl" "enable" "docker.service")
+   ("kubeadm" "config" "images" "pull")
+   ("kubeadm" "init" "--pod-network-cidr=10.244.0.0/16"
+              "--apiserver-advertise-address=127.0.0.1") ;fails here if you have less than 2 cpus
+   ))
+
+(defn user-install-k8s-env
+  [facility]
+  (actions/as-action
+   (logging/info (str facility "user-install-k8s-env")))
+  (actions/exec-checked-script
+   "user-install-k8s-env"
+   ("mkdir" "-p" "/home/k8s/.kube")
+   ("cp" "-i" "/etc/kubernetes/admin.conf"
+         "/home/k8s/.kube/config")
+   ("chown" "-R" "k8s:k8s" "/home/k8s/.kube")))
 
 (defn kubectl-apply-f
   "apply kubectl config file"
@@ -46,7 +73,7 @@
    (logging/info
     (str facility "-install system: kubectl apply -f " path-on-server)))
   (when should-sleep?
-     (actions/exec-checked-script "sleep" ("sleep" "180")))
+    (actions/exec-checked-script "sleep" ("sleep" "180")))
   (actions/exec-checked-script
    "apply config file"
    ("sudo" "-H" "-u" "k8s" "bash" "-c" "'kubectl" "apply" "-f" ~path-on-server "'")))
@@ -112,30 +139,6 @@
     (install-apple-banana facility)
     (configure-ingress-and-cert-manager facility letsencrypt-prod)
     (install-nexus facility)))
-
-(defn activate-kubectl-bash-completion
-  "apply kubectl config file"
-  [facility]
-  (actions/as-action
-   (logging/info (str facility "-install system: activate bash completion")))
-  (actions/exec-checked-script "add k8s to bash completion"
-                               ("kubectl" "completion" "bash" ">>" "/etc/bash_completion.d/kubernetes")))
-
-(defn initialize-cluster
-  "apply kubectl config file"
-  [facility]
-  (actions/as-action
-   (logging/info (str facility "-install system: init cluster")))
-  (actions/exec-checked-script 
-   "initialize cluster" 
-   ("systemctl" "enable" "docker.service")
-   ("kubeadm" "config" "images" "pull")
-   ("kubeadm" "init" "--pod-network-cidr=10.244.0.0/16"
-              "--apiserver-advertise-address=127.0.0.1") ;fails here if you have less than 2 cpus
-   ("mkdir" "-p" "/home/k8s/.kube")
-   ("cp" "-i" "/etc/kubernetes/admin.conf"
-         "/home/k8s/.kube/config")
-   ("chown" "-R" "k8s:k8s" "/home/k8s/.kube")))
 
 (s/defn create-dirs
   [owner :- s/Str]
@@ -275,14 +278,19 @@
    :mode "755"
    :content (selmer/render-file "nexus/nexus.yml" {})))
 
-(s/defn install
+(s/defn init
   [facility
    config :- kubectl-config]
   (actions/as-action
-   (logging/info (str facility "-install system: kubeadm")))
-  (install-kubeadm facility)
-  (activate-kubectl-bash-completion facility)
-  (initialize-cluster facility)
+   (logging/info (str facility "-init")))
+  (init-kubernetes-apt-repositories facility))
+
+(s/defn system-install
+  [facility
+   config :- kubectl-config]
+  (actions/as-action (logging/info (str facility "system-install")))
+  (system-install-k8s facility)
+  (system-install-kubectl-bash-completion facility)
 
   ; TODO: use remote dir instead of single file copies
   ; separate plain copy from templating stuff
@@ -291,9 +299,15 @@
   ; TODO: as - user is not working!
   (kubectl-apply facility config))
 
-(s/defn init
+(s/defn system-configure
   [facility
    config :- kubectl-config]
-  (actions/as-action
-   (logging/info (str facility "-init")))
-  (init-kubernetes-apt-repositories facility))
+  (actions/as-action (logging/info (str facility "system-configure")))
+  (system-configure-k8s facility))
+
+(s/defn user-configure
+  [facility
+   user :- s/Str
+   config :- kubectl-config]
+  (actions/as-action (logging/info (str facility "system-configure")))
+  (system-configure-k8s facility))

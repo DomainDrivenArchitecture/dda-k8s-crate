@@ -29,12 +29,23 @@
 
 (s/defmethod core-infra/dda-init facility
   [dda-crate config]
-  (kubectl/init (:facility dda-crate) (:kubectl-config config)))
+  (let [facility (:facility dda-crate)
+        {:keys [kubectl-config]} config]
+    (kubectl/init facility kubectl-config)))
 
 (s/defmethod core-infra/dda-install facility
   [dda-crate config]
-  (base/install (:facility dda-crate))
-  (kubectl/install (:facility dda-crate) (:kubectl-config config)))
+  (let [facility (:facility dda-crate)
+        {:keys [kubectl-config]} config]
+    (base/install facility)
+    (kubectl/system-install facility kubectl-config)))
+
+(s/defmethod core-infra/dda-configure facility
+  [dda-crate config]
+  (let [facility (:facility dda-crate)
+        {:keys [kubectl-config dda-user]} config]
+    (kubectl/system-configure facility kubectl-config)
+    (kubectl/system-configure facility (:name dda-user) kubectl-config)))
 
 (def dda-k8s-crate
   (core-infra/make-dda-crate-infra
