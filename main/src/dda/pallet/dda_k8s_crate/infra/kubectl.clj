@@ -7,6 +7,7 @@
    [selmer.parser :as selmer]
    [clojure.string :as str]))
 
+; TODO: use hostname
 (s/def kubectl-config
   {:external-ip s/Str
    :host-name s/Str
@@ -108,24 +109,24 @@
      :mode "755"
      :content (selmer/render-file path {}))))
 
-;TODO: owner = user, k8s = user 
 (s/defn user-configure-copy-template
   [config :- kubectl-config
-   owner :- s/Str]
-  (actions/remote-file
-   "/home/k8s/k8s_resources/metallb/metallb_config.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "metallb/metallb_config.yml.template" {:external-ip (:external-ip config)}))
-  (actions/remote-file
-   "/home/k8s/k8s_resources/nexus/ingress_nexus_https.yml"
-   :literal true
-   :owner owner
-   :mode "755"
-   :content (selmer/render-file "nexus/ingress_nexus_https.yml.template"
-                                {:nexus-host-name (:nexus-host-name config)
-                                 :nexus-secret-name (:nexus-secret-name config)})))
+   user :- s/Str]
+  (let [user-resource-path (str "/home/" user "/k8s_resources/")]
+    (actions/remote-file
+     (str user-resource-path "metallb/metallb_config.yml")
+     :literal true
+     :owner user
+     :mode "755"
+     :content (selmer/render-file "metallb/metallb_config.yml.template" {:external-ip (:external-ip config)}))
+    (actions/remote-file
+     (str user-resource-path "nexus/ingress_nexus_https.yml")
+     :literal true
+     :owner user
+     :mode "755"
+     :content (selmer/render-file "nexus/ingress_nexus_https.yml.template"
+                                  {:nexus-host-name (:nexus-host-name config)
+                                   :nexus-secret-name (:nexus-secret-name config)}))))
 
 (defn user-configure-untaint-master
   [facility user]
