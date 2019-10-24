@@ -126,7 +126,10 @@
      :mode "755"
      :content (selmer/render-file "nexus/ingress_nexus_https.yml.template"
                                   {:nexus-host-name (:nexus-host-name config)
-                                   :nexus-secret-name (:nexus-secret-name config)}))))
+                                   :nexus-secret-name (:nexus-secret-name config)
+                                   :cluster-issuer (if (:letsencrypt-prod config) 
+                                                     "letsencrypt-prod-issuer" 
+                                                     "letsencrypt-staging-issuer")}))))
 
 (defn user-configure-untaint-master
   [facility user]
