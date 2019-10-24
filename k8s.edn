@@ -6,5 +6,5 @@
  :kubectl {:external-ip "78.47.117.208"
            :host-name "hostname"
            :letsencrypt-prod false
-           :nexus-host-name "nexus-host-name"}
+           :nexus-host-name "k8s-le-staging.test.domaindrivenarchitecture.org"}
  }
