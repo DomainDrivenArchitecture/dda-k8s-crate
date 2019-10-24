@@ -40,7 +40,7 @@
   [facility]
   (actions/as-action
    (logging/info (str facility " -system-install-kubectl-bash-completion")))
-  (actions/exec-checked-script 
+  (actions/exec-checked-script
    "add k8s to bash completion"
    ("kubectl" "completion" "bash" ">>" "/etc/bash_completion.d/kubernetes")))
 
@@ -53,7 +53,6 @@
    ("kubeadm" "config" "images" "pull")
    ("kubeadm" "init" "--pod-network-cidr=10.244.0.0/16"
               "--apiserver-advertise-address=127.0.0.1") ;fails here if you have less than 2 cpus
-   ;("kubectl" "taint" "nodes" "--all" "node-role.kubernetes.io/master-")
    ))
 
 (s/defn user-install-k8s-env
@@ -109,11 +108,12 @@
      :mode "755"
      :content (selmer/render-file path {}))))
 
+;TODO: owner = user, k8s = user 
 (s/defn user-configure-copy-template
   [config :- kubectl-config
    owner :- s/Str]
   (actions/remote-file
-   "/home/k8s/k8s_resources/metallb_config.yml"
+   "/home/k8s/k8s_resources/metallb/metallb_config.yml"
    :literal true
    :owner owner
    :mode "755"
@@ -128,15 +128,15 @@
                                  :nexus-secret-name (:nexus-secret-name config)})))
 
 (defn user-configure-untaint-master
-  [facility]
+  [facility user]
   (actions/as-action (logging/info (str facility " - system-install-k8s-base-config")))
   (actions/exec-checked-script
    "user-configure-untaint-master"
-   ("kubectl" "taint" "nodes" "--all" "node-role.kubernetes.io/master-")))
+   ("sudo" "-H" "-u" ~user "bash" "-c" "'kubectl" "taint" "nodes" "--all" "node-role.kubernetes.io/master-'")))
 
 (defn kubectl-apply-f
   "apply kubectl config file"
-  [facility path-on-server & [should-sleep?]]
+  [facility user path-on-server & [should-sleep?]]
   (actions/as-action
    (logging/info
     (str facility "-install system: kubectl apply -f " path-on-server)))
@@ -144,75 +144,95 @@
     (actions/exec-checked-script "sleep" ("sleep" "180")))
   (actions/exec-checked-script
    "apply config file"
-   ("sudo" "-H" "-u" "k8s" "bash" "-c" "'kubectl" "apply" "-f" ~path-on-server "'")))
+   ("sudo" "-H" "-u" ~user "bash" "-c" "'kubectl" "apply" "-f" ~path-on-server "'")))
 
-(defn prepare-master-node
-  [facility]
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/flannel/kube-flannel.yml")
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/flannel/kube-flannel-rbac.yml")
-  (user-configure-untaint-master facility)
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/admin/admin_user.yml")
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/dashboard/kubernetes-dashboard.yaml")
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/metallb/metallb.yml")
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/metallb/metallb_config.yml")
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/ingress/mandatory.yaml")
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/ingress/ingress_using_mettallb.yml"))
+(s/defn prepare-master-node
+  [apply-with-user
+   user-resource-path :- s/Str
+   user :- s/Str
+   facility]
+  (apply-with-user (str user-resource-path "flannel/kube-flannel.yml"))
+  (apply-with-user (str user-resource-path "flannel/kube-flannel-rbac.yml"))
+  (user-configure-untaint-master facility user)
+  (apply-with-user (str user-resource-path "admin/admin_user.yml"))
+  (apply-with-user (str user-resource-path "dashboard/kubernetes-dashboard.yaml"))
+  (apply-with-user (str user-resource-path "metallb/metallb.yml"))
+  (apply-with-user (str user-resource-path "metallb/metallb_config.yml"))
+  (apply-with-user (str user-resource-path "ingress/mandatory.yaml"))
+  (apply-with-user (str user-resource-path "ingress/ingress_using_mettallb.yml")))
 
-(defn install-cert-manager
-  [facility]
-  (actions/exec-checked-script
-   "create cert-manager ns"
-   ("sudo" "-H" "-u" "k8s" "bash" "-c" "'kubectl" "create" "namespace" "cert-manager'"))
-  (actions/exec-checked-script
-   "label cert-manager ns"
-   ("sudo" "-H" "-u" "k8s" "bash" "-c" "'kubectl" "label" "namespace" "cert-manager" "certmanager.k8s.io/disable-validation=true'"))
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/cert-manager.yaml")
-  (actions/exec-checked-script
-   "create cert key"
-   ("sudo" "-H" "-u" "k8s" "bash" "-c" "'openssl" "genrsa" "-out" "ca.key" "2048'")
-   ("sudo" "-H" "-u" "k8s" "bash" "-c" "'openssl" "req" "-x509" "-new" "-nodes" "-key" "ca.key" "-subj" "'/CN=test.domaindrivenarchitecture.org'"
-           "-days" "365" "-reqexts" "v3_req" "-extensions" "v3_ca" "-out" "ca.crt'")
-   ("sudo" "-H" "-u" "k8s" "bash" "-c" "'kubectl" "create" "secret" "tls" "test-domaindrivenarchitecture-org-ca-key-pair"
-           "--cert=ca.crt"
-           "--key=ca.key"
-           "--namespace=cert-manager'")))
+(s/defn install-cert-manager
+  [apply-with-user
+   user-resource-path :- s/Str
+   user :- s/Str]
+  (let [user-home-ca (str "home/" user "/ca")]
+    (actions/exec-checked-script
+     "create cert-manager ns"
+     ("sudo" "-H" "-u" ~user "bash" "-c" "'kubectl" "create" "namespace" "cert-manager'"))
+    (actions/exec-checked-script
+     "label cert-manager ns"
+     ("sudo" "-H" "-u" ~user "bash" "-c" "'kubectl" "label" "namespace" "cert-manager" "certmanager.k8s.io/disable-validation=true'"))
+    (apply-with-user (str user-resource-path "cert_manager/cert-manager.yaml"))
+    (actions/directory
+     user-home-ca
+     :owner user
+     :group user
+     :mode "777")
+    (actions/exec-checked-script
+     "create cert key"
+     ("sudo" "-H" "-u" ~user "bash" "-c" "'openssl" "genrsa" "-out" ~(str user-home-ca "/ca.key") "2048'")
+     ("sudo" "-H" "-u" ~user "bash" "-c" "'openssl" "req" "-x509" "-new" "-nodes" "-key" ~(str user-home-ca "/ca.key") "-subj" "'/CN=test.domaindrivenarchitecture.org'"
+             "-days" "365" "-reqexts" "v3_req" "-extensions" "v3_ca" "-out" ~(str user-home-ca "/ca.crt") "'")
+     ("sudo" "-H" "-u" ~user "bash" "-c" "'kubectl" "create" "secret" "tls" "test-domaindrivenarchitecture-org-ca-key-pair"
+             ~(str "--cert=" user-home-ca "/ca.crt")
+             ~(str "--key=" user-home-ca "/ca.key")
+             "--namespace=cert-manager'"))))
 
 ;TODO: make optional
-(defn install-apple-banana
-  [facility]
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/apple.yml" true)
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/banana.yml"))
+(s/defn install-apple-banana
+  [apply-with-user
+   user-resource-path :- s/Str]
+  (apply-with-user (str user-resource-path "apple_banana/apple.yml") true)
+  (apply-with-user (str user-resource-path "apple_banana/banana.yml")))
 
 ;TODO: check if working
-(defn configure-ingress-and-cert-manager
-  [facility letsencrypt-prod]
+(s/defn configure-ingress-and-cert-manager
+  [apply-with-user
+   user-resource-path :- s/Str
+   letsencrypt-prod]
   (if letsencrypt-prod
-    (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_prod_https.yml")
-    (kubectl-apply-f facility "/home/k8s/k8s_resources/apple_banana/ingress_simple_le_staging_https.yml"))
+    (apply-with-user (str user-resource-path "apple_banana/ingress_simple_le_prod_https.yml"))
+    (apply-with-user (str user-resource-path "apple_banana/ingress_simple_le_staging_https.yml")))
   (if letsencrypt-prod
-    (kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/letsencrypt_prod_issuer.yml" true)
-    (kubectl-apply-f facility "/home/k8s/k8s_resources/cert_manager/letsencrypt_staging_issuer.yml" true)))
+    (apply-with-user (str user-resource-path "cert_manager/letsencrypt_prod_issuer.yml") true)
+    (apply-with-user (str user-resource-path "cert_manager/letsencrypt_staging_issuer.yml") true)))
 
-(defn install-nexus
-  [facility]
+(s/defn install-nexus
+  [apply-with-user
+   user-resource-path :- s/Str
+   user :- s/Str]
   (actions/directory
    "/mnt/data"
-   :owner "k8s"
-   :group "k8s"
+   :owner user
+   :group user
    :mode "777")
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/nexus/nexus-storage.yml")
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/nexus/nexus.yml")
-  (kubectl-apply-f facility "/home/k8s/k8s_resources/nexus/ingress_nexus_https.yml"))
+  (apply-with-user (str user-resource-path "nexus/nexus-storage.yml"))
+  (apply-with-user (str user-resource-path "nexus/nexus.yml"))
+  (apply-with-user (str user-resource-path "nexus/ingress_nexus_https.yml")))
 
-(defn kubectl-apply
+(s/defn kubectl-apply
   "apply needed files and options"
-  [facility config]
-  (let [{:keys [letsencrypt-prod]} config]
-    (prepare-master-node facility)
-    (install-cert-manager facility)
-    (install-apple-banana facility)
-    (configure-ingress-and-cert-manager facility letsencrypt-prod)
-    (install-nexus facility)))
+  [facility
+   user :- s/Str
+   config]
+  (let [{:keys [letsencrypt-prod]} config
+        apply-with-user (partial kubectl-apply-f facility user)
+        user-resource-path (str "/home/" user "/k8s_resources/")]
+    (prepare-master-node apply-with-user user-resource-path user facility)
+    (install-cert-manager apply-with-user user-resource-path user)
+    (install-apple-banana apply-with-user user-resource-path)
+    (configure-ingress-and-cert-manager apply-with-user user-resource-path letsencrypt-prod)
+    (install-nexus apply-with-user user-resource-path user)))
 
 (s/defn init
   [facility
@@ -229,7 +249,6 @@
   (system-install-k8s-base-config facility)
   (system-install-kubectl-bash-completion facility))
 
-
 (s/defn user-install
   [facility
    user :- s/Str
@@ -240,17 +259,14 @@
 (s/defn system-configure
   [facility
    config :- kubectl-config]
-  (actions/as-action (logging/info (str facility " - system-configure")))
-  )
+  (actions/as-action (logging/info (str facility " - system-configure"))))
 
 (s/defn user-configure
   [facility
    user :- s/Str
    config :- kubectl-config]
   (actions/as-action (logging/info (str facility " - user-configure")))
-  ; TODO run cleanup for being able do reaply config??
+  ; TODO: run cleanup for being able do reaply config??
   (user-configure-copy-yml facility user)
   (user-configure-copy-template config user)
-  
-  ; TODO: as - user is not working!
-  (kubectl-apply facility config))
+  (kubectl-apply facility user config))
