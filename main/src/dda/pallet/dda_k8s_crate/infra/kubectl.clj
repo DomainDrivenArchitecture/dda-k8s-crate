@@ -69,7 +69,8 @@
 
 (s/defn user-configure-copy-yml
   [facility
-   user :- s/Str]
+   user :- s/Str
+   config :- kubectl-config]
   (actions/as-action
    (logging/info (str facility " - user-configure-k8s-yml")))
   (doseq [path ["/k8s_resources"
@@ -107,26 +108,18 @@
      :group user
      :owner user
      :mode "755"
-     :content (selmer/render-file path {}))))
-
-(s/defn user-configure-copy-template
-  [config :- kubectl-config
-   user :- s/Str]
-  (let [user-resource-path (str "/home/" user "/k8s_resources/")]
+     :content (selmer/render-file path {})))
+  (doseq [path ["metallb/metallb_config.yml"
+                "nexus/ingress_nexus_https.yml"]]
     (actions/remote-file
-     (str user-resource-path "metallb/metallb_config.yml")
+     (str "/home/" user "/k8s_resources/" path)
      :literal true
+     :group user
      :owner user
      :mode "755"
-     :content (selmer/render-file "metallb/metallb_config.yml.template" {:external-ip (:external-ip config)}))
-    (actions/remote-file
-     (str user-resource-path "nexus/ingress_nexus_https.yml")
-     :literal true
-     :owner user
-     :mode "755"
-     :content (selmer/render-file "nexus/ingress_nexus_https.yml.template"
-                                  {:nexus-host-name (:nexus-host-name config)
-                                   :nexus-secret-name (:nexus-secret-name config)}))))
+     :content 
+     (selmer/render-file 
+      (str path ".template") kubectl-config))))
 
 (defn user-configure-untaint-master
   [facility user]
@@ -268,6 +261,5 @@
    config :- kubectl-config]
   (actions/as-action (logging/info (str facility " - user-configure")))
   ; TODO: run cleanup for being able do reaply config??
-  (user-configure-copy-yml facility user)
-  (user-configure-copy-template config user)
+  (user-configure-copy-yml facility user config)
   (kubectl-apply facility user config))
