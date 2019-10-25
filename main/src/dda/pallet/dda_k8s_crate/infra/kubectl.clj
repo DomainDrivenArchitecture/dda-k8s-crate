@@ -238,8 +238,15 @@
   [facility
    user :- s/Str
    config :- kubectl-config]
-  (actions/as-action (logging/info (str facility " - user-install")))
-  (user-install-k8s-env facility user))
+  (let [{:keys [letsencrypt-prod]} config
+        apply-with-user
+        (partial kubectl-apply-f facility user
+                 (str "/home/" user "/k8s_resources/"))]
+    (actions/as-action (logging/info (str facility " - user-install")))
+    (user-install-k8s-env facility user)
+    (user-configure-copy-yml facility user config)
+    (apply-networking apply-with-user)
+    (user-configure-untaint-master facility user)))
 
 (s/defn system-configure
   [facility
@@ -259,7 +266,6 @@
     (user-configure-copy-yml facility user config)
 
     (apply-networking apply-with-user)
-    (user-configure-untaint-master facility user)
     (admin-dash-metal-ingress apply-with-user)
     (install-cert-manager apply-with-user user letsencrypt-prod)
     ;TODO: make optional

@@ -7,6 +7,8 @@
            :host-name "hostname" ; TODO: wofür brauchen wir das?
            :letsencrypt-prod false ; TODO: kann weg
            :nexus-host-name "k8s-le-staging.test.domaindrivenarchitecture.org"}
- ;:settings {:apple-and-banana :nexus 
- ;  :cert-letsencrypt-prod :cert-letsencrypt-staging: :cert-selfsigned}
-}
+ ;:metallb {:external-ip "78.47.117.208"}
+ ;:apple {:fqdn "name"}
+ ;:nexus {:fqdn "name"}
+ ;:cert-issuer {:letsencrypt-prod :letsencrypt-staging: :selfsigned}
+ }
