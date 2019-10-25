@@ -28,7 +28,8 @@
 ; the infra config
 (def ddaK8sConfig
   {:user s/Keyword
-   :k8s k8s/k8s})
+   :k8s k8s/k8s
+   (s/optional-key :apple) {:fqdn s/Str}})
 
 (s/defmethod core-infra/dda-init facility
   [dda-crate config]

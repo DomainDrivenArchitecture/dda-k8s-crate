@@ -10,9 +10,9 @@
 
 (defdatatest should-generate-user-domain [input expected]
   (is (:k8s (sut/user-domain-configuration input)))
-  (is (get-in (sut/user-domain-configuration input) 
+  (is (get-in (sut/user-domain-configuration input)
               [:k8s :clear-password]))
   (is (= expected
-         (dissoc 
+         (dissoc
           (:k8s (sut/user-domain-configuration input))
           :clear-password))))

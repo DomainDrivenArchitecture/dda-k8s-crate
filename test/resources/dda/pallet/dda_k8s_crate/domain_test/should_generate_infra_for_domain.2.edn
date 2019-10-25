@@ -1,12 +1,12 @@
 {:input {:user :k8s                                 ; k8s user pwd on os level
          :k8s {:external-ip "external-ip"
-               :host-name "hostname"
                :letsencrypt-prod false
-               :nexus-host-name "nexus-host-name"}}
+               :nexus-host-name "nexus-host-name"}
+         :apple {:fqdn "hostname"}}
  :expected {:dda-k8s {:user :k8s
                       :k8s {:external-ip "external-ip"
-                            :host-name "hostname"
                             :letsencrypt-prod false
                             :nexus-host-name "nexus-host-name"
                             :nexus-secret-name "nexus-host-name"
-                            :nexus-cluster-issuer "letsencrypt-staging-issuer"}}}}
+                            :nexus-cluster-issuer "letsencrypt-staging-issuer"}
+                      :apple {:fqdn "hostname"}}}}

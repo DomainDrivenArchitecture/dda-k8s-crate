@@ -22,9 +22,8 @@
 (s/set-fn-validation! true)
 
 (s/def test-domain-conf-prod
-  {:user :k8s                            
+  {:user :k8s
    :k8s {:external-ip "external-ip"
-         :host-name "hostname"
          :letsencrypt-prod true
          :nexus-host-name "nexus-host-name"}})
 

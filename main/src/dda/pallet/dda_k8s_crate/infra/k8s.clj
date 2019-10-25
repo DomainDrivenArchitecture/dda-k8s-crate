@@ -10,7 +10,6 @@
 ; TODO: use hostname
 (s/def k8s
   {:external-ip s/Str
-   :host-name s/Str
    :letsencrypt-prod s/Bool   ; Letsencrypt environment: true -> prod | false -> staging
    :nexus-host-name s/Str
    :nexus-secret-name s/Str
