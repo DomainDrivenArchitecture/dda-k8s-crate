@@ -68,7 +68,7 @@
          ~(str "/home/" user "/.kube/config"))
    ("chown" "-R" ~(str user ":" user) ~(str "/home/" user "/.kube"))))
 
-(s/defn user-configure-copy-yml
+(s/defn user-copy-yml
   [facility
    user :- s/Str
    config :- kubectl-config]
@@ -122,11 +122,11 @@
      (selmer/render-file
       (str path ".template") config))))
 
-(defn user-configure-untaint-master
+(defn user-untaint-master
   [facility user]
   (actions/as-action (logging/info (str facility " - system-install-k8s-base-config")))
   (actions/exec-checked-script
-   "user-configure-untaint-master"
+   "user-untaint-master"
    ("sudo" "-H" "-u" ~user "bash" "-c" "'kubectl" "taint" "nodes"
            "--all" "node-role.kubernetes.io/master-'")))
 
@@ -147,7 +147,7 @@
      (str "apply config " path-on-server)
      ("sudo" "-H" "-u" ~user "bash" "-c" "'kubectl" "apply" "-f" ~path-on-server "'"))))
 
-(s/defn apply-networking
+(s/defn user-install-flannel
   [apply-with-user]
   (apply-with-user "flannel/kube-flannel.yml")
   (apply-with-user "flannel/kube-flannel-rbac.yml"))
@@ -244,9 +244,9 @@
                  (str "/home/" user "/k8s_resources/"))]
     (actions/as-action (logging/info (str facility " - user-install")))
     (user-install-k8s-env facility user)
-    (user-configure-copy-yml facility user config)
-    (apply-networking apply-with-user)
-    (user-configure-untaint-master facility user)))
+    (user-copy-yml facility user config)
+    (user-install-flannel apply-with-user)
+    (user-untaint-master facility user)))
 
 (s/defn system-configure
   [facility
@@ -263,9 +263,7 @@
                  (str "/home/" user "/k8s_resources/"))]
     (actions/as-action (logging/info (str facility " - user-configure")))
   ; TODO: run cleanup for being able do reaply config??
-    (user-configure-copy-yml facility user config)
-
-    (apply-networking apply-with-user)
+    (user-copy-yml facility user config)
     (admin-dash-metal-ingress apply-with-user)
     (install-cert-manager apply-with-user user letsencrypt-prod)
     ;TODO: make optional
