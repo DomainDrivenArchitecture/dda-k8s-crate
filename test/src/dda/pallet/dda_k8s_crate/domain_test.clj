@@ -5,7 +5,7 @@
    [dda.pallet.dda-k8s-crate.domain :as sut]
    [dda.pallet.commons.secret :as secret]))
 
-(s/def test-domain-conf
+(s/def test-domain-conf-prod
   {:user :k8s
    :password "password"                                 ; k8s user pwd on os level
    :ssh {:ssh-authorized-keys ["ssh-rsa AAAA..LL comment"] ; ssh authorized keys
@@ -14,7 +14,21 @@
    :kubectl {:external-ip "external-ip"
              :host-name "hostname"
              :letsencrypt-prod true
-             :nexus-host-name "nexus-host-name"}})
+             :nexus-host-name "nexus-host-name"
+             :nexus-cluster-issuer "letsencrypt-prod-issuer"
+             }})
+
+(s/def test-domain-conf-staging
+  {:user :k8s
+   :password "password"                                 ; k8s user pwd on os level
+   :ssh {:ssh-authorized-keys ["ssh-rsa AAAA..LL comment"] ; ssh authorized keys
+         :ssh-key {:public-key "ssh-rsa AAAA..LL comment"  ; ssh-key for git sync
+                   :private-key "SOME_PRIVATE_SSH_KEY"}}
+   :kubectl {:external-ip "external-ip"
+             :host-name "hostname"
+             :letsencrypt-prod false
+             :nexus-host-name "nexus-host-name"
+             :nexus-cluster-issuer "letsencrypt-staging-issuer"}})
 
 (deftest test-input-to-domain
   (is (= {:dda-k8s {:user :k8s

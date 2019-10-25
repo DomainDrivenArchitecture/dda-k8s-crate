@@ -118,18 +118,9 @@
      :group user
      :owner user
      :mode "755"
-<<<<<<< HEAD
      :content
      (selmer/render-file
       (str path ".template") kubectl-config))))
-=======
-     :content (selmer/render-file "nexus/ingress_nexus_https.yml.template"
-                                  {:nexus-host-name (:nexus-host-name config)
-                                   :nexus-secret-name (:nexus-secret-name config)
-                                   :cluster-issuer (if (:letsencrypt-prod config) 
-                                                     "letsencrypt-prod-issuer" 
-                                                     "letsencrypt-staging-issuer")}))))
->>>>>>> d36cfe11bd92088cb7607a4a7eecb08c75ef6806
 
 (defn user-configure-untaint-master
   [facility user]
