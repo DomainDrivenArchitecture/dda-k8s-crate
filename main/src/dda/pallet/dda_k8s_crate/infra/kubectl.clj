@@ -120,7 +120,7 @@
      :mode "755"
      :content
      (selmer/render-file
-      (str path ".template") kubectl-config))))
+      (str path ".template") config))))
 
 (defn user-configure-untaint-master
   [facility user]
