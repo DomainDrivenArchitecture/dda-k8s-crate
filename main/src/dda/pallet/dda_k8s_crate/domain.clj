@@ -41,6 +41,9 @@
 
 (def InfraResult {infra/facility infra/ddaK8sConfig})
 
+(defn- rand-str [len]
+  (apply str (take len (repeatedly #(char (+ (rand 26) 65))))))
+
 (s/defn ^:always-validate user-domain-configuration
   [domain-config :- k8sDomainResolved]
   (let [{:keys [user password ssh]} domain-config]
