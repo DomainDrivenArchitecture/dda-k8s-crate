@@ -22,10 +22,11 @@
 
 (s/set-fn-validation! true)
 
+; TODO: Bad style to use others test definition!
 (deftest app-config
   (testing
    "test plan-def"
-    (is (map? (sut/app-configuration-resolved test-domain/test-domain-conf)))))
+    (is (map? (sut/app-configuration-resolved test-domain/test-domain-conf-prod)))))
 
 (deftest plan-def
   (testing

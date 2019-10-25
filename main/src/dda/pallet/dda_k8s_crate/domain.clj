@@ -62,4 +62,6 @@
                          :host-name host-name
                          :letsencrypt-prod letsencrypt-prod   ; Letsencrypt environment: true -> prod | false -> staging
                          :nexus-host-name nexus-host-name
-                         :nexus-secret-name (str/replace nexus-host-name #"\." "-")}}}))
+                         :nexus-secret-name (str/replace nexus-host-name #"\." "-")
+                         :nexus-cluster-issuer
+                         (if letsencrypt-prod "letsencrypt-prod-issuer" "letsencrypt-staging-issuer")}}}))
