@@ -6,7 +6,6 @@
  :kubectl {:external-ip "78.47.117.208"
            :host-name "hostname"
            :letsencrypt-prod false ; TODO: kann weg
-           :nexus-host-name "nexus-host-name"}
+           :nexus-host-name "k8s-le-staging.test.domaindrivenarchitecture.org"}
  ;:settings {:apple-and-banana :nexus 
  ;  :cert-letsencrypt-prod :cert-letsencrypt-staging: :cert-selfsigned}
- }
