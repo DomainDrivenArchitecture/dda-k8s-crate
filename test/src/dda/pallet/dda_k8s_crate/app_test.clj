@@ -17,16 +17,25 @@
   (:require
    [clojure.test :refer :all]
    [schema.core :as s]
-   [dda.pallet.dda-k8s-crate.app :as sut]
-   [dda.pallet.dda-k8s-crate.domain-test :as test-domain]))
+   [dda.pallet.dda-k8s-crate.app :as sut]))
 
 (s/set-fn-validation! true)
 
-; TODO: Bad style to use others test definition!
+(s/def test-domain-conf-prod
+  {:user :k8s
+   :password "password"                                 ; k8s user pwd on os level
+   :ssh {:ssh-authorized-keys ["ssh-rsa AAAA..LL comment"] ; ssh authorized keys
+         :ssh-key {:public-key "ssh-rsa AAAA..LL comment"  ; ssh-key for git sync
+                   :private-key "SOME_PRIVATE_SSH_KEY"}}
+   :kubectl {:external-ip "external-ip"
+             :host-name "hostname"
+             :letsencrypt-prod true
+             :nexus-host-name "nexus-host-name"}})
+
 (deftest app-config
   (testing
    "test plan-def"
-    (is (map? (sut/app-configuration-resolved test-domain/test-domain-conf-prod)))))
+    (is (map? (sut/app-configuration-resolved test-domain-conf-prod)))))
 
 (deftest plan-def
   (testing
