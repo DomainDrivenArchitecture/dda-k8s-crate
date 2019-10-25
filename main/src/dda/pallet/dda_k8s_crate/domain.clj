@@ -28,9 +28,6 @@
 
 (s/def k8sDomain
   {:user s/Keyword
-   (s/optional-key :ssh) {:ssh-authorized-keys [secret/Secret]
-                          :ssh-key {:public-key secret/Secret
-                                    :private-key secret/Secret}}
    :kubectl {:external-ip s/Str
              :host-name s/Str
              (s/optional-key :letsencrypt-prod) s/Bool

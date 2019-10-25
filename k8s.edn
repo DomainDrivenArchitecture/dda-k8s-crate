@@ -1,7 +1,4 @@
 {:user :k8s
- :ssh {:ssh-authorized-keys [{:plain "ssh-rsa AAAA..LL comment"}] 
-       :ssh-key {:public-key {:plain "ssh-rsa AAAA..LL comment"} ; TODO: kann weg
-                 :private-key {:plain "SOME_PRIVATE_SSH_KEY"}}} ; TODO: kann weg
  :kubectl {:external-ip "78.47.117.208"
            :host-name "hostname" ; TODO: wofür brauchen wir das?
            :letsencrypt-prod false ; TODO: kann weg
