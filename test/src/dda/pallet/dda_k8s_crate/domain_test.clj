@@ -15,8 +15,7 @@
              :host-name "hostname"
              :letsencrypt-prod true
              :nexus-host-name "nexus-host-name"
-             :nexus-cluster-issuer "letsencrypt-prod-issuer"
-             }})
+             :nexus-cluster-issuer "letsencrypt-prod-issuer"}})
 
 (s/def test-domain-conf-staging
   {:user :k8s
