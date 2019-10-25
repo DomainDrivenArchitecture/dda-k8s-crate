@@ -1,4 +1,4 @@
-(ns dda.pallet.dda-k8s-crate.infra.kubectl
+(ns dda.pallet.dda-k8s-crate.infra.k8s
   (:require
    [clojure.tools.logging :as logging]
    [schema.core :as s]
@@ -8,7 +8,7 @@
    [clojure.string :as str]))
 
 ; TODO: use hostname
-(s/def kubectl-config
+(s/def k8s
   {:external-ip s/Str
    :host-name s/Str
    :letsencrypt-prod s/Bool   ; Letsencrypt environment: true -> prod | false -> staging
@@ -71,7 +71,7 @@
 (s/defn user-copy-yml
   [facility
    user :- s/Str
-   config :- kubectl-config]
+   config :- k8s]
   (actions/as-action
    (logging/info (str facility " - user-configure-k8s-yml")))
   (doseq [path ["/k8s_resources"
@@ -221,14 +221,14 @@
 
 (s/defn init
   [facility
-   config :- kubectl-config]
+   config :- k8s]
   (actions/as-action
    (logging/info (str facility "-init")))
   (init-kubernetes-apt-repositories facility))
 
 (s/defn system-install
   [facility
-   config :- kubectl-config]
+   config :- k8s]
   (actions/as-action (logging/info (str facility " - system-install")))
   (system-install-k8s facility)
   (system-install-k8s-base-config facility)
@@ -237,7 +237,7 @@
 (s/defn user-install
   [facility
    user :- s/Str
-   config :- kubectl-config]
+   config :- k8s]
   (let [{:keys [letsencrypt-prod]} config
         apply-with-user
         (partial kubectl-apply-f facility user
@@ -250,13 +250,13 @@
 
 (s/defn system-configure
   [facility
-   config :- kubectl-config]
+   config :- k8s]
   (actions/as-action (logging/info (str facility " - system-configure"))))
 
 (s/defn user-configure
   [facility
    user :- s/Str
-   config :- kubectl-config]
+   config :- k8s]
   (let [{:keys [letsencrypt-prod]} config
         apply-with-user
         (partial kubectl-apply-f facility user

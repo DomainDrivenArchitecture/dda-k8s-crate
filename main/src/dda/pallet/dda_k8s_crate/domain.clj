@@ -17,7 +17,6 @@
   (:require
    [schema.core :as s]
    [dda.pallet.commons.secret :as secret]
-   [dda.pallet.dda-k8s-crate.infra.kubectl :as kubectl]
    [dda.pallet.dda-k8s-crate.infra :as infra]
    [clojure.java.io :as io]
    [dda.pallet.dda-k8s-crate.domain.templating :as templating]
@@ -28,7 +27,7 @@
 
 (s/def k8sDomain
   {:user s/Keyword
-   :kubectl {:external-ip s/Str
+   :k8s {:external-ip s/Str
              :host-name s/Str
              (s/optional-key :letsencrypt-prod) s/Bool
              :nexus-host-name s/Str}})
@@ -53,14 +52,14 @@
 (s/defn ^:always-validate
   infra-configuration :- InfraResult
   [domain-config :- k8sDomainResolved]
-  (let [{:keys [user kubectl]} domain-config
-        {:keys [external-ip host-name letsencrypt-prod nexus-host-name]} kubectl]
+  (let [{:keys [user k8s]} domain-config
+        {:keys [external-ip host-name letsencrypt-prod nexus-host-name]} k8s]
     {infra/facility
      {:user user
-      :kubectl-config   {:external-ip external-ip
-                         :host-name host-name
-                         :letsencrypt-prod letsencrypt-prod   ; Letsencrypt environment: true -> prod | false -> staging
-                         :nexus-host-name nexus-host-name
-                         :nexus-secret-name (str/replace nexus-host-name #"\." "-")
-                         :nexus-cluster-issuer
-                         (if letsencrypt-prod "letsencrypt-prod-issuer" "letsencrypt-staging-issuer")}}}))
+      :k8s   {:external-ip external-ip
+              :host-name host-name
+              :letsencrypt-prod letsencrypt-prod   ; Letsencrypt environment: true -> prod | false -> staging
+              :nexus-host-name nexus-host-name
+              :nexus-secret-name (str/replace nexus-host-name #"\." "-")
+              :nexus-cluster-issuer
+              (if letsencrypt-prod "letsencrypt-prod-issuer" "letsencrypt-staging-issuer")}}}))

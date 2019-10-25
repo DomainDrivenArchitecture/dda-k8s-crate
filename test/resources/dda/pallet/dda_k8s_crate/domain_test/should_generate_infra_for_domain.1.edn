@@ -1,12 +1,12 @@
 {:input {:user :k8s
-         :kubectl {:external-ip "external-ip"
-                   :host-name "hostname"
-                   :letsencrypt-prod true
-                   :nexus-host-name "nexus-host-name"}}
+         :k8s {:external-ip "external-ip"
+               :host-name "hostname"
+               :letsencrypt-prod true
+               :nexus-host-name "nexus-host-name"}}
  :expected {:dda-k8s {:user :k8s
-                      :kubectl-config {:external-ip "external-ip"
-                                       :host-name "hostname"
-                                       :letsencrypt-prod true
-                                       :nexus-host-name "nexus-host-name"
-                                       :nexus-secret-name "nexus-host-name"
-                                       :nexus-cluster-issuer "letsencrypt-prod-issuer"}}}}
+                      :k8s {:external-ip "external-ip"
+                            :host-name "hostname"
+                            :letsencrypt-prod true
+                            :nexus-host-name "nexus-host-name"
+                            :nexus-secret-name "nexus-host-name"
+                            :nexus-cluster-issuer "letsencrypt-prod-issuer"}}}}
