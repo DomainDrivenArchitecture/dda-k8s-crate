@@ -28,7 +28,6 @@
 
 (s/def k8sDomain
   {:user s/Keyword
-   :password secret/Secret
    (s/optional-key :ssh) {:ssh-authorized-keys [secret/Secret]
                           :ssh-key {:public-key secret/Secret
                                     :private-key secret/Secret}}
@@ -49,7 +48,7 @@
   (let [{:keys [user password ssh]} domain-config]
     {user
      (merge
-      {:clear-password password
+      {:clear-password (rand-str 10)
        :settings #{:bashrc-d}}
       (if ssh {:ssh-key (:ssh-key ssh)})
       (if ssh {:ssh-authorized-keys (:ssh-authorized-keys ssh)}))}))
