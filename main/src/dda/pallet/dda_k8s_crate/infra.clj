@@ -19,7 +19,7 @@
    [schema.core :as s]
    [dda.pallet.core.infra :as core-infra]
    [dda.pallet.dda-k8s-crate.infra.base :as base]
-   [dda.pallet.dda-k8s-crate.infra.k8s :as kubectl]
+   [dda.pallet.dda-k8s-crate.infra.k8s :as k8s]
    [clojure.tools.logging :as logging]
    [pallet.actions :as actions]))
 
@@ -28,13 +28,13 @@
 ; the infra config
 (def ddaK8sConfig
   {:user s/Keyword
-   :k8s kubectl/k8s})
+   :k8s k8s/k8s})
 
 (s/defmethod core-infra/dda-init facility
   [dda-crate config]
   (let [facility (:facility dda-crate)
         {:keys [k8s]} config]
-    (kubectl/init facility k8s)))
+    (k8s/init facility k8s)))
 
 (s/defmethod core-infra/dda-install facility
   [dda-crate config]
@@ -43,15 +43,15 @@
     (actions/as-action (logging/info (str facility " - core-infra/dda-install")))
     (logging/info config)
     (base/install facility)
-    (kubectl/system-install facility k8s)
-    (kubectl/user-install facility (name user) k8s)))
+    (k8s/system-install facility k8s)
+    (k8s/user-install facility (name user) k8s)))
 
 (s/defmethod core-infra/dda-configure facility
   [dda-crate config]
   (let [facility (:facility dda-crate)
         {:keys [k8s user]} config]
-    (kubectl/system-configure facility k8s)
-    (kubectl/user-configure facility (name user) k8s)))
+    (k8s/system-configure facility k8s)
+    (k8s/user-configure facility (name user) k8s)))
 
 (def dda-k8s-crate
   (core-infra/make-dda-crate-infra

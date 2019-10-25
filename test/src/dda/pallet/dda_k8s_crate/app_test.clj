@@ -23,10 +23,10 @@
 
 (s/def test-domain-conf-prod
   {:user :k8s                            
-   :kubectl {:external-ip "external-ip"
-             :host-name "hostname"
-             :letsencrypt-prod true
-             :nexus-host-name "nexus-host-name"}})
+   :k8s {:external-ip "external-ip"
+         :host-name "hostname"
+         :letsencrypt-prod true
+         :nexus-host-name "nexus-host-name"}})
 
 (deftest app-config
   (testing

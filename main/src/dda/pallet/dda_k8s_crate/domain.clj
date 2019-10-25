@@ -18,9 +18,6 @@
    [schema.core :as s]
    [dda.pallet.commons.secret :as secret]
    [dda.pallet.dda-k8s-crate.infra :as infra]
-   [clojure.java.io :as io]
-   [dda.pallet.dda-k8s-crate.domain.templating :as templating]
-   [selmer.parser :as selmer]
    [clojure.string :as str]))
 
 (def InfraResult {infra/facility infra/ddaK8sConfig})
@@ -41,13 +38,11 @@
 
 (s/defn ^:always-validate user-domain-configuration
   [domain-config :- k8sDomainResolved]
-  (let [{:keys [user password ssh]} domain-config]
+  (let [{:keys [user password]} domain-config]
     {user
      (merge
       {:clear-password (rand-str 10)
-       :settings #{:bashrc-d}}
-      (if ssh {:ssh-key (:ssh-key ssh)})
-      (if ssh {:ssh-authorized-keys (:ssh-authorized-keys ssh)}))}))
+       :settings #{:bashrc-d}})}))
 
 (s/defn ^:always-validate
   infra-configuration :- InfraResult
@@ -56,10 +51,10 @@
         {:keys [external-ip host-name letsencrypt-prod nexus-host-name]} k8s]
     {infra/facility
      {:user user
-      :k8s   {:external-ip external-ip
-              :host-name host-name
-              :letsencrypt-prod letsencrypt-prod   ; Letsencrypt environment: true -> prod | false -> staging
-              :nexus-host-name nexus-host-name
-              :nexus-secret-name (str/replace nexus-host-name #"\." "-")
-              :nexus-cluster-issuer
-              (if letsencrypt-prod "letsencrypt-prod-issuer" "letsencrypt-staging-issuer")}}}))
+      :k8s {:external-ip external-ip
+            :host-name host-name
+            :letsencrypt-prod letsencrypt-prod   ; Letsencrypt environment: true -> prod | false -> staging
+            :nexus-host-name nexus-host-name
+            :nexus-secret-name (str/replace nexus-host-name #"\." "-")
+            :nexus-cluster-issuer
+            (if letsencrypt-prod "letsencrypt-prod-issuer" "letsencrypt-staging-issuer")}}}))
