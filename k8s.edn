@@ -4,7 +4,7 @@
        :ssh-key {:public-key {:plain "ssh-rsa AAAA..LL comment"} ; TODO: kann weg
                  :private-key {:plain "SOME_PRIVATE_SSH_KEY"}}} ; TODO: kann weg
  :kubectl {:external-ip "78.47.117.208"
-           :host-name "hostname"
+           :host-name "hostname" ; TODO: wofür brauchen wir das?
            :letsencrypt-prod false ; TODO: kann weg
            :nexus-host-name "k8s-le-staging.test.domaindrivenarchitecture.org"}
  ;:settings {:apple-and-banana :nexus 
