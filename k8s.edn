@@ -1,10 +1,12 @@
 {:user :k8s
- :password {:plain "xxx"}                                  ; k8s user pwd on os level
- :ssh {:ssh-authorized-keys [{:plain "ssh-rsa AAAA..LL comment"}] ; ssh authorized keys
-       :ssh-key {:public-key {:plain "ssh-rsa AAAA..LL comment"}  ; ssh-key for git sync
-                 :private-key {:plain "SOME_PRIVATE_SSH_KEY"}}}
+ :password {:plain "xxx"}  ; TODO: kann weg?
+ :ssh {:ssh-authorized-keys [{:plain "ssh-rsa AAAA..LL comment"}] 
+       :ssh-key {:public-key {:plain "ssh-rsa AAAA..LL comment"} ; TODO: kann weg
+                 :private-key {:plain "SOME_PRIVATE_SSH_KEY"}}} ; TODO: kann weg
  :kubectl {:external-ip "78.47.117.208"
            :host-name "hostname"
-           :letsencrypt-prod false
+           :letsencrypt-prod false ; TODO: kann weg
            :nexus-host-name "nexus-host-name"}
+ ;:settings {:apple-and-banana :nexus 
+ ;  :cert-letsencrypt-prod :cert-letsencrypt-staging: :cert-selfsigned}
  }
