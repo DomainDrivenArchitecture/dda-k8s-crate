@@ -15,10 +15,6 @@ spec:
     # Enable the HTTP01 challenge mechanism for this Issuer
     http01: {}
 
-
-# Am Anfang nur letsencrypt prod-issuer installieren rest nur rüber kopieren
-# Apple und Banana nur kopieren nicht installieren
-
 # Erstmal OPTIONAL: etcd ist offen und wir brauchen eine hardening Regel um ihn zu schließen
     # netstat -tulpen auf Server ausführen dann sieht man, welcher Port das ist
     # Hardening crate dazu verwenden

@@ -81,7 +81,7 @@
                 "/k8s_resources/metallb"
                 "/k8s_resources/ingress"
                 "/k8s_resources/cert_manager"
-                "/k8s_resources/apple_banana"
+                "/k8s_resources/apple"
                 "/k8s_resources/nexus"]]
     (actions/directory
      (str "/home/" user path)
@@ -97,10 +97,9 @@
                 "cert_manager/cert-manager.yaml"
                 "cert_manager/letsencrypt_prod_issuer.yml"
                 "cert_manager/letsencrypt_staging_issuer.yml"
-                "apple_banana/apple.yml"
-                "apple_banana/banana.yml"
-                "apple_banana/ingress_simple_le_staging_https.yml"
-                "apple_banana/ingress_simple_le_prod_https.yml"
+                "apple/apple.yml"
+                "apple/ingress_simple_le_staging_https.yml"
+                "apple/ingress_simple_le_prod_https.yml"
                 "nexus/nexus-storage.yml"
                 "nexus/nexus.yml"]]
     (actions/remote-file
@@ -196,14 +195,13 @@
     (when letsencrypt-prod
       (apply-with-user "cert_manager/letsencrypt_prod_issuer.yml" true))))
 
-(s/defn install-apple-banana
+(s/defn install-apple
   [apply-with-user
    letsencrypt-prod :- s/Bool]
-  (apply-with-user "apple_banana/apple.yml" true)
-  (apply-with-user "apple_banana/banana.yml")
-  (apply-with-user "apple_banana/ingress_simple_le_staging_https.yml")
+  (apply-with-user "apple/apple.yml" true)
+  (apply-with-user "apple/ingress_simple_le_staging_https.yml")
   (when letsencrypt-prod
-    (apply-with-user "apple_banana/ingress_simple_le_prod_https.yml")))
+    (apply-with-user "apple/ingress_simple_le_prod_https.yml")))
 
 (s/defn install-nexus
   [apply-with-user
@@ -267,5 +265,5 @@
     (admin-dash-metal-ingress apply-with-user)
     (install-cert-manager apply-with-user user letsencrypt-prod)
     ;TODO: make optional
-    (install-apple-banana apply-with-user letsencrypt-prod)
+    (install-apple apply-with-user letsencrypt-prod)
     (install-nexus apply-with-user user letsencrypt-prod)))

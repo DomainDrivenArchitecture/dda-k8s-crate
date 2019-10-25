@@ -119,13 +119,13 @@ kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
 kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v0.11.0/cert-manager.yaml      
 
 # apple & banana
-kubectl apply -f /home/k8s/k8s_resources/apple_banana/apple.yml
-kubectl apply -f /home/k8s/k8s_resources/apple_banana/banana.yml
-kubectl apply -f /home/k8s/k8s_resources/apple_banana/ingress_simple_http.yml
+kubectl apply -f /home/k8s/k8s_resources/apple/apple.yml
+kubectl apply -f /home/k8s/k8s_resources/apple/banana.yml
+kubectl apply -f /home/k8s/k8s_resources/apple/ingress_simple_http.yml
 # curl http://k8s.test.domaindrivenarchitecture.org/apple
 
 kubectl apply -f /home/k8s/k8s_resources/cert_manager/selfsigned_issuer.yml
-kubectl apply -f /home/k8s/k8s_resources/apple_banana/ingress_simple_selfsigned_https.yml
+kubectl apply -f /home/k8s/k8s_resources/apple/ingress_simple_selfsigned_https.yml
 # curl https://k8s-selfsigned.test.domaindrivenarchitecture.org/apple
 
 openssl genrsa -out ca.key 2048
@@ -137,15 +137,15 @@ kubectl create secret tls test-domaindrivenarchitecture-org-ca-key-pair \
    --namespace=cert-manager # If using ClusterIssuer, the secret definitly needs to be in the namespace of the cert-manager controller pod
 kubectl apply -f /home/k8s/k8s_resources/cert_manager/ca_cert.yml
 kubectl apply -f /home/k8s/k8s_resources/cert_manager/ca_issuer.yml
-kubectl apply -f /home/k8s/k8s_resources/apple_banana/ingress_simple_ca_https.yml
+kubectl apply -f /home/k8s/k8s_resources/apple/ingress_simple_ca_https.yml
 # curl https://k8s-ca.test.domaindrivenarchitecture.org/apple
 
 kubectl apply -f /home/k8s/k8s_resources/cert_manager/letsencrypt_staging_issuer.yml
-kubectl apply -f /home/k8s/k8s_resources/apple_banana/ingress_simple_le_staging_https.yml
+kubectl apply -f /home/k8s/k8s_resources/apple/ingress_simple_le_staging_https.yml
 # curl https://k8s-le-staging.test.domaindrivenarchitecture.org/apple
 
 kubectl apply -f /home/k8s/k8s_resources/cert_manager/letsencrypt_prod_issuer.yml
-kubectl apply -f /home/k8s/k8s_resources/apple_banana/ingress_simple_le_prod_https.yml
+kubectl apply -f /home/k8s/k8s_resources/apple/ingress_simple_le_prod_https.yml
 # curl https://k8s-le-prod.test.domaindrivenarchitecture.org/apple
 
 # nexus, takes a few minutes to start
