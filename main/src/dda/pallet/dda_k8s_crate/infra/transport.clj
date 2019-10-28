@@ -5,11 +5,11 @@
    [pallet.actions :as actions]
    [selmer.parser :as selmer]))
 
-(s/defn user-copy-yml
+(s/defn user-copy-resources
   [facility
    user :- s/Str]
   (actions/as-action
-   (logging/info (str facility " - user-copy-yml")))
+   (logging/info (str facility " - user-copy-resources")))
   (doseq [path ["/k8s_resources"
                 "/k8s_resources/flannel"
                 "/k8s_resources/admin"
@@ -33,7 +33,8 @@
                 "cert_manager/cert-manager.yaml"
                 "apple/apple.yml"
                 "nexus/nexus-storage.yml"
-                "nexus/nexus.yml"]]
+                "nexus/nexus.yml"
+                "nexus/nexus-ready.sh"]]
     (actions/remote-file
      (str "/home/" user "/k8s_resources/" path)
      :literal true

@@ -30,6 +30,12 @@
   (apply-with-user "nexus/nexus.yml")
   (apply-with-user "nexus/ingress_nexus_https.yml"))
 
+(s/defn wait-until-nexus-ready [user :- s/Str fqdn :- s/Str]
+  (actions/exec-checked-script
+   "curl nexus until ready"
+   ("bash" ~(str "/home/" user "/k8s_resources/nexus/nexus-ready.sh " fqdn))))
+
 (s/defn configure-nexus [apply-with-user user config]
   (user-render-nexus-yml user config)
-  (apply-nexus user apply-with-user))
+  (apply-nexus user apply-with-user)
+  (wait-until-nexus-ready user (:fqdn config)))

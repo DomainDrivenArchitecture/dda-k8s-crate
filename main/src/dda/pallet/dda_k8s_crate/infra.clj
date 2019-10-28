@@ -72,7 +72,7 @@
     (logging/info config)
     (base/install facility)
     (k8s/system-install facility k8s)
-    (transport/user-copy-yml facility user-str)
+    (transport/user-copy-resources facility user-str)
     (k8s/user-install facility user-str k8s apply-with-user)))
 
 (s/defmethod core-infra/dda-configure facility
@@ -84,7 +84,7 @@
         (partial kubectl-apply-f facility user-str
                  (str "/home/" user-str "/k8s_resources/"))]
     (k8s/system-configure facility k8s)
-    (transport/user-copy-yml facility user-str)
+    (transport/user-copy-resources facility user-str)
     (k8s/user-configure facility user-str k8s apply-with-user)
     (cert-manager/configure-cert-manager apply-with-user user-str cert-manager)
     (when apple (apple/configure-apple apply-with-user user-str apple))
