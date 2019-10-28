@@ -26,9 +26,9 @@
 (s/def k8sDomain
   {:user s/Keyword
    :k8s {:external-ip s/Str
-         (s/optional-key :letsencrypt-prod) s/Bool
-         :nexus-host-name s/Str}
-   (s/optional-key :apple) {:fqdn s/Str}})
+         (s/optional-key :letsencrypt-prod) s/Bool}
+   (s/optional-key :apple) {:fqdn s/Str}
+   (s/optional-key :nexus) {:fqdn s/Str}})
 
 (def k8sDomainResolved (secret/create-resolved-schema k8sDomain))
 
@@ -39,7 +39,7 @@
 
 (s/defn ^:always-validate user-domain-configuration
   [domain-config :- k8sDomainResolved]
-  (let [{:keys [user password]} domain-config]
+  (let [{:keys [user]} domain-config]
     {user
      (merge
       {:clear-password (rand-str 10)
@@ -48,15 +48,15 @@
 (s/defn ^:always-validate
   infra-configuration :- InfraResult
   [domain-config :- k8sDomainResolved]
-  (let [{:keys [user k8s apple]} domain-config
-        {:keys [external-ip letsencrypt-prod nexus-host-name]} k8s]
+  (let [{:keys [user k8s apple nexus]} domain-config
+        {:keys [external-ip letsencrypt-prod]} k8s
+        cluster-issuer (if letsencrypt-prod "letsencrypt-prod-issuer" "letsencrypt-staging-issuer")]
     {infra/facility
      (mu/deep-merge
       {:user user
        :k8s {:external-ip external-ip
-             :letsencrypt-prod letsencrypt-prod   ; Letsencrypt environment: true -> prod | false -> staging
-             :nexus-host-name nexus-host-name
-             :nexus-secret-name (str/replace nexus-host-name #"\." "-")
-             :nexus-cluster-issuer
-             (if letsencrypt-prod "letsencrypt-prod-issuer" "letsencrypt-staging-issuer")}}
+             :letsencrypt-prod letsencrypt-prod}}   ; Letsencrypt environment: true -> prod | false -> staging
+      (if nexus {:nexus (merge
+                         nexus {:secret-name (str/replace (:fqdn nexus) #"\." "-")
+                                :cluster-issuer cluster-issuer})})
       (if apple {:apple apple}))}))

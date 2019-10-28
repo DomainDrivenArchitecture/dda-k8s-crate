@@ -20,6 +20,7 @@
    [dda.pallet.core.infra :as core-infra]
    [dda.pallet.dda-k8s-crate.infra.base :as base]
    [dda.pallet.dda-k8s-crate.infra.k8s :as k8s]
+   [dda.pallet.dda-k8s-crate.infra.nexus :as nexus]
    [clojure.tools.logging :as logging]
    [pallet.actions :as actions]))
 
@@ -29,7 +30,25 @@
 (def ddaK8sConfig
   {:user s/Keyword
    :k8s k8s/k8s
-   (s/optional-key :apple) {:fqdn s/Str}})
+   (s/optional-key :apple) {:fqdn s/Str}
+   (s/optional-key :nexus) nexus/nexus})
+
+(s/defn kubectl-apply-f
+  "apply kubectl config file"
+  [facility
+   user :- s/Str
+   user-resource-path :- s/Str
+   resource :- s/Str
+   & [should-sleep?]]
+  (let [path-on-server (str user-resource-path resource)]
+    (actions/as-action
+     (logging/info (str facility " - kubectl-apply-f "
+                        path-on-server)))
+    (when should-sleep?
+      (actions/exec-checked-script "sleep" ("sleep" "180")))
+    (actions/exec-checked-script
+     (str "apply config " path-on-server)
+     ("sudo" "-H" "-u" ~user "bash" "-c" "'kubectl" "apply" "-f" ~path-on-server "'"))))
 
 (s/defmethod core-infra/dda-init facility
   [dda-crate config]
@@ -40,19 +59,29 @@
 (s/defmethod core-infra/dda-install facility
   [dda-crate config]
   (let [facility (:facility dda-crate)
-        {:keys [k8s user]} config]
+        {:keys [user k8s nexus]} config
+        user-str (name user)
+        apply-with-user
+        (partial kubectl-apply-f facility user-str
+                 (str "/home/" user-str "/k8s_resources/"))]
     (actions/as-action (logging/info (str facility " - core-infra/dda-install")))
     (logging/info config)
     (base/install facility)
     (k8s/system-install facility k8s)
-    (k8s/user-install facility (name user) k8s)))
+    (k8s/user-install facility user-str k8s apply-with-user)
+    (when nexus (nexus/user-render-nexus-yml user-str nexus))))
 
 (s/defmethod core-infra/dda-configure facility
   [dda-crate config]
   (let [facility (:facility dda-crate)
-        {:keys [k8s user]} config]
+        {:keys [user k8s nexus]} config
+        user-str (name user)
+        apply-with-user
+        (partial kubectl-apply-f facility user-str
+                 (str "/home/" user-str "/k8s_resources/"))]
     (k8s/system-configure facility k8s)
-    (k8s/user-configure facility (name user) k8s)))
+    (k8s/user-configure facility user-str k8s apply-with-user)
+    (when nexus (nexus/apply-nexus user-str apply-with-user))))
 
 (def dda-k8s-crate
   (core-infra/make-dda-crate-infra

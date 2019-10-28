@@ -24,8 +24,7 @@
 (s/def test-domain-conf-prod
   {:user :k8s
    :k8s {:external-ip "external-ip"
-         :letsencrypt-prod true
-         :nexus-host-name "nexus-host-name"}})
+         :letsencrypt-prod true}})
 
 (deftest app-config
   (testing

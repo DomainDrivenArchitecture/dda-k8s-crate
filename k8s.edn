@@ -1,10 +1,8 @@
 {:user :k8s
  :k8s {:external-ip "78.47.117.208"
-       :host-name "hostname" ; TODO: wofür brauchen wir das?
        :letsencrypt-prod false ; TODO: kann weg
-       :nexus-host-name "k8s-le-staging.test.domaindrivenarchitecture.org"
            ;:cert-issuer {:letsencrypt-prod :letsencrypt-staging: :selfsigned}
        }
  ;:apple {:fqdn "name"}
- ;:nexus {:fqdn "name"}
+ ;:nexus {:fqdn "k8s-le-staging.test.domaindrivenarchitecture.org"}
  }

@@ -3,17 +3,12 @@
    [clojure.tools.logging :as logging]
    [schema.core :as s]
    [pallet.actions :as actions]
-   [pallet.action :as action]
-   [selmer.parser :as selmer]
-   [clojure.string :as str]))
+   [selmer.parser :as selmer]))
 
-; TODO: use hostname
 (s/def k8s
   {:external-ip s/Str
    :letsencrypt-prod s/Bool   ; Letsencrypt environment: true -> prod | false -> staging
-   :nexus-host-name s/Str
-   :nexus-secret-name s/Str
-   :nexus-cluster-issuer s/Str})
+   })
 
 (defn init-kubernetes-apt-repositories
   [facility]
@@ -108,17 +103,15 @@
      :owner user
      :mode "755"
      :content (selmer/render-file path {})))
-  (doseq [path ["metallb/metallb_config.yml"
-                "nexus/ingress_nexus_https.yml"]]
-    (actions/remote-file
-     (str "/home/" user "/k8s_resources/" path)
-     :literal true
-     :group user
-     :owner user
-     :mode "755"
-     :content
-     (selmer/render-file
-      (str path ".template") config))))
+  (actions/remote-file
+   (str "/home/" user "/k8s_resources/metallb/metallb_config.yml")
+   :literal true
+   :group user
+   :owner user
+   :mode "755"
+   :content
+   (selmer/render-file
+    (str "metallb/metallb_config.yml.template") config)))
 
 (defn user-untaint-master
   [facility user]
@@ -127,23 +120,6 @@
    "user-untaint-master"
    ("sudo" "-H" "-u" ~user "bash" "-c" "'kubectl" "taint" "nodes"
            "--all" "node-role.kubernetes.io/master-'")))
-
-(s/defn kubectl-apply-f
-  "apply kubectl config file"
-  [facility
-   user :- s/Str
-   user-resource-path :- s/Str
-   resource :- s/Str
-   & [should-sleep?]]
-  (let [path-on-server (str user-resource-path resource)]
-    (actions/as-action
-     (logging/info (str facility " - kubectl-apply-f "
-                        path-on-server)))
-    (when should-sleep?
-      (actions/exec-checked-script "sleep" ("sleep" "180")))
-    (actions/exec-checked-script
-     (str "apply config " path-on-server)
-     ("sudo" "-H" "-u" ~user "bash" "-c" "'kubectl" "apply" "-f" ~path-on-server "'"))))
 
 (s/defn user-install-flannel
   [apply-with-user]
@@ -202,20 +178,6 @@
   (when letsencrypt-prod
     (apply-with-user "apple/ingress_simple_le_prod_https.yml")))
 
-(s/defn install-nexus
-  [apply-with-user
-   user :- s/Str
-   letsencrypt-prod :- s/Bool]
-  (actions/directory
-   "/mnt/data"
-   :owner user
-   :group user
-   :mode "777")
-  (apply-with-user "nexus/nexus-storage.yml")
-  (apply-with-user "nexus/nexus.yml")
-  ;TODO: switch for prod / staging
-  (apply-with-user "nexus/ingress_nexus_https.yml"))
-
 (s/defn init
   [facility
    config :- k8s]
@@ -234,16 +196,13 @@
 (s/defn user-install
   [facility
    user :- s/Str
-   config :- k8s]
-  (let [{:keys [letsencrypt-prod]} config
-        apply-with-user
-        (partial kubectl-apply-f facility user
-                 (str "/home/" user "/k8s_resources/"))]
-    (actions/as-action (logging/info (str facility " - user-install")))
-    (user-install-k8s-env facility user)
-    (user-copy-yml facility user config)
-    (user-install-flannel apply-with-user)
-    (user-untaint-master facility user)))
+   config :- k8s
+   apply-with-user]
+  (actions/as-action (logging/info (str facility " - user-install")))
+  (user-install-k8s-env facility user)
+  (user-copy-yml facility user config)
+  (user-install-flannel apply-with-user)
+  (user-untaint-master facility user))
 
 (s/defn system-configure
   [facility
@@ -253,16 +212,13 @@
 (s/defn user-configure
   [facility
    user :- s/Str
-   config :- k8s]
-  (let [{:keys [letsencrypt-prod]} config
-        apply-with-user
-        (partial kubectl-apply-f facility user
-                 (str "/home/" user "/k8s_resources/"))]
+   config :- k8s
+   apply-with-user]
+  (let [{:keys [letsencrypt-prod]} config]
     (actions/as-action (logging/info (str facility " - user-configure")))
   ; TODO: run cleanup for being able do reaply config??
     (user-copy-yml facility user config)
     (admin-dash-metal-ingress apply-with-user)
     (install-cert-manager apply-with-user user letsencrypt-prod)
     ;TODO: make optional
-    (install-apple apply-with-user letsencrypt-prod)
-    (install-nexus apply-with-user user letsencrypt-prod)))
+    (install-apple apply-with-user letsencrypt-prod)))

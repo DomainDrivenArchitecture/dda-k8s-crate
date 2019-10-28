@@ -1,5 +1,4 @@
 {:input {:user :k8s                                 ; k8s user pwd on os level
          :k8s {:external-ip "external-ip"
-               :letsencrypt-prod true
-               :nexus-host-name "nexus-host-name"}}
+               :letsencrypt-prod true}}
  :expected {:settings #{:bashrc-d}}}
