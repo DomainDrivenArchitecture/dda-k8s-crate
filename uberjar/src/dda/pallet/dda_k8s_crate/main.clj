@@ -13,7 +13,6 @@
 ; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
-;[dda.pallet.commons.cli-helper :as cli-helper]
 
 (ns dda.pallet.dda-k8s-crate.main
   (:gen-class)
@@ -26,7 +25,6 @@
 
 (def cli-options
   [["-h" "--help"]
-   ["-s" "--serverspec"]
    ["-c" "--configure"]
    ["-t" "--targets example-targets.edn" "edn file containing the targets to install on."
     :default "localhost-target.edn"]
@@ -35,7 +33,7 @@
 (defn usage [options-summary]
   (str/join
    \newline
-   ["dda-k8s-crate installs & configures a microK8s"
+   ["dda-k8s-crate installs & configures a single host kubernetes cluster"
     ""
     "Usage: java -jar dda-k8s-standalone.jar [options] k8s.edn"
     ""
