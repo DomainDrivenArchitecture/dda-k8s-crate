@@ -23,8 +23,8 @@
 
 (s/def test-domain-conf-prod
   {:user :k8s
-   :k8s {:external-ip "external-ip"
-         :letsencrypt-prod true}})
+   :k8s {:external-ip "external-ip"}
+   :cert-manager :selfsigned-issuer})
 
 (deftest app-config
   (testing

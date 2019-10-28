@@ -29,3 +29,7 @@
   (apply-with-user "nexus/nexus-storage.yml")
   (apply-with-user "nexus/nexus.yml")
   (apply-with-user "nexus/ingress_nexus_https.yml"))
+
+(s/defn configure-nexus [apply-with-user user config]
+  (user-render-nexus-yml user config)
+  (apply-nexus user apply-with-user))

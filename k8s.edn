@@ -1,8 +1,6 @@
 {:user :k8s
- :k8s {:external-ip "78.47.56.86"
-       :letsencrypt-prod false ; TODO: kann weg
-           ;:cert-issuer {:letsencrypt-prod :letsencrypt-staging: :selfsigned}
-       }
-  :apple {:fqdn "k8s-le-staging.test.domaindrivenarchitecture.org"}
-  :nexus {:fqdn "k8s-le-staging.test.domaindrivenarchitecture.org"}
+ :k8s {:external-ip "78.47.56.86"}
+ :cert-manager :letsencrypt-staging-issuer
+ :apple {:fqdn "k8s-le-staging.test.domaindrivenarchitecture.org"}
+ :nexus {:fqdn "k8s-le-staging.test.domaindrivenarchitecture.org"}
  }

@@ -1,14 +1,14 @@
 {:input {:user :k8s
          :k8s {:external-ip "external-ip"}
-         :cert-manager :letsencrypt-staging-issuer
+         :cert-manager :selfsigned-issuer
          :apple {:fqdn "apple-host-name"}
          :nexus {:fqdn "nexus-host-name"}}
  :expected {:dda-k8s {:user :k8s
                       :k8s {:external-ip "external-ip"}
-                      :cert-manager {:env-flag "staging" :acme-flag "-staging"}
+                      :cert-manager {}
                       :apple {:fqdn "apple-host-name"
                               :secret-name "apple-host-name"
-                              :cluster-issuer "letsencrypt-staging-issuer"}
+                              :cluster-issuer "selfsigned-issuer"}
                       :nexus {:fqdn "nexus-host-name"
                               :secret-name "nexus-host-name"
-                              :cluster-issuer "letsencrypt-staging-issuer"}}}}
+                              :cluster-issuer "selfsigned-issuer"}}}}

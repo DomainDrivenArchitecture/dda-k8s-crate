@@ -25,8 +25,8 @@
 
 (s/def k8sDomain
   {:user s/Keyword
-   :k8s {:external-ip s/Str
-         (s/optional-key :letsencrypt-prod) s/Bool}
+   :k8s {:external-ip s/Str}
+   :cert-manager (s/enum :letsencrypt-prod-issuer :letsencrypt-staging-issuer :selfsigned-issuer)
    (s/optional-key :apple) {:fqdn s/Str}
    (s/optional-key :nexus) {:fqdn s/Str}})
 
@@ -45,17 +45,23 @@
       {:clear-password (rand-str 10)
        :settings #{:bashrc-d}})}))
 
+(defn- letsencrypt-configuration [letsencrypt-issuer]
+  (if (= letsencrypt-issuer :letsencrypt-prod-issuer)
+    {:env-flag "prod" :acme-flag ""}
+    {:env-flag "staging" :acme-flag "-staging"}))
+
 (s/defn ^:always-validate
   infra-configuration :- InfraResult
   [domain-config :- k8sDomainResolved]
-  (let [{:keys [user k8s apple nexus]} domain-config
-        {:keys [external-ip letsencrypt-prod]} k8s
-        cluster-issuer (if letsencrypt-prod "letsencrypt-prod-issuer" "letsencrypt-staging-issuer")]
+  (let [{:keys [user k8s cert-manager apple nexus]} domain-config
+        {:keys [external-ip]} k8s
+        cluster-issuer (name cert-manager)
+        cert-config (when (not (= cert-manager :selfsigned-issuer)) (letsencrypt-configuration cert-manager))]
     {infra/facility
      (mu/deep-merge
       {:user user
-       :k8s {:external-ip external-ip
-             :letsencrypt-prod letsencrypt-prod}}   ; Letsencrypt environment: true -> prod | false -> staging
+       :k8s {:external-ip external-ip}}
+      (if cert-config {:cert-manager cert-config} {:cert-manager {}})
       (when apple {:apple (merge
                            apple {:secret-name (str/replace (:fqdn apple) #"\." "-")
                                   :cluster-issuer cluster-issuer})})

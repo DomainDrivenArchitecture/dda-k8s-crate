@@ -6,9 +6,7 @@
    [selmer.parser :as selmer]))
 
 (s/def k8s
-  {:external-ip s/Str
-   :letsencrypt-prod s/Bool   ; Letsencrypt environment: true -> prod | false -> staging
-   })
+  {:external-ip s/Str})
 
 (defn init-kubernetes-apt-repositories
   [facility]
@@ -96,41 +94,6 @@
   (apply-with-user "ingress/mandatory.yaml")
   (apply-with-user "ingress/ingress_using_mettallb.yml"))
 
-(s/defn install-cert-manager
-  [apply-with-user
-   user :- s/Str
-   letsencrypt-prod :- s/Bool]
-  (let [user-home-ca (str "home/" user "/ca")]
-    (actions/exec-checked-script
-     "create cert-manager ns"
-     ("sudo" "-H" "-u" ~user "bash" "-c" "'kubectl" "create" "namespace" "cert-manager'")
-     ("sudo" "-H" "-u" ~user "bash" "-c" "'kubectl" "label" "namespace"
-             "cert-manager" "certmanager.k8s.io/disable-validation=true'"))
-    (apply-with-user "cert_manager/cert-manager.yaml")
-    (actions/directory
-     user-home-ca
-     :owner user
-     :group user
-     :mode "777")
-    (actions/exec-checked-script
-     "create cert key"
-     ("sudo" "-H" "-u" ~user "bash" "-c" "'openssl" "genrsa" "-out"
-             ~(str user-home-ca "/ca.key") "2048'")
-     ("sudo" "-H" "-u" ~user "bash" "-c" "'openssl" "req" "-x509" "-new" "-nodes"
-             "-key" ~(str user-home-ca "/ca.key")
-             "-subj" "'/CN=test.domaindrivenarchitecture.org'"
-             "-days" "365" "-reqexts" "v3_req"
-             "-extensions" "v3_ca"
-             "-out" ~(str user-home-ca "/ca.crt") "'")
-     ("sudo" "-H" "-u" ~user "bash" "-c" "'kubectl" "create" "secret" "tls"
-             "test-domaindrivenarchitecture-org-ca-key-pair"
-             ~(str "--cert=" user-home-ca "/ca.crt")
-             ~(str "--key=" user-home-ca "/ca.key")
-             "--namespace=cert-manager'"))
-    (apply-with-user "cert_manager/letsencrypt_staging_issuer.yml" true)
-    (when letsencrypt-prod
-      (apply-with-user "cert_manager/letsencrypt_prod_issuer.yml" true))))
-
 (s/defn init
   [facility
    config :- k8s]
@@ -166,9 +129,7 @@
    user :- s/Str
    config :- k8s
    apply-with-user]
-  (let [{:keys [letsencrypt-prod]} config]
-    (actions/as-action (logging/info (str facility " - user-configure")))
+  (actions/as-action (logging/info (str facility " - user-configure")))
   ; TODO: run cleanup for being able do reaply config??
-    (user-render-metallb-yml user config)
-    (admin-dash-metal-ingress apply-with-user)
-    (install-cert-manager apply-with-user user letsencrypt-prod)))
+  (user-render-metallb-yml user config)
+  (admin-dash-metal-ingress apply-with-user))

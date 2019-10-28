@@ -21,6 +21,7 @@
    [dda.pallet.dda-k8s-crate.infra.base :as base]
    [dda.pallet.dda-k8s-crate.infra.transport :as transport]
    [dda.pallet.dda-k8s-crate.infra.k8s :as k8s]
+   [dda.pallet.dda-k8s-crate.infra.cert-manager :as cert-manager]
    [dda.pallet.dda-k8s-crate.infra.apple :as apple]
    [dda.pallet.dda-k8s-crate.infra.nexus :as nexus]
    [clojure.tools.logging :as logging]
@@ -32,6 +33,7 @@
 (def ddaK8sConfig
   {:user s/Keyword
    :k8s k8s/k8s
+   :cert-manager cert-manager/cert-manager
    (s/optional-key :apple) apple/apple
    (s/optional-key :nexus) nexus/nexus})
 
@@ -61,7 +63,7 @@
 (s/defmethod core-infra/dda-install facility
   [dda-crate config]
   (let [facility (:facility dda-crate)
-        {:keys [user k8s apple nexus]} config
+        {:keys [user k8s]} config
         user-str (name user)
         apply-with-user
         (partial kubectl-apply-f facility user-str
@@ -71,14 +73,12 @@
     (base/install facility)
     (k8s/system-install facility k8s)
     (transport/user-copy-yml facility user-str)
-    (k8s/user-install facility user-str k8s apply-with-user)
-    (when apple (apple/user-render-apple-yml user-str apple))
-    (when nexus (nexus/user-render-nexus-yml user-str nexus))))
+    (k8s/user-install facility user-str k8s apply-with-user)))
 
 (s/defmethod core-infra/dda-configure facility
   [dda-crate config]
   (let [facility (:facility dda-crate)
-        {:keys [user k8s apple nexus]} config
+        {:keys [user k8s cert-manager apple nexus]} config
         user-str (name user)
         apply-with-user
         (partial kubectl-apply-f facility user-str
@@ -86,8 +86,9 @@
     (k8s/system-configure facility k8s)
     (transport/user-copy-yml facility user-str)
     (k8s/user-configure facility user-str k8s apply-with-user)
-    (when apple (apple/apply-apple user-str apply-with-user))
-    (when nexus (nexus/apply-nexus user-str apply-with-user))))
+    (cert-manager/configure-cert-manager apply-with-user user-str cert-manager)
+    (when apple (apple/configure-apple apply-with-user user-str apple))
+    (when nexus (nexus/configure-nexus apply-with-user user-str nexus))))
 
 (def dda-k8s-crate
   (core-infra/make-dda-crate-infra

@@ -28,3 +28,7 @@
    :mode "777")
   (apply-with-user "apple/apple.yml")
   (apply-with-user "apple/ingress_apple_https.yml"))
+
+(s/defn configure-apple [apply-with-user user config]
+  (user-render-apple-yml user config)
+  (apply-apple user apply-with-user))

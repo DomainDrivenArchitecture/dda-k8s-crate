@@ -31,8 +31,6 @@
                 "ingress/mandatory.yaml"
                 "ingress/ingress_using_mettallb.yml"
                 "cert_manager/cert-manager.yaml"
-                "cert_manager/letsencrypt_prod_issuer.yml"
-                "cert_manager/letsencrypt_staging_issuer.yml"
                 "apple/apple.yml"
                 "nexus/nexus-storage.yml"
                 "nexus/nexus.yml"]]
@@ -43,4 +41,4 @@
      :owner user
      :mode "755"
      :content (selmer/render-file path {}))))
-  
+
