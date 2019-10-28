@@ -19,6 +19,7 @@
    [schema.core :as s]
    [dda.pallet.core.infra :as core-infra]
    [dda.pallet.dda-k8s-crate.infra.base :as base]
+   [dda.pallet.dda-k8s-crate.infra.transport :as transport]
    [dda.pallet.dda-k8s-crate.infra.k8s :as k8s]
    [dda.pallet.dda-k8s-crate.infra.apple :as apple]
    [dda.pallet.dda-k8s-crate.infra.nexus :as nexus]
@@ -69,6 +70,7 @@
     (logging/info config)
     (base/install facility)
     (k8s/system-install facility k8s)
+    (transport/user-copy-yml facility user-str)
     (k8s/user-install facility user-str k8s apply-with-user)
     (when apple (apple/user-render-apple-yml user-str apple))
     (when nexus (nexus/user-render-nexus-yml user-str nexus))))
@@ -82,6 +84,7 @@
         (partial kubectl-apply-f facility user-str
                  (str "/home/" user-str "/k8s_resources/"))]
     (k8s/system-configure facility k8s)
+    (transport/user-copy-yml facility user-str)
     (k8s/user-configure facility user-str k8s apply-with-user)
     (when apple (apple/apply-apple user-str apply-with-user))
     (when nexus (nexus/apply-nexus user-str apply-with-user))))

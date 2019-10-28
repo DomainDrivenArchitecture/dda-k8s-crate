@@ -62,45 +62,16 @@
          ~(str "/home/" user "/.kube/config"))
    ("chown" "-R" ~(str user ":" user) ~(str "/home/" user "/.kube"))))
 
-(s/defn user-copy-yml
-  [facility
-   user :- s/Str
-   config :- k8s]
-  (actions/as-action
-   (logging/info (str facility " - user-configure-k8s-yml")))
-  (doseq [path ["/k8s_resources"
-                "/k8s_resources/flannel"
-                "/k8s_resources/admin"
-                "/k8s_resources/dashboard"
-                "/k8s_resources/metallb"
-                "/k8s_resources/ingress"
-                "/k8s_resources/cert_manager"
-                "/k8s_resources/apple"
-                "/k8s_resources/nexus"]]
-    (actions/directory
-     (str "/home/" user path)
-     :group user
-     :owner user))
-  (doseq [path ["flannel/kube-flannel-rbac.yml"
-                "flannel/kube-flannel.yml"
-                "admin/admin_user.yml"
-                "dashboard/kubernetes-dashboard.yaml"
-                "metallb/metallb.yml"
-                "ingress/mandatory.yaml"
-                "ingress/ingress_using_mettallb.yml"
-                "cert_manager/cert-manager.yaml"
-                "cert_manager/letsencrypt_prod_issuer.yml"
-                "cert_manager/letsencrypt_staging_issuer.yml"
-                "apple/apple.yml"
-                "nexus/nexus-storage.yml"
-                "nexus/nexus.yml"]]
-    (actions/remote-file
-     (str "/home/" user "/k8s_resources/" path)
-     :literal true
-     :group user
-     :owner user
-     :mode "755"
-     :content (selmer/render-file path {})))
+(defn user-untaint-master
+  [facility user]
+  (actions/as-action (logging/info (str facility " - system-install-k8s-base-config")))
+  (actions/exec-checked-script
+   "user-untaint-master"
+   ("sudo" "-H" "-u" ~user "bash" "-c" "'kubectl" "taint" "nodes"
+           "--all" "node-role.kubernetes.io/master-'")))
+
+(s/defn user-render-metallb-yml
+  [user :- s/Str config :- k8s]
   (actions/remote-file
    (str "/home/" user "/k8s_resources/metallb/metallb_config.yml")
    :literal true
@@ -110,14 +81,6 @@
    :content
    (selmer/render-file
     (str "metallb/metallb_config.yml.template") config)))
-
-(defn user-untaint-master
-  [facility user]
-  (actions/as-action (logging/info (str facility " - system-install-k8s-base-config")))
-  (actions/exec-checked-script
-   "user-untaint-master"
-   ("sudo" "-H" "-u" ~user "bash" "-c" "'kubectl" "taint" "nodes"
-           "--all" "node-role.kubernetes.io/master-'")))
 
 (s/defn user-install-flannel
   [apply-with-user]
@@ -190,7 +153,6 @@
    apply-with-user]
   (actions/as-action (logging/info (str facility " - user-install")))
   (user-install-k8s-env facility user)
-  (user-copy-yml facility user config)
   (user-install-flannel apply-with-user)
   (user-untaint-master facility user))
 
@@ -207,6 +169,6 @@
   (let [{:keys [letsencrypt-prod]} config]
     (actions/as-action (logging/info (str facility " - user-configure")))
   ; TODO: run cleanup for being able do reaply config??
-    (user-copy-yml facility user config)
+    (user-render-metallb-yml user config)
     (admin-dash-metal-ingress apply-with-user)
     (install-cert-manager apply-with-user user letsencrypt-prod)))
