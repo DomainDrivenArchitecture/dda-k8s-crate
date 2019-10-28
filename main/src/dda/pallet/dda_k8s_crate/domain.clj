@@ -56,7 +56,10 @@
       {:user user
        :k8s {:external-ip external-ip
              :letsencrypt-prod letsencrypt-prod}}   ; Letsencrypt environment: true -> prod | false -> staging
-      (if nexus {:nexus (merge
-                         nexus {:secret-name (str/replace (:fqdn nexus) #"\." "-")
-                                :cluster-issuer cluster-issuer})})
-      (if apple {:apple apple}))}))
+      (when apple {:apple (merge
+                           apple {:secret-name (str/replace (:fqdn apple) #"\." "-")
+                                  :cluster-issuer cluster-issuer})})
+      (when nexus {:nexus (merge
+                           nexus {:secret-name (str/replace (:fqdn nexus) #"\." "-")
+                                  :cluster-issuer cluster-issuer})}))}))
+

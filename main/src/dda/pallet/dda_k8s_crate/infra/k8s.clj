@@ -92,8 +92,6 @@
                 "cert_manager/letsencrypt_prod_issuer.yml"
                 "cert_manager/letsencrypt_staging_issuer.yml"
                 "apple/apple.yml"
-                "apple/ingress_simple_le_staging_https.yml"
-                "apple/ingress_simple_le_prod_https.yml"
                 "nexus/nexus-storage.yml"
                 "nexus/nexus.yml"]]
     (actions/remote-file
@@ -170,14 +168,6 @@
     (when letsencrypt-prod
       (apply-with-user "cert_manager/letsencrypt_prod_issuer.yml" true))))
 
-(s/defn install-apple
-  [apply-with-user
-   letsencrypt-prod :- s/Bool]
-  (apply-with-user "apple/apple.yml" true)
-  (apply-with-user "apple/ingress_simple_le_staging_https.yml")
-  (when letsencrypt-prod
-    (apply-with-user "apple/ingress_simple_le_prod_https.yml")))
-
 (s/defn init
   [facility
    config :- k8s]
@@ -219,6 +209,4 @@
   ; TODO: run cleanup for being able do reaply config??
     (user-copy-yml facility user config)
     (admin-dash-metal-ingress apply-with-user)
-    (install-cert-manager apply-with-user user letsencrypt-prod)
-    ;TODO: make optional
-    (install-apple apply-with-user letsencrypt-prod)))
+    (install-cert-manager apply-with-user user letsencrypt-prod)))

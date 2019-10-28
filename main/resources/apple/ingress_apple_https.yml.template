@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-apple
+  annotations:
+    certmanager.k8s.io/cluster-issuer: {{cluster-issuer}}
+    ingress.kubernetes.io/ssl-redirect: "true"
+    ingress.kubernetes.io/rewrite-target: /
+spec:
+  tls:
+  - hosts:
+    - {{fqdn}}
+    secretName: {{secret-name}}
+  rules:
+    - host: {{fqdn}}
+      http:
+        paths:
+          - path: /apple
+            backend:
+              serviceName: apple-service
+              servicePort: 5678

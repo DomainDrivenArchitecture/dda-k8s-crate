@@ -6,7 +6,9 @@
  :expected {:dda-k8s {:user :k8s
                       :k8s {:external-ip "external-ip"
                             :letsencrypt-prod true}
-                      :apple {:fqdn "apple-host-name"}
+                      :apple {:fqdn "apple-host-name"
+                              :secret-name "apple-host-name"
+                              :cluster-issuer "letsencrypt-prod-issuer"}
                       :nexus {:fqdn "nexus-host-name"
                               :secret-name "nexus-host-name"
                               :cluster-issuer "letsencrypt-prod-issuer"}}}}

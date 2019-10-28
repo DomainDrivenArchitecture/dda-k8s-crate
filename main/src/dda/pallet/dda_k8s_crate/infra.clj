@@ -20,6 +20,7 @@
    [dda.pallet.core.infra :as core-infra]
    [dda.pallet.dda-k8s-crate.infra.base :as base]
    [dda.pallet.dda-k8s-crate.infra.k8s :as k8s]
+   [dda.pallet.dda-k8s-crate.infra.apple :as apple]
    [dda.pallet.dda-k8s-crate.infra.nexus :as nexus]
    [clojure.tools.logging :as logging]
    [pallet.actions :as actions]))
@@ -30,7 +31,7 @@
 (def ddaK8sConfig
   {:user s/Keyword
    :k8s k8s/k8s
-   (s/optional-key :apple) {:fqdn s/Str}
+   (s/optional-key :apple) apple/apple
    (s/optional-key :nexus) nexus/nexus})
 
 (s/defn kubectl-apply-f
@@ -59,7 +60,7 @@
 (s/defmethod core-infra/dda-install facility
   [dda-crate config]
   (let [facility (:facility dda-crate)
-        {:keys [user k8s nexus]} config
+        {:keys [user k8s apple nexus]} config
         user-str (name user)
         apply-with-user
         (partial kubectl-apply-f facility user-str
@@ -69,18 +70,20 @@
     (base/install facility)
     (k8s/system-install facility k8s)
     (k8s/user-install facility user-str k8s apply-with-user)
+    (when apple (apple/user-render-apple-yml user-str apple))
     (when nexus (nexus/user-render-nexus-yml user-str nexus))))
 
 (s/defmethod core-infra/dda-configure facility
   [dda-crate config]
   (let [facility (:facility dda-crate)
-        {:keys [user k8s nexus]} config
+        {:keys [user k8s apple nexus]} config
         user-str (name user)
         apply-with-user
         (partial kubectl-apply-f facility user-str
                  (str "/home/" user-str "/k8s_resources/"))]
     (k8s/system-configure facility k8s)
     (k8s/user-configure facility user-str k8s apply-with-user)
+    (when apple (apple/apply-apple user-str apply-with-user))
     (when nexus (nexus/apply-nexus user-str apply-with-user))))
 
 (def dda-k8s-crate
