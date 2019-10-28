@@ -2,7 +2,8 @@
   (:require
    [schema.core :as s]
    [pallet.actions :as actions]
-   [selmer.parser :as selmer]))
+   [selmer.parser :as selmer]
+   [dda.pallet.dda-k8s-crate.infra.check :as check]))
 
 (s/def cert-manager {(s/optional-key :env-flag) s/Str
                      (s/optional-key :acme-flag) s/Str})
@@ -50,7 +51,8 @@
              ~(str "--cert=" user-home-ca "/ca.crt")
              ~(str "--key=" user-home-ca "/ca.key")
              "--namespace=cert-manager'"))
-    (apply-with-user "cert_manager/cert-issuer.yml" true)))
+    (check/wait-until-pod-running user "webhook")
+    (apply-with-user "cert_manager/cert-issuer.yml")))
 
 (s/defn configure-cert-manager [apply-with-user user config]
   (user-render-cert-manager-yml user config)
