@@ -2,7 +2,8 @@
   (:require
    [schema.core :as s]
    [pallet.actions :as actions]
-   [selmer.parser :as selmer]))
+   [selmer.parser :as selmer]
+   [dda.pallet.dda-k8s-crate.infra.transport :as transport]))
 
 (s/def Nexus {:fqdn s/Str :secret-name s/Str :cluster-issuer s/Str})
 
@@ -35,7 +36,14 @@
    "curl nexus until ready"
    ("bash" ~(str "/home/" user "/k8s_resources/nexus/nexus-ready.sh " fqdn))))
 
-(s/defn configure-nexus [apply-with-user user config]
+(s/defn user-configure-nexus [facility user config apply-with-user]
+  (transport/user-copy-resources
+   facility user
+   ["/k8s_resources"
+    "/k8s_resources/nexus"]
+   ["nexus/nexus-storage.yml"
+    "nexus/nexus.yml"
+    "nexus/nexus-ready.sh"])
   (user-render-nexus-yml user config)
   (apply-nexus user apply-with-user)
   (wait-until-nexus-ready user (:fqdn config)))

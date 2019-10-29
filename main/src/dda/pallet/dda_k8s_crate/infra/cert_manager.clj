@@ -2,7 +2,8 @@
   (:require
    [schema.core :as s]
    [pallet.actions :as actions]
-   [selmer.parser :as selmer]))
+   [selmer.parser :as selmer]
+   [dda.pallet.dda-k8s-crate.infra.transport :as transport]))
 
 (s/def CertManager {(s/optional-key :env-flag) s/Str
                      (s/optional-key :acme-flag) s/Str})
@@ -53,6 +54,11 @@
              "--namespace=cert-manager'"))
     (apply-with-user "cert_manager/cert-issuer.yml" true)))
 
-(s/defn configure-cert-manager [apply-with-user user config]
+(s/defn user-configure-cert-manager [facility user config apply-with-user]
+  (transport/user-copy-resources
+   facility user
+   ["/k8s_resources"
+    "/k8s_resources/cert_manager"]
+   ["cert_manager/cert-manager.yaml"])
   (user-render-cert-manager-yml user config)
   (apply-cert-manager apply-with-user user))

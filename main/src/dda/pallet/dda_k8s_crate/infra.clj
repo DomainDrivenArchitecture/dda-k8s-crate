@@ -19,7 +19,6 @@
    [schema.core :as s]
    [dda.pallet.core.infra :as core-infra]
    [dda.pallet.dda-k8s-crate.infra.base :as base]
-   [dda.pallet.dda-k8s-crate.infra.transport :as transport]
    [dda.pallet.dda-k8s-crate.infra.k8s :as k8s]
    [dda.pallet.dda-k8s-crate.infra.cert-manager :as cert-manager]
    [dda.pallet.dda-k8s-crate.infra.apple :as apple]
@@ -69,10 +68,8 @@
         (partial kubectl-apply-f facility user-str
                  (str "/home/" user-str "/k8s_resources/"))]
     (actions/as-action (logging/info (str facility " - core-infra/dda-install")))
-    (logging/info config)
-    (base/install facility)
+    (base/system-install facility)
     (k8s/system-install facility k8s)
-    (transport/user-copy-resources facility user-str)
     (k8s/user-install facility user-str k8s apply-with-user)))
 
 (s/defmethod core-infra/dda-configure facility
@@ -84,11 +81,10 @@
         (partial kubectl-apply-f facility user-str
                  (str "/home/" user-str "/k8s_resources/"))]
     (k8s/system-configure facility k8s)
-    (transport/user-copy-resources facility user-str)
     (k8s/user-configure facility user-str k8s apply-with-user)
-    (cert-manager/configure-cert-manager apply-with-user user-str cert-manager)
-    (when apple (apple/configure-apple apply-with-user user-str apple))
-    (when nexus (nexus/configure-nexus apply-with-user user-str nexus))))
+    (cert-manager/user-configure-cert-manager facility user-str cert-manager apply-with-user)
+    (when apple (apple/user-configure-apple facility user-str apple apply-with-user))
+    (when nexus (nexus/user-configure-nexus facility user-str nexus apply-with-user))))
 
 (def dda-k8s-crate
   (core-infra/make-dda-crate-infra

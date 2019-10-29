@@ -16,7 +16,7 @@
  (actions/package "curl")
  (actions/package "grep")) 
 
-(s/defn install
+(s/defn system-install
   [facility]
   (actions/as-action
    (logging/info (str facility "-install system")))

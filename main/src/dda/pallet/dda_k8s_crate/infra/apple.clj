@@ -2,7 +2,8 @@
   (:require
    [schema.core :as s]
    [pallet.actions :as actions]
-   [selmer.parser :as selmer]))
+   [selmer.parser :as selmer]
+   [dda.pallet.dda-k8s-crate.infra.transport :as transport]))
 
 (s/def Apple {:fqdn s/Str :secret-name s/Str :cluster-issuer s/Str})
 
@@ -29,6 +30,11 @@
   (apply-with-user "apple/apple.yml")
   (apply-with-user "apple/ingress_apple_https.yml"))
 
-(s/defn configure-apple [apply-with-user user config]
+(s/defn user-configure-apple [facility user config apply-with-user]
+  (transport/user-copy-resources
+   facility user
+   ["/k8s_resources"
+    "/k8s_resources/apple"]
+   ["apple/apple.yml"])
   (user-render-apple-yml user config)
   (apply-apple user apply-with-user))
