@@ -116,7 +116,7 @@
    config :- K8s
    apply-with-user]
   (actions/as-action (logging/info (str facility " - user-install")))
-  (transport/user-copy-resources 
+  (transport/user-copy-resources
    facility user
    ["/k8s_resources"
     "/k8s_resources/flannel"]
@@ -145,6 +145,7 @@
     "/k8s_resources/metallb"
     "/k8s_resources/ingress"]
    ["admin/admin_user.yml"
+    "admin/pod-running.sh"
     "dashboard/kubernetes-dashboard.yaml"
     "metallb/metallb.yml"
     "ingress/mandatory.yaml"

@@ -41,14 +41,11 @@
   [facility
    user :- s/Str
    user-resource-path :- s/Str
-   resource :- s/Str
-   & [should-sleep?]]
+   resource :- s/Str]
   (let [path-on-server (str user-resource-path resource)]
     (actions/as-action
      (logging/info (str facility " - kubectl-apply-f "
                         path-on-server)))
-    (when should-sleep?
-      (actions/exec-checked-script "sleep" ("sleep" "180")))
     (actions/exec-checked-script
      (str "apply config " path-on-server)
      ("sudo" "-H" "-u" ~user "bash" "-c" "'kubectl" "apply" "-f" ~path-on-server "'"))))
