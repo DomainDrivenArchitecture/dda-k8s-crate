@@ -26,6 +26,7 @@
   (doseq [path ["flannel/kube-flannel-rbac.yml"
                 "flannel/kube-flannel.yml"
                 "admin/admin_user.yml"
+                "admin/pod-running.sh"
                 "dashboard/kubernetes-dashboard.yaml"
                 "metallb/metallb.yml"
                 "ingress/mandatory.yaml"
