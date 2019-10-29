@@ -33,7 +33,7 @@
 (def ddaK8sConfig
   {:user s/Keyword
    :k8s k8s/k8s
-   :cert-manager cert-manager/cert-manager
+   :cert-manager cert-manager/CertManager
    (s/optional-key :apple) apple/Apple
    (s/optional-key :nexus) nexus/nexus})
 

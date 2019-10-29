@@ -4,12 +4,12 @@
    [pallet.actions :as actions]
    [selmer.parser :as selmer]))
 
-(s/def cert-manager {(s/optional-key :env-flag) s/Str
+(s/def CertManager {(s/optional-key :env-flag) s/Str
                      (s/optional-key :acme-flag) s/Str})
 
 (s/defn user-render-cert-manager-yml
   [user :- s/Str
-   config :- cert-manager]
+   config :- CertManager]
   (actions/remote-file
    (str "/home/" user "/k8s_resources/cert_manager/cert-issuer.yml")
    :literal true
@@ -30,6 +30,7 @@
      ("sudo" "-H" "-u" ~user "bash" "-c" "'kubectl" "label" "namespace"
              "cert-manager" "certmanager.k8s.io/disable-validation=true'"))
     (apply-with-user "cert_manager/cert-manager.yaml")
+    ; TODO: brauchen wir nur, wenn ca-issuer gewählt wurde
     (actions/directory
      user-home-ca
      :owner user
