@@ -4,11 +4,11 @@
    [pallet.actions :as actions]
    [selmer.parser :as selmer]))
 
-(s/def apple {:fqdn s/Str :secret-name s/Str :cluster-issuer s/Str})
+(s/def Apple {:fqdn s/Str :secret-name s/Str :cluster-issuer s/Str})
 
 (s/defn user-render-apple-yml
   [user :- s/Str
-   config :- apple]
+   config :- Apple]
   (actions/remote-file
    (str "/home/" user "/k8s_resources/apple/ingress_apple_https.yml")
    :literal true

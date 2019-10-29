@@ -34,7 +34,7 @@
   {:user s/Keyword
    :k8s k8s/k8s
    :cert-manager cert-manager/cert-manager
-   (s/optional-key :apple) apple/apple
+   (s/optional-key :apple) apple/Apple
    (s/optional-key :nexus) nexus/nexus})
 
 (s/defn kubectl-apply-f
