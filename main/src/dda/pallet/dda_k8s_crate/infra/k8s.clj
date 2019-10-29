@@ -5,7 +5,7 @@
    [pallet.actions :as actions]
    [selmer.parser :as selmer]))
 
-(s/def k8s
+(s/def K8s
   {:external-ip s/Str})
 
 (defn init-kubernetes-apt-repositories
@@ -69,7 +69,7 @@
            "--all" "node-role.kubernetes.io/master-'")))
 
 (s/defn user-render-metallb-yml
-  [user :- s/Str config :- k8s]
+  [user :- s/Str config :- K8s]
   (actions/remote-file
    (str "/home/" user "/k8s_resources/metallb/metallb_config.yml")
    :literal true
@@ -96,14 +96,14 @@
 
 (s/defn init
   [facility
-   config :- k8s]
+   config :- K8s]
   (actions/as-action
    (logging/info (str facility "-init")))
   (init-kubernetes-apt-repositories facility))
 
 (s/defn system-install
   [facility
-   config :- k8s]
+   config :- K8s]
   (actions/as-action (logging/info (str facility " - system-install")))
   (system-install-k8s facility)
   (system-install-k8s-base-config facility)
@@ -112,7 +112,7 @@
 (s/defn user-install
   [facility
    user :- s/Str
-   config :- k8s
+   config :- K8s
    apply-with-user]
   (actions/as-action (logging/info (str facility " - user-install")))
   (user-install-k8s-env facility user)
@@ -121,13 +121,13 @@
 
 (s/defn system-configure
   [facility
-   config :- k8s]
+   config :- K8s]
   (actions/as-action (logging/info (str facility " - system-configure"))))
 
 (s/defn user-configure
   [facility
    user :- s/Str
-   config :- k8s
+   config :- K8s
    apply-with-user]
   (actions/as-action (logging/info (str facility " - user-configure")))
   ; TODO: run cleanup for being able do reaply config??

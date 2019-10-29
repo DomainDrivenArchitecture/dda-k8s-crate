@@ -32,10 +32,10 @@
 ; the infra config
 (def ddaK8sConfig
   {:user s/Keyword
-   :k8s k8s/k8s
+   :k8s k8s/K8s
    :cert-manager cert-manager/CertManager
    (s/optional-key :apple) apple/Apple
-   (s/optional-key :nexus) nexus/nexus})
+   (s/optional-key :nexus) nexus/Nexus})
 
 (s/defn kubectl-apply-f
   "apply kubectl config file"

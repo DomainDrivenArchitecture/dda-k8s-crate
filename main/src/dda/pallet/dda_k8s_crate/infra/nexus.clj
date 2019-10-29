@@ -4,11 +4,11 @@
    [pallet.actions :as actions]
    [selmer.parser :as selmer]))
 
-(s/def nexus {:fqdn s/Str :secret-name s/Str :cluster-issuer s/Str})
+(s/def Nexus {:fqdn s/Str :secret-name s/Str :cluster-issuer s/Str})
 
 (s/defn user-render-nexus-yml
   [user :- s/Str
-   config :- nexus]
+   config :- Nexus]
   (actions/remote-file
    (str "/home/" user "/k8s_resources/nexus/ingress_nexus_https.yml")
    :literal true
