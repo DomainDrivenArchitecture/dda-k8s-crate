@@ -12,6 +12,8 @@ while true; do
    fi
 
    let duration=$SECONDS/60
+   # pallet needs a regular action, otherwise unwanted timeout after 5 min
+   echo "Seconds waited: ${SECONDS}"
    if [ "$duration" -ge "$2" ]
    then 
    exit 1

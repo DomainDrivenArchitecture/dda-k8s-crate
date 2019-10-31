@@ -13,7 +13,6 @@
   (actions/exec-checked-script "remove active swap" ("sed" "-i" "'/swap/d'" "/etc/fstab")))
 
 (defn install-utils []
-  (actions/package "curl")
   (actions/package "grep"))
 
 (s/defn system-install
