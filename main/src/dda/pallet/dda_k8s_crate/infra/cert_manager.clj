@@ -32,27 +32,27 @@
      ("sudo" "-H" "-u" ~user "bash" "-c" "'kubectl" "label" "namespace"
              "cert-manager" "certmanager.k8s.io/disable-validation=true'"))
     (apply-with-user "cert_manager/cert-manager.yaml")
-    ; TODO: brauchen wir nur, wenn ca-issuer gewählt wurde
-    (actions/directory
-     user-home-ca
-     :owner user
-     :group user
-     :mode "777")
-    (actions/exec-checked-script
-     "create cert key"
-     ("sudo" "-H" "-u" ~user "bash" "-c" "'openssl" "genrsa" "-out"
-             ~(str user-home-ca "/ca.key") "2048'")
-     ("sudo" "-H" "-u" ~user "bash" "-c" "'openssl" "req" "-x509" "-new" "-nodes"
-             "-key" ~(str user-home-ca "/ca.key")
-             "-subj" "'/CN=test.domaindrivenarchitecture.org'"
-             "-days" "365" "-reqexts" "v3_req"
-             "-extensions" "v3_ca"
-             "-out" ~(str user-home-ca "/ca.crt") "'")
-     ("sudo" "-H" "-u" ~user "bash" "-c" "'kubectl" "create" "secret" "tls"
-             "test-domaindrivenarchitecture-org-ca-key-pair"
-             ~(str "--cert=" user-home-ca "/ca.crt")
-             ~(str "--key=" user-home-ca "/ca.key")
-             "--namespace=cert-manager'"))
+;     ; TODO: brauchen wir nur, wenn ca-issuer gewählt wurde
+;     (actions/directory
+;      user-home-ca
+;      :owner user
+;      :group user
+;      :mode "777")
+;     (actions/exec-checked-script
+;      "create cert key"
+;      ("sudo" "-H" "-u" ~user "bash" "-c" "'openssl" "genrsa" "-out"
+;              ~(str user-home-ca "/ca.key") "2048'")
+;      ("sudo" "-H" "-u" ~user "bash" "-c" "'openssl" "req" "-x509" "-new" "-nodes"
+;              "-key" ~(str user-home-ca "/ca.key")
+;              "-subj" "'/CN=test.domaindrivenarchitecture.org'"
+;              "-days" "365" "-reqexts" "v3_req"
+;              "-extensions" "v3_ca"
+;              "-out" ~(str user-home-ca "/ca.crt") "'")
+;      ("sudo" "-H" "-u" ~user "bash" "-c" "'kubectl" "create" "secret" "tls"
+;              "test-domaindrivenarchitecture-org-ca-key-pair"
+;              ~(str "--cert=" user-home-ca "/ca.crt")
+;              ~(str "--key=" user-home-ca "/ca.key")
+;              "--namespace=cert-manager'"))
     (check/wait-until-pod-running user "webhook" 5 10 20)
     (apply-with-user "cert_manager/cert-issuer.yml")))
 
