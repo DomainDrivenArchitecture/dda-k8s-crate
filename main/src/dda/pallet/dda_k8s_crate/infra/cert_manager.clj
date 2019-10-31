@@ -1,5 +1,6 @@
 (ns dda.pallet.dda-k8s-crate.infra.cert-manager
   (:require
+   [clojure.tools.logging :as logging]
    [schema.core :as s]
    [pallet.actions :as actions]
    [selmer.parser :as selmer]
@@ -56,7 +57,9 @@
     (check/wait-until-pod-running user "webhook" 5 10 20)
     (apply-with-user "cert_manager/cert-issuer.yml")))
 
-(s/defn user-configure-cert-manager [facility user config apply-with-user]
+(s/defn user-configure-cert-manager
+  [facility user config apply-with-user]
+  (actions/as-action (logging/info (str facility " - user-configure-cert-manager")))
   (transport/user-copy-resources
    facility user
    ["/k8s_resources"

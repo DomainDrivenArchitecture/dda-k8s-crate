@@ -1,5 +1,6 @@
 (ns dda.pallet.dda-k8s-crate.infra.nexus
   (:require
+   [clojure.tools.logging :as logging]
    [schema.core :as s]
    [pallet.actions :as actions]
    [selmer.parser :as selmer]
@@ -32,7 +33,9 @@
   (apply-with-user "nexus/nexus.yml")
   (apply-with-user "nexus/ingress_nexus_https.yml"))
 
-(s/defn user-configure-nexus [facility user config apply-with-user]
+(s/defn user-configure-nexus
+  [facility user config apply-with-user]
+  (actions/as-action (logging/info (str facility " - user-configure-nexus")))
   (transport/user-copy-resources
    facility user
    ["/k8s_resources"
