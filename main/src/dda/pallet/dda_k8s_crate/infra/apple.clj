@@ -1,5 +1,6 @@
 (ns dda.pallet.dda-k8s-crate.infra.apple
   (:require
+   [clojure.tools.logging :as logging]
    [schema.core :as s]
    [pallet.actions :as actions]
    [selmer.parser :as selmer]
@@ -30,7 +31,9 @@
   (apply-with-user "apple/apple.yml")
   (apply-with-user "apple/ingress_apple_https.yml"))
 
-(s/defn user-configure-apple [facility user config apply-with-user]
+(s/defn user-configure-apple
+  [facility user config apply-with-user]
+  (actions/as-action (logging/info (str facility " - user-apple-configure")))
   (transport/user-copy-resources
    facility user
    ["/k8s_resources"
