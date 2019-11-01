@@ -90,7 +90,7 @@
   [apply-with-user]
   (apply-with-user "admin/admin_user.yml")
   (apply-with-user "dashboard/kubernetes-dashboard.2.0.b5.yaml")
-  (apply-with-user "dashboard/admin-dash.2.0.b5.yaml")
+  (apply-with-user "dashboard/admin_dash.2.0.b5.yaml")
   (apply-with-user "metallb/metallb.yml")
   (apply-with-user "metallb/metallb_config.yml")
   (apply-with-user "ingress/mandatory.yaml")
