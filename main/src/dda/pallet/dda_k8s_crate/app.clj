@@ -33,14 +33,14 @@
 
 (def InfraResult domain/InfraResult)
 
-(def k8sAppConfig
+(def k8sApp
   {:group-specific-config
    {s/Keyword (merge InfraResult
                      user/InfraResult)}})
 
 (s/defn ^:always-validate
-  app-configuration-resolved :- k8sAppConfig
-  [resolved-domain-config :- k8sDomainResolvedConfig
+  app-configuration-resolved :- k8sApp
+  [resolved-domain-config :- k8sDomainResolved
    & options]
   (let [{:keys [group-key] :or {group-key infra/facility}} options]
     (mu/deep-merge
@@ -51,16 +51,16 @@
        (domain/infra-configuration resolved-domain-config)}})))
 
 (s/defn ^:always-validate
-  app-configuration :- k8sAppConfig
-  [domain-config :- k8sDomainConfig
+  app-configuration :- k8sApp
+  [domain-config :- k8sDomain
    & options]
-  (let [resolved-domain-config (secret/resolve-secrets domain-config k8sDomainConfig)]
+  (let [resolved-domain-config (secret/resolve-secrets domain-config k8sDomain)]
     (apply app-configuration-resolved resolved-domain-config options)))
 
 (s/defmethod ^:always-validate
   core-app/group-spec infra/facility
   [crate-app
-   domain-config :- k8sDomainResolvedConfig]
+   domain-config :- k8sDomainResolved]
   (let [app-config (app-configuration-resolved domain-config)]
     (core-app/pallet-group-spec
      app-config [(config-crate/with-config app-config)
@@ -69,6 +69,6 @@
 
 (def crate-app (core-app/make-dda-crate-app
                 :facility infra/facility
-                :domain-schema k8sDomainConfig
-                :domain-schema-resolved k8sDomainResolvedConfig
+                :domain-schema k8sDomain
+                :domain-schema-resolved k8sDomainResolved
                 :default-domain-file "k8s.edn"))
