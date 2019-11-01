@@ -7,7 +7,9 @@ services:
 stages:
   - test
 
-- stage: test
+jobs:
+  include:
+    - stage: test
       script:
         - lein test
         - lein uberjar
