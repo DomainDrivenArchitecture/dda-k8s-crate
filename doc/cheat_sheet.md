@@ -30,7 +30,7 @@ curl http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https
 kubectl -n kubernetes-dashboard describe secret kubernetes-dashboard| awk '$1=="token:"{print $2}'
 
 # nexus
-curl https://k8s-nexus.test.domaindrivenarchitecture.org/
+curl --insecure -v  https://k8s-nexus.test.domaindrivenarchitecture.org/
 cat /mnt/data/admin.password
 
 # debug with network-tools pod
