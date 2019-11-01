@@ -27,9 +27,9 @@
 
 (def with-k8s infra/with-k8s)
 
-(def k8sDomainConfig domain/k8sDomain)
+(def k8sDomain domain/k8sDomain)
 
-(def k8sDomainResolvedConfig domain/k8sDomainResolved)
+(def k8sDomainResolved domain/k8sDomainResolved)
 
 (def InfraResult domain/InfraResult)
 
