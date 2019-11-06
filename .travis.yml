@@ -17,8 +17,8 @@ jobs:
         - sha256sum target/uberjar/dda-k8s-standalone.jar > target/uberjar/dda-k8s-standalone.jar.sha256
         - sha512sum target/uberjar/dda-k8s-standalone.jar > target/uberjar/dda-k8s-standalone.jar.sha512
         - # create docker image
-        - docker build -t dda-k8s-crate --file integration/docker/image/Dockerfile .
-        - docker build -t dda-k8s-crate --file integration/docker/test/Dockerfile .
+        - # docker build -t dda-k8s-crate --file integration/docker/image/Dockerfile .
+        - # docker build -t dda-k8s-crate --file integration/docker/test/Dockerfile .
       deploy:
         - provider: releases
           skip_cleanup: true
@@ -26,7 +26,7 @@ jobs:
             tags: true
           overwrite: true
           api_key:
-            secure: "I5pLTX6r21Tv80suzjzK0E4+5FVHQ9da2MpH/NN+vpUTb1OXSlOhxMnkgaANPbKOAitVKBOt5+nsy/y29ac0YOmEMnLpdTOsra/azPyO4yVMdW3fkeCbgxkMpgRS/NOrALDs84x45zZ1uYBPZ5gez/OQoM1YIXBz2rRY/c5hrMS0AIlILmDdceFcFakHf/BveLg1ue404MQy6mpHpcnNOPB9orVTMb31qTwlF02427YIDEIN04uVHL9KzOSNUsAcEn3z/iebcUnFrr2KT3BbPe+jGHnnK5wc7/p74mxm2q1dzuuDPsr+Oe7MH8/tQm4l3J758zMAn/uMZOuqIS/DVlCkHA+Qk0ktjn5JYkhlhYPq1rlgl2mF/91+enJGq/Z1d5pFmloTG5mKL499u4/Eyd+yp/PetRczT0O6V/AKPuVaplmY2CdZKtjVgJ5D5MIUrf63ACtWAFGei9q4rIhKRMqDloPbgY+Q3DISMCoYO9K80tUjoTgBCyMaWjLlIwQDAPsA5i3s6D3f61tFvLRbb+fCi12f8W6+lXbd2+je1MkaQbNgK6EuDkIi+jky6/S43DBTJkAIbF2EpaG4tXVDmxO79z1U5xDBW1nGRDzq4J1yUq5G28JEzh6OHPA7LDKIc6WjMEqK5ZEO/qLOlpf8mpAJe/h8sWw5K4NGHLhtrDs="
+            secure: "nC6weyl4n+Y/BOsyNFOsrTsCnKw1xFcPivlL5RV5LqXl6lIw3CO+FcgJbxsCXnEJio+/vGCDqxKAANHlifAPbr2oHhstwBL97dZQ45MMyvrGhdUOtlAxcLxJcSwFSdnqrJ+dwoXShT/x2BC6ZGBcXFNEl+LnqtEfAKlFKwrHhTibNAWVdMEFSNevgqrP2XK0v2wP39q/vX0su0Wwj71WoTKNVZKKNuPZcaUa9cse+wf4KlkIimkXtXmbB8fnk4lSTmQW4ps7RBR6q9jRtPCFO5+B1bmJ9AvB0YbWAtWsFJBgpEejCNUGvVA3Q2sm6Y3XWEIgP9hPyKxglL36RKcL7xMRc4vDey8xKXsmG3XN+lgiw5rlwSwlOnXcveeb6+fQB4G7OqExCzfVvRNFLab182Wh2u3TEGpujPYX6Ee0xteYgxaKceNVCiCMjOkX1RqB+tOSaQpw2e7IhdMV8hOXc/1INeKUlwLuSNS5kGuK5hLpLDGFxP655oyfS47FNA8E2RJtiA/P+w3FGphfA6P+EafV+VqpwNIhuzrBwPVxnsfm3MrdBJFWPCfauPzmocPkp0cVCFVj2fY+ZT8aLmVrAo/lDC3wQWpWN4FwF7Nc9o7VGOLGHt4qCpzmwkiEPjYg3UNdecHe6KiAEIfgddftBDraADlBIkG/9VJPtTO/yQw="
           file:
             - target/uberjar/dda-k8s-standalone.jar
             - target/uberjar/dda-k8s-standalone.jar.md5
