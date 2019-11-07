@@ -4,7 +4,7 @@
          :apple {:fqdn "apple-host-name"}
          :nexus {:fqdn "nexus-host-name"}}
  :expected {:dda-k8s {:user :k8s
-                      :k8s {:external-ip "external-ip"}
+                      :k8s {:external-ip "-   external-ip/32" :external-ipv6 ""}
                       :cert-manager {}
                       :apple {:fqdn "apple-host-name"
                               :secret-name "apple-host-name"

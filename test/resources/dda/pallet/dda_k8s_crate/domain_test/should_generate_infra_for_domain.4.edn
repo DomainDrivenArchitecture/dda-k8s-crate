@@ -1,0 +1,6 @@
+{:input {:user :k8s
+         :k8s {:external-ip "external-ip" :external-ipv6 "external-ipv6"}
+         :cert-manager :selfsigned-issuer}
+ :expected {:dda-k8s {:user :k8s
+                      :k8s {:external-ip "-   external-ip/32" :external-ipv6 "-   external-ipv6/64"}
+                      :cert-manager {}}}}

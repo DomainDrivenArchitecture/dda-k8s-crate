@@ -7,7 +7,7 @@
    [dda.pallet.dda-k8s-crate.infra.transport :as transport]))
 
 (s/def K8s
-  {:external-ip s/Str})
+  {:external-ip s/Str :external-ipv6 s/Str})
 
 (defn init-kubernetes-apt-repositories
   [facility]
