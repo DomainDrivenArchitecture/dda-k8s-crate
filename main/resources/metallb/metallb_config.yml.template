@@ -9,4 +9,5 @@ data:
     - name: default
       protocol: layer2
       addresses:
-      -   {{external-ip}}/32
+      {{external-ip}}
+      {{external-ipv6}}

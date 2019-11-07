@@ -25,7 +25,7 @@
 
 (s/def k8sDomain
   {:user s/Keyword
-   :k8s {:external-ip s/Str}
+   :k8s {:external-ip s/Str (s/optional-key :external-ipv6) s/Str}
    :cert-manager (s/enum :letsencrypt-prod-issuer :letsencrypt-staging-issuer :selfsigned-issuer)
    (s/optional-key :apple) {:fqdn s/Str}
    (s/optional-key :nexus) {:fqdn s/Str}})
@@ -54,13 +54,14 @@
   infra-configuration :- InfraResult
   [domain-config :- k8sDomainResolved]
   (let [{:keys [user k8s cert-manager apple nexus]} domain-config
-        {:keys [external-ip]} k8s
+        {:keys [external-ip external-ipv6]} k8s
         cluster-issuer (name cert-manager)
         cert-config (when (not (= cert-manager :selfsigned-issuer)) (letsencrypt-configuration cert-manager))]
     {infra/facility
      (mu/deep-merge
       {:user user
-       :k8s {:external-ip external-ip}}
+       :k8s (merge {:external-ip (str "-   " external-ip "/32")}
+                   {:external-ipv6 (if external-ipv6 (str "-   " external-ipv6 "/64") "")})}
       (if cert-config {:cert-manager cert-config} {:cert-manager {}})
       (when apple {:apple (merge
                            apple {:secret-name (str/replace (:fqdn apple) #"\." "-")
