@@ -1,3 +1,4 @@
+#https://raw.githubusercontent.com/google/metallb/v0.8.3/manifests/metallb.yaml
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -212,7 +213,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: status.hostIP
-        image: metallb/speaker:v0.8.1
+        image: metallb/speaker:v0.8.2
         imagePullPolicy: IfNotPresent
         name: speaker
         ports:
@@ -268,7 +269,7 @@ spec:
       - args:
         - --port=7472
         - --config=config
-        image: metallb/controller:v0.8.1
+        image: metallb/controller:v0.8.2
         imagePullPolicy: IfNotPresent
         name: controller
         ports:
