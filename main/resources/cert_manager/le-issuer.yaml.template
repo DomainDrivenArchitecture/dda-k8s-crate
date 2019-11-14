@@ -13,4 +13,7 @@ spec:
       # Secret resource used to store the account's private key.
       name: letsencrypt-{{env-flag}}-account-key
     # Enable the HTTP01 challenge mechanism for this Issuer
-    http01: {}
+    solvers:
+    - http01:
+        ingress:
+          class:  nginx
