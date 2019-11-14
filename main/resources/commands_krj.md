@@ -11,9 +11,9 @@ kubectl get clusterissuer --all-namespaces
 
 kubectl describe namespace cert-manager
 Name:         cert-manager
-Labels:       certmanager.k8s.io/disable-validation=true
+Labels:       cert-manager.io/disable-validation=true
 Annotations:  kubectl.kubernetes.io/last-applied-configuration:
-                {"apiVersion":"v1","kind":"Namespace","metadata":{"annotations":{},"labels":{"certmanager.k8s.io/disable-validation":"true"},"name":"cert-...
+                {"apiVersion":"v1","kind":"Namespace","metadata":{"annotations":{},"labels":{"cert-manager.io/disable-validation":"true"},"name":"cert-...
 Status:       Active
 No resource quota.
 No resource limits.
@@ -33,14 +33,14 @@ Name:         ca-issuer
 Namespace:    
 Labels:       <none>
 Annotations:  kubectl.kubernetes.io/last-applied-configuration:
-                {"apiVersion":"certmanager.k8s.io/v1alpha1","kind":"ClusterIssuer","metadata":{"annotations":{},"name":"ca-issuer"},"spec":{"ca":{"secretN...
-API Version:  certmanager.k8s.io/v1alpha1
+                {"apiVersion":"cert-manager.io/v1alpha1","kind":"ClusterIssuer","metadata":{"annotations":{},"name":"ca-issuer"},"spec":{"ca":{"secretN...
+API Version:  cert-manager.io/v1alpha1
 Kind:         ClusterIssuer
 Metadata:
   Creation Timestamp:  2019-08-19T12:33:01Z
   Generation:          2
   Resource Version:    7468
-  Self Link:           /apis/certmanager.k8s.io/v1alpha1/clusterissuers/ca-issuer
+  Self Link:           /apis/cert-manager.io/v1alpha1/clusterissuers/ca-issuer
   UID:                 59980bf2-ac55-49fc-b669-d8671a0abe3e
 Spec:
   Ca:

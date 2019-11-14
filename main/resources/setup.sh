@@ -115,7 +115,7 @@ kubectl get all --all-namespaces #ingress-nginx   has type: LoadBalancer & exter
 
 # install cert-manager
 kubectl create namespace cert-manager
-kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
+kubectl label namespace cert-manager cert-manager.io/disable-validation=true
 kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v0.11.0/cert-manager.yaml      
 
 # apple & banana

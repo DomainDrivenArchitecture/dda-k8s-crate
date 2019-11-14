@@ -30,7 +30,7 @@
      "create cert-manager ns"
      ("sudo" "-H" "-u" ~user "bash" "-c" "'kubectl" "create" "namespace" "cert-manager'")
      ("sudo" "-H" "-u" ~user "bash" "-c" "'kubectl" "label" "namespace"
-             "cert-manager" "certmanager.k8s.io/disable-validation=true'"))
+             "cert-manager" "cert-manager.io/disable-validation=true'"))
     (apply-with-user "cert_manager/cert-manager.yaml")
     (check/wait-until-pod-running user "webhook" 5 10 20)
     (apply-with-user "cert_manager/selfsigning-issuer.yaml")

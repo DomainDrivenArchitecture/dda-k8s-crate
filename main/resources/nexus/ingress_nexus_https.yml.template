@@ -4,7 +4,6 @@ metadata:
   name: ingress-nexus
   annotations:
     cert-manager.io/cluster-issuer: {{cluster-issuer}}
-    certmanager.k8s.io/cluster-issuer: {{cluster-issuer}}
     ingress.kubernetes.io/ssl-redirect: "true"
     ingress.kubernetes.io/rewrite-target: /
   namespace: default
