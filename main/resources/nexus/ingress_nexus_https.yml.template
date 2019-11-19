@@ -1,3 +1,17 @@
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: nexus-cert
+  namespace: default
+spec:
+  secretName: {{secret-name}}
+  commonName: {{fqdn}}
+  dnsNames:
+  - {{fqdn}}
+  issuerRef:
+    name: {{cluster-issuer}}
+    kind: ClusterIssuer
+---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
