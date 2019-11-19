@@ -14,13 +14,13 @@
   [user :- s/Str
    config :- CertManager]
   (actions/remote-file
-   (str "/home/" user "/k8s_resources/cert_manager/le-issuer.yaml")
+   (str "/home/" user "/k8s_resources/cert_manager/le-issuer.yml")
    :literal true
    :group user
    :owner user
    :mode "755"
    :content
-   (selmer/render-file "cert_manager/le-issuer.yaml.template" config)))
+   (selmer/render-file "cert_manager/le-issuer.yml.template" config)))
 
 (s/defn apply-cert-manager
   [apply-with-user
@@ -31,10 +31,10 @@
      ("sudo" "-H" "-u" ~user "bash" "-c" "'kubectl" "create" "namespace" "cert-manager'")
      ("sudo" "-H" "-u" ~user "bash" "-c" "'kubectl" "label" "namespace"
              "cert-manager" "cert-manager.io/disable-validation=true'"))
-    (apply-with-user "cert_manager/cert-manager.yaml")
+    (apply-with-user "cert_manager/cert-manager.yml")
     (check/wait-until-pod-running user "webhook" 5 10 20)
-    (apply-with-user "cert_manager/selfsigning-issuer.yaml")
-    (apply-with-user "cert_manager/le-issuer.yaml")))
+    (apply-with-user "cert_manager/selfsigning-issuer.yml")
+    (apply-with-user "cert_manager/le-issuer.yml")))
 
 (s/defn user-configure-cert-manager
   [facility user config apply-with-user]
@@ -43,7 +43,7 @@
    facility user
    ["/k8s_resources"
     "/k8s_resources/cert_manager"]
-   ["cert_manager/cert-manager.yaml"
-    "cert_manager/selfsigning-issuer.yaml"])
+   ["cert_manager/cert-manager.yml"
+    "cert_manager/selfsigning-issuer.yml"])
   (user-render-cert-manager-yml user config)
   (apply-cert-manager apply-with-user user))

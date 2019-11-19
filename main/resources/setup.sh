@@ -1,6 +1,6 @@
 # optional: set network on remote
 cd /etc/netplan
-sudo nano 50-cloud-init.yaml
+sudo nano 50-cloud-init.yml
 # Under ethernets: enp0s8: dhcp4: true
 
 # connect to your server
@@ -77,7 +77,7 @@ rm ca*
 #kubectl delete -f /home/k8s/k8s_resources/cert_manager/letsencrypt_prod_issuer.yml
 #kubectl delete -f /home/k8s/k8s_resources/kustomization.yml
 #kubectl delete -f /home/k8s/k8s_resources/ingress.yml
-#kubectl delete -f /home/k8s/k8s_resources/apple.yaml
+#kubectl delete -f /home/k8s/k8s_resources/apple.yml
 #kubectl delete -f /home/k8s/k8s_resources/banana.yml
 #kubectl delete -f /home/k8s/k8s_resources/nexus/nexus.yml
 
@@ -97,29 +97,29 @@ kubectl get pods #No pods
 kubectl apply -f /home/k8s/k8s_resources/admin_user.yml
 
 # dashboard
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yml
 kubectl proxy &
 # http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy
 kubectl -n kube-system describe secret admin-user| awk '$1=="token:"{print $2}'
 
 # MetalLB
-kubectl apply -f /home/k8s/k8s_resources/metallb.yml # from https://raw.githubusercontent.com/google/metallb/v0.7.3/manifests/metallb.yaml
+kubectl apply -f /home/k8s/k8s_resources/metallb.yml # from https://raw.githubusercontent.com/google/metallb/v0.7.3/manifests/metallb.yml
 vi /home/k8s/k8s_resources/metallb_config.yml # adjust ip to your public
 kubectl apply -f /home/k8s/k8s_resources/metallb_config.yml
 kubectl get pods -n metallb-system  # should all be running
 
 # Deploy Ingress
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/mandatory.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/mandatory.yml
 kubectl apply -f /home/k8s/k8s_resources/ingress_using_mettallb.yml
 kubectl get all --all-namespaces #ingress-nginx   has type: LoadBalancer & external ip
 
 # install cert-manager
 kubectl create namespace cert-manager
 kubectl label namespace cert-manager cert-manager.io/disable-validation=true
-kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v0.11.0/cert-manager.yaml      
+kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v0.11.0/cert-manager.yml      
 
 # apple & banana
-kubectl apply -f /home/k8s/k8s_resources/apple/apple.yaml
+kubectl apply -f /home/k8s/k8s_resources/apple/apple.yml
 kubectl apply -f /home/k8s/k8s_resources/apple/banana.yml
 kubectl apply -f /home/k8s/k8s_resources/apple/ingress_simple_http.yml
 # curl http://k8s.test.domaindrivenarchitecture.org/apple

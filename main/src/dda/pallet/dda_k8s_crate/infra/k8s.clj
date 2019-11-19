@@ -89,11 +89,11 @@
 (s/defn admin-dash-metal-ingress
   [apply-with-user]
   (apply-with-user "admin/admin_user.yml")
-  (apply-with-user "dashboard/kubernetes-dashboard.2.0.b5.yaml")
-  (apply-with-user "dashboard/admin_dash.2.0.b5.yaml")
+  (apply-with-user "dashboard/kubernetes-dashboard.2.0.b5.yml")
+  (apply-with-user "dashboard/admin_dash.2.0.b5.yml")
   (apply-with-user "metallb/metallb.yml")
   (apply-with-user "metallb/metallb_config.yml")
-  (apply-with-user "ingress/mandatory.yaml")
+  (apply-with-user "ingress/mandatory.yml")
   (apply-with-user "ingress/ingress_using_mettallb.yml"))
 
 (s/defn init
@@ -147,12 +147,12 @@
     "/k8s_resources/ingress"]
    ["admin/admin_user.yml"
     "admin/pod-running.sh"
-    "dashboard/kubernetes-dashboard.1.10.yaml"
-    "dashboard/admin_dash.1.10.yaml"
-    "dashboard/kubernetes-dashboard.2.0.b5.yaml"
-    "dashboard/admin_dash.2.0.b5.yaml"
+    "dashboard/kubernetes-dashboard.1.10.yml"
+    "dashboard/admin_dash.1.10.yml"
+    "dashboard/kubernetes-dashboard.2.0.b5.yml"
+    "dashboard/admin_dash.2.0.b5.yml"
     "metallb/metallb.yml"
-    "ingress/mandatory.yaml"
+    "ingress/mandatory.yml"
     "ingress/ingress_using_mettallb.yml"])
   (user-render-metallb-yml user config)
   (admin-dash-metal-ingress apply-with-user))

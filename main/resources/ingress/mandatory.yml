@@ -1,4 +1,4 @@
-# https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/mandatory.yaml
+# https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/mandatory.yml
 
 apiVersion: v1
 kind: Namespace

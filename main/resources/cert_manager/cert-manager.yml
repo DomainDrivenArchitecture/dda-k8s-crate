@@ -1,4 +1,4 @@
-# https://github.com/jetstack/cert-manager/releases/download/v0.11.0/cert-manager.yaml
+# https://github.com/jetstack/cert-manager/releases/download/v0.11.0/cert-manager.yml
 ---
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
@@ -5359,7 +5359,7 @@ metadata:
 
 ---
 ---
-# Source: cert-manager/charts/cainjector/templates/serviceaccount.yaml
+# Source: cert-manager/charts/cainjector/templates/serviceaccount.yml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -5373,7 +5373,7 @@ metadata:
     helm.sh/chart: cainjector-v0.11.0
 
 ---
-# Source: cert-manager/templates/serviceaccount.yaml
+# Source: cert-manager/templates/serviceaccount.yml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -5388,7 +5388,7 @@ metadata:
     helm.sh/chart: cert-manager-v0.11.0
 
 ---
-# Source: cert-manager/templates/webhook-serviceaccount.yaml
+# Source: cert-manager/templates/webhook-serviceaccount.yml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -5401,7 +5401,7 @@ metadata:
     app.kubernetes.io/managed-by: Tiller
     helm.sh/chart: cert-manager-v0.11.0
 ---
-# Source: cert-manager/charts/cainjector/templates/rbac.yaml
+# Source: cert-manager/charts/cainjector/templates/rbac.yml
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRole
 metadata:
@@ -5496,7 +5496,7 @@ subjects:
     name: cert-manager-cainjector
     namespace: cert-manager
 ---
-# Source: cert-manager/templates/webhook-rbac.yaml
+# Source: cert-manager/templates/webhook-rbac.yml
 ### Webhook ###
 ---
 # apiserver gets the auth-delegator role to delegate auth decisions to
@@ -5570,7 +5570,7 @@ rules:
   verbs:
   - create
 ---
-# Source: cert-manager/templates/rbac.yaml
+# Source: cert-manager/templates/rbac.yml
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: Role
 metadata:
@@ -6015,7 +6015,7 @@ rules:
     verbs: ["create", "delete", "deletecollection", "patch", "update"]
 
 ---
-# Source: cert-manager/templates/service.yaml
+# Source: cert-manager/templates/service.yml
 
 apiVersion: v1
 kind: Service
@@ -6039,7 +6039,7 @@ spec:
     app.kubernetes.io/instance:  cert-manager
 
 ---
-# Source: cert-manager/templates/webhook-service.yaml
+# Source: cert-manager/templates/webhook-service.yml
 apiVersion: v1
 kind: Service
 metadata:
@@ -6063,7 +6063,7 @@ spec:
     app.kubernetes.io/instance:  cert-manager
     app.kubernetes.io/managed-by: Tiller
 ---
-# Source: cert-manager/charts/cainjector/templates/deployment.yaml
+# Source: cert-manager/charts/cainjector/templates/deployment.yml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6111,7 +6111,7 @@ spec:
             
 
 ---
-# Source: cert-manager/templates/deployment.yaml
+# Source: cert-manager/templates/deployment.yml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6171,7 +6171,7 @@ spec:
             
 
 ---
-# Source: cert-manager/templates/webhook-deployment.yaml
+# Source: cert-manager/templates/webhook-deployment.yml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6227,7 +6227,7 @@ spec:
         secret:
           secretName: cert-manager-webhook-tls
 ---
-# Source: cert-manager/templates/webhook-apiservice.yaml
+# Source: cert-manager/templates/webhook-apiservice.yml
 apiVersion: apiregistration.k8s.io/v1beta1
 kind: APIService
 metadata:
@@ -6249,7 +6249,7 @@ spec:
     namespace: "cert-manager"
   version: v1beta1
 ---
-# Source: cert-manager/templates/webhook-mutating-webhook.yaml
+# Source: cert-manager/templates/webhook-mutating-webhook.yml
 apiVersion: admissionregistration.k8s.io/v1beta1
 kind: MutatingWebhookConfiguration
 metadata:
@@ -6286,35 +6286,35 @@ webhooks:
         namespace: default
         path: /apis/webhook.cert-manager.io/v1beta1/mutations
 ---
-# Source: cert-manager/charts/cainjector/templates/psp-clusterrole.yaml
+# Source: cert-manager/charts/cainjector/templates/psp-clusterrole.yml
 
 
 ---
-# Source: cert-manager/charts/cainjector/templates/psp-clusterrolebinding.yaml
+# Source: cert-manager/charts/cainjector/templates/psp-clusterrolebinding.yml
 
 
 ---
-# Source: cert-manager/charts/cainjector/templates/psp.yaml
+# Source: cert-manager/charts/cainjector/templates/psp.yml
 
 
 ---
-# Source: cert-manager/templates/psp-clusterrole.yaml
+# Source: cert-manager/templates/psp-clusterrole.yml
 
 
 ---
-# Source: cert-manager/templates/psp-clusterrolebinding.yaml
+# Source: cert-manager/templates/psp-clusterrolebinding.yml
 
 
 ---
-# Source: cert-manager/templates/psp.yaml
+# Source: cert-manager/templates/psp.yml
 
 
 ---
-# Source: cert-manager/templates/servicemonitor.yaml
+# Source: cert-manager/templates/servicemonitor.yml
 
 
 ---
-# Source: cert-manager/templates/webhook-validating-webhook.yaml
+# Source: cert-manager/templates/webhook-validating-webhook.yml
 apiVersion: admissionregistration.k8s.io/v1beta1
 kind: ValidatingWebhookConfiguration
 metadata:
