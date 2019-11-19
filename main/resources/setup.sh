@@ -77,7 +77,7 @@ rm ca*
 #kubectl delete -f /home/k8s/k8s_resources/cert_manager/letsencrypt_prod_issuer.yml
 #kubectl delete -f /home/k8s/k8s_resources/kustomization.yml
 #kubectl delete -f /home/k8s/k8s_resources/ingress.yml
-#kubectl delete -f /home/k8s/k8s_resources/apple.yml
+#kubectl delete -f /home/k8s/k8s_resources/apple.yaml
 #kubectl delete -f /home/k8s/k8s_resources/banana.yml
 #kubectl delete -f /home/k8s/k8s_resources/nexus/nexus.yml
 
@@ -119,7 +119,7 @@ kubectl label namespace cert-manager cert-manager.io/disable-validation=true
 kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v0.11.0/cert-manager.yaml      
 
 # apple & banana
-kubectl apply -f /home/k8s/k8s_resources/apple/apple.yml
+kubectl apply -f /home/k8s/k8s_resources/apple/apple.yaml
 kubectl apply -f /home/k8s/k8s_resources/apple/banana.yml
 kubectl apply -f /home/k8s/k8s_resources/apple/ingress_simple_http.yml
 # curl http://k8s.test.domaindrivenarchitecture.org/apple
