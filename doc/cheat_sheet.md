@@ -30,3 +30,7 @@ cat /mnt/data/admin.password
 
 # debug with network-tools pod
 kubectl run my-shell --rm -i --tty --image nicolaka/netshoot -- bash
+
+# log & attach
+kubectl logs -n ingress-nginx nginx-ingress-controller-577c465bb-bszqk | less
+kubectl exec -it -n ingress-nginx nginx-ingress-controller-577c465bb-bszqk bash

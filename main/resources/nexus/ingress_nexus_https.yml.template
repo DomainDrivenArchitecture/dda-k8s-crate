@@ -18,8 +18,9 @@ metadata:
   name: ingress-nexus
   annotations:
     cert-manager.io/cluster-issuer: {{cluster-issuer}}
-    ingress.kubernetes.io/ssl-redirect: "true"
-    ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-body-size: "256m"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /
   namespace: default
 spec:
   tls:
