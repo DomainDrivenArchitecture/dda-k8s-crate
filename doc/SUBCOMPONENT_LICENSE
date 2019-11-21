@@ -5,94 +5,78 @@ separate copyright notices and license terms. Your use of the source
 code for the these subcomponents is subject to the terms and
 conditions of the following licenses.
 
-lein with-profile uberjar licenses
-org.apache.httpcomponents/httpclient - 4.5.5 - Apache License, Version 2.0
-commons-io - 2.6 - Apache License, Version 2.0
 pallet-thread - 0.1.0 - Eclipse Public License
 instaparse - 1.4.9 - Eclipse Public License
-org.clojure/tools.logging - 0.4.0 - Eclipse Public License 1.0
 io.aleph/dirigiste - 0.1.5 - MIT License
-dda/dda-pallet - 2.2.2 - Apache License, Version 2.0
-org.apache.httpcomponents/httpcore-nio - 4.4.6 - Apache License, Version 2.0
+commons-codec - 1.12 - Apache License, Version 2.0
 tigris - 0.1.1 - Eclipse Public License
-org.apache.httpcomponents/httpcore - 4.4.9 - Apache License, Version 2.0
 org.slf4j/slf4j-api - 1.8.0-beta1 - MIT License
-potemkin - 0.4.5 - MIT License
 com.jcraft/jsch.agentproxy.usocket-nc - 0.0.9 - Revised BSD
-clj-http - 3.9.1 - The MIT License
 org.clojure/tools.macro - 0.1.5 - Eclipse Public License 1.0
-org.clojure/core.incubator - 0.1.4 - Eclipse Public License 1.0
-org.bouncycastle/bcpg-jdk15on - 1.58 - Bouncy Castle Licence
-manifold - 0.1.6 - MIT License
+selmer - 1.12.12 - Eclipse Public License
+dda/dda-pallet - 3.0.0 - Apache License, Version 2.0
+dda/pallet - 0.9.1 - Eclipse Public License
 enlive - 1.1.6 - Eclipse Public License - v 1.0
 com.jcraft/jsch.agentproxy.core - 0.0.9 - Revised BSD
-dda/dda-pallet-commons - 1.4.1 - Apache License, Version 2.0
-prismatic/schema - 1.1.9 - Eclipse Public License
-org.bouncycastle/bcprov-jdk15on - 1.58 - Bouncy Castle Licence
+dda/chiba - 0.2.3 - Eclipse Public License
+razum2um/dynapath - 1.0.1 - Eclipse Public License
+dda/dda-pallet-commons - 1.5.0 - Apache License, Version 2.0
 org.clojure/tools.reader - 0.7.2 - Eclipse Public License 1.0
 robert/hooke - 1.3.0 - Eclipse Public License
-org.clojure/tools.cli - 0.4.1 - Eclipse Public License 1.0
-org.tcrawley/dynapath - 0.2.3 - Eclipse Public License
 com.palletops/local-transport - 0.5.0 - Eclipse Public License
 org.clojure/clojure - 1.9.0 - Eclipse Public License 1.0
 dda/pallet-common - 0.5.0 - Eclipse Public License
 org.jsoup/jsoup - 1.7.2 - The MIT License
-org.apache.httpcomponents/httpmime - 4.5.5 - Apache License, Version 2.0
-com.palletops/chiba - 0.2.1 - Eclipse Public License
+primitive-math - 0.1.6 - MIT License
 com.palletops/ssh-transport - 0.5.2 - Eclipse Public License
-org.flatland/useful - 0.10.7 - Eclipse Public License - v 1.0
-commons-codec - 1.11 - Apache License, Version 2.0
-dda/dda-git-crate - 2.2.0 - Apache License, Version 2.0
 hiccup - 1.0.5 - unknown
 clj-tuple - 0.2.2 - MIT License
-dda/dda-httpd-crate - 2.1.0 - Apache License, Version 2.0
-primitive-math - 0.1.5 - MIT License
 com.jcraft/jsch.agentproxy.jsch - 0.0.9 - Revised BSD
+org.flatland/useful - 0.11.6 - Eclipse Public License - v 1.0
 org.ccil.cowan.tagsoup/tagsoup - 1.2.1 - Apache License 2.0
 json-html - 0.4.4 - MIT License
-slingshot - 0.12.2 - Eclipse Public License 1.0
-selmer - 1.12.5 - Eclipse Public License
 ch.qos.logback/logback-core - 1.3.0-alpha4 - Eclipse Public License - v 1.0
-dda/dda-user-crate - 1.0.6 - Apache License, Version 2.0
+riddley - 0.1.14 - MIT License
 com.jcraft/jsch - 0.1.53 - Revised BSD
 org.clojure/core.specs.alpha - 0.1.24 - Eclipse Public License 1.0
-dda/httpd - 0.2.10 - unknown
-metosin/schema-tools - 0.10.3 - Eclipse Public License
+dda/dda-config-commons - 1.5.0 - Apache License, Version 2.0
+org.bouncycastle/bcprov-jdk15on - 1.61 - Bouncy Castle Licence
 iproute - 0.1.5 - Eclipse Public License
 com.jcraft/jsch.agentproxy.usocket-jna - 0.0.9 - Revised BSD
 pallet-fsm - 0.2.0 - Eclipse Public License
-byte-streams - 0.2.3 - MIT License
 ch.qos.logback/logback-classic - 1.3.0-alpha4 - Eclipse Public License - v 1.0
 org.clojars.runa/clj-schema - 0.9.4 - MIT License
-dda/dda-config-commons - 1.4.2 - Apache License, Version 2.0
+org.clojure/tools.cli - 0.4.2 - Eclipse Public License 1.0
+dda/dda-serverspec-crate - 1.3.4 - Apache License, Version 2.0
+org.slf4j/jcl-over-slf4j - 2.0.0-alpha1 - MIT License
 com.palletops/script-exec - 0.4.2 - Eclipse Public License
-bultitude - 0.2.6 - unknown
+dda/dda-user-crate - 2.0.5 - Apache License, Version 2.0
 com.palletops/pallet-repl - 0.8.0-beta.2 - Eclipse Public License
 net.java.dev.jna/jna-platform - 4.1.0 - LGPL, version 2.1
+org.bouncycastle/bcpg-jdk15on - 1.61 - Bouncy Castle Licence
+metosin/schema-tools - 0.11.0 - Eclipse Public License
 com.jcraft/jsch.agentproxy.sshagent - 0.0.9 - Revised BSD
+mvxcvi/clj-pgp - 0.10.0 - Public Domain
 net.java.dev.jna/jna - 4.1.0 - LGPL, version 2.1
-riddley - 0.1.12 - MIT License
-dda/dda-serverspec-crate - 1.3.0 - Apache License, Version 2.0
-commons-logging - 1.2 - The Apache Software License, Version 2.0
-org.apache.httpcomponents/httpclient-cache - 4.5.5 - Apache License, Version 2.0
+dda/dda-git-crate - 2.2.2 - Apache License, Version 2.0
+manifold - 0.1.8 - MIT License
 cheshire - 5.8.1 - The MIT License
 com.fasterxml.jackson.core/jackson-core - 2.9.6 - The Apache Software License, Version 2.0
+razum2um/bultitude - 0.3.1 - Eclipse Public License 1.0
 keypin - 0.7.6 - Eclipse Public License
 com.fasterxml.jackson.dataformat/jackson-dataformat-cbor - 2.9.6 - The Apache Software License, Version 2.0
-dda/pallet - 0.9.0 - Eclipse Public License
 dda/stevedore - 0.9.0-beta.1 - Eclipse Public License
+prismatic/schema - 1.1.10 - Eclipse Public License
+org.clojure/tools.logging - 0.5.0-alpha - Eclipse Public License 1.0
+byte-streams - 0.2.4 - MIT License
 org.clojure/algo.monads - 0.1.6 - Eclipse Public License 1.0
 clj-ssh - 0.5.14 - Eclipse Public License
-mvxcvi/clj-pgp - 0.9.0 - Public Domain
 pallet-fsmop - 0.3.1 - Eclipse Public License
-org.apache.httpcomponents/httpasyncclient - 4.1.3 - Apache License, Version 2.0
-org.slf4j/jcl-over-slf4j - 1.8.0-beta2 - MIT License
 com.jcraft/jsch.agentproxy.pageant - 0.0.9 - Revised BSD
 com.palletops/thread-expr - 1.3.0 - Eclipse Public License
 com.fasterxml.jackson.dataformat/jackson-dataformat-smile - 2.9.6 - The Apache Software License, Version 2.0
 org.clojure/spec.alpha - 0.1.143 - Eclipse Public License 1.0
 pallet-map-merge - 0.1.1 - Eclipse Public License
-
 
 
    Eclipse Public License 1.0 (EPL-1.0)
