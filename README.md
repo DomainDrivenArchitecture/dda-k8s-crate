@@ -22,13 +22,13 @@ The Kubernetes cluster installed by this crate provides the following features:
 ### dda-k8s in detail
 
 We use the following components:
-* Flannel networking: [[Flannel]](https://github.com/coreos/flannel#flannel) [[Kubernetes Cluster Networking]](https://kubernetes.io/docs/concepts/cluster-administration/networking/)
+* Flannel networking: [[Flannel]](https://github.com/coreos/flannel#flannel), [[Kubernetes Cluster Networking]](https://kubernetes.io/docs/concepts/cluster-administration/networking/)
 * metallb: [[MetalLB]](https://metallb.universe.tf/)
 * nginx-ingress: [[Ingress]](https://kubernetes.io/docs/concepts/services-networking/Ingress/)
-* cert-manager
-* dashboard
-* apple for debugging
-* nexus as example application
+* cert-manager: [[cert-manager]](tps://github.com/jetstack/cert-manager)
+* dashboard 2.0: [[dashboard]](https://github.com/kubernetes/dashboard/)
+* apple-rcho for debugging: [[http-echo]](https://github.com/hashicorp/http-echo)
+* nexus as example application: [[docker-nexus]](https://github.com/sonatype/docker-nexus)
 
 k8s api and dashboard is eposed to localhost only and can be accesed through a ssh-tunnel, all k8s operations can be executed by a k8s user. Generated yml manifests can be found at '/home/k8s/k8s-resources'
 
@@ -58,7 +58,7 @@ The dashboard allows for debugging and to get an overview of the Kubernetes clus
 
 ### Nexus repository manager
 
-The nexus repository manager is the first application we deploy on the Kubernetes cluster. It uses the lestsencrypt-prod-issuer and requires an Ingress config file on its own. In addition to the Ingress config file a `nexus-storage.yml` and `nexus.yml` config file are necessary. The storage is of kind PersistentVolume and differentiates the storage and the actual application of nexus in two seperate Pods.
+The nexus repository manager uses certmanager for certificates. The storage is relized as PersistentVolume.
 
 ## Compatibility
 dda-pallet is compatible with the following versions
