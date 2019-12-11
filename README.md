@@ -62,11 +62,10 @@ The nexus repository manager uses certmanager for certificates. The storage is r
 
 ## Compatibility
 dda-pallet is compatible with the following versions
+* jvm11 or later
+* clojure 1.9 or later
 * pallet 0.8.x
-* clojure 1.9
 * (x)ubunutu 18.04
-
-
 
 ### Watch log for debug reasons
 In case of problems you may want to have a look at the log-file:

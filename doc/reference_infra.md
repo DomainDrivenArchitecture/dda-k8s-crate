@@ -1,20 +1,18 @@
 ```clojure
-(def SmeagolPasswdUser
-  {:admin s/Bool
-   :email s/Str
-   :password s/Str})
+(s/def K8s
+  {:external-ip s/Str :external-ipv6 s/Str})
 
-(def SmeagolPasswd
-  {s/Keyword SmeagolPasswdUser})
+(s/def CertManager {(s/optional-key :env-flag) s/Str
+                    (s/optional-key :acme-flag) s/Str})
 
-; TODO: simplify smeagol-parent-dir and smeagol-dir to one directory
-(def SmeagolInfra
-  {:smeagol-parent-dir s/Str
-   :smeagol-dir s/Str
-   :smeagol-passwd SmeagolPasswd
-   :smeagol-owner s/Str
-   :repo-download-source s/Str
-   :resource-locations {s/Keyword {:name s/Str :source s/Str :destination s/Str}}
-   :environment-variables [{:name s/Str :value s/Str}]})
+(s/def Apple {:fqdn s/Str :secret-name s/Str :cluster-issuer s/Str})
 
+(s/def Nexus {:fqdn s/Str :secret-name s/Str :cluster-issuer s/Str})
+
+(def ddaK8sConfig
+  {:user s/Keyword
+   :k8s k8s/K8s
+   :cert-manager cert-manager/CertManager
+   (s/optional-key :apple) apple/Apple
+   (s/optional-key :nexus) nexus/Nexus})
 ```
