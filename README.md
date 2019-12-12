@@ -8,7 +8,7 @@ This crate is part of [dda-pallet](https://domaindrivenarchitecture.org/pages/dd
 
 ## Kubernetes setup
 
-This crate uses Kubernetes to initialize and build a single host Kubernetes cluster.
+This crate sets up a K8s as SingleNode-Instance. Setup is based on ubuntu18.4
 
 ## Features
 
