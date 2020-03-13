@@ -29,10 +29,7 @@
   (actions/as-action
    (logging/info (str facility " - system-install-k8s")))
   (actions/package-manager :update)
-  (actions/packages :aptitude ["docker.io" "kubelet" "kubernetes-cni"])
-  (actions/exec-checked-script
-   "install custom kubeadm version"
-   ("apt" "install" "kubeadm=1.16.8-00")))
+  (actions/packages :aptitude ["docker.io" "kubelet" "kubeadm" "kubernetes-cni"]))
 
 (defn system-install-kubectl-bash-completion
   [facility]
