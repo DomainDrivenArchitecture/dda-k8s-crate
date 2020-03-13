@@ -56,14 +56,16 @@
   (let [{:keys [user k8s cert-manager apple nexus]} domain-config
         {:keys [external-ip external-ipv6 advertise-address]} k8s
         cluster-issuer (name cert-manager)
-        cert-config (when (not (= cert-manager :selfsigned-issuer)) (letsencrypt-configuration cert-manager))]
+        cert-config (when (not (= cert-manager :selfsigned-issuer)) 
+                      (letsencrypt-configuration cert-manager))
+        advertise-address (or advertise-address "192.168.5.1")]
     {infra/facility
      (mu/deep-merge
       {:user user
-       :networking {:advertise-ip "192.168.5.1"}
+       :networking {:advertise-ip advertise-address}
        :k8s (merge {:external-ip (str "-   " external-ip "/32")}
                    {:external-ipv6 (if external-ipv6 (str "-   " external-ipv6 "/64") "")}
-                   {:advertise-address (or advertise-address "192.168.5.1")})}
+                   {:advertise-address advertise-address})}
       (if cert-config {:cert-manager cert-config} {:cert-manager {}})
       (when apple {:apple (merge
                            apple {:secret-name (str/replace (:fqdn apple) #"\." "-")
