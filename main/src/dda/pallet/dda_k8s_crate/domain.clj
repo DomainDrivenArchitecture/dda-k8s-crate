@@ -60,6 +60,7 @@
     {infra/facility
      (mu/deep-merge
       {:user user
+       :networking {:advertise-ip "192.168.5.1"}
        :k8s (merge {:external-ip (str "-   " external-ip "/32")}
                    {:external-ipv6 (if external-ipv6 (str "-   " external-ipv6 "/64") "")})}
       (if cert-config {:cert-manager cert-config} {:cert-manager {}})

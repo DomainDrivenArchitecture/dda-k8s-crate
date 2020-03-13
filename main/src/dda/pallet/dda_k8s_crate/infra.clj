@@ -23,6 +23,7 @@
    [dda.pallet.dda-k8s-crate.infra.cert-manager :as cert-manager]
    [dda.pallet.dda-k8s-crate.infra.apple :as apple]
    [dda.pallet.dda-k8s-crate.infra.nexus :as nexus]
+   [dda.pallet.dda-k8s-crate.infra.networking :as networking]
    [clojure.tools.logging :as logging]
    [pallet.actions :as actions]))
 
@@ -32,6 +33,7 @@
 (def ddaK8sConfig
   {:user s/Keyword
    :k8s k8s/K8s
+   :networking networking/Networking
    :cert-manager cert-manager/CertManager
    (s/optional-key :apple) apple/Apple
    (s/optional-key :nexus) nexus/Nexus})
@@ -53,7 +55,8 @@
 (s/defmethod core-infra/dda-init facility
   [dda-crate config]
   (let [facility (:facility dda-crate)
-        {:keys [k8s]} config]
+        {:keys [k8s networking]} config]
+    (networking/init facility networking)
     (k8s/init facility k8s)))
 
 (s/defmethod core-infra/dda-install facility
