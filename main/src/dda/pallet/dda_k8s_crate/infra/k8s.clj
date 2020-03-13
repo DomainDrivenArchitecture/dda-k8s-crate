@@ -22,7 +22,7 @@
    [dda.pallet.dda-k8s-crate.infra.transport :as transport]))
 
 (s/def K8s
-  {:external-ip s/Str :external-ipv6 s/Str})
+  {:external-ip s/Str :external-ipv6 s/Str :advertise-address s/Str})
 
 (defn init-kubernetes-apt-repositories
   [facility]
@@ -39,31 +39,34 @@
     :scopes ["main"]
     :key-url "https://packages.cloud.google.com/apt/doc/apt-key.gpg"}))
 
-(defn system-install-k8s
-  [facility]
-  (actions/as-action
-   (logging/info (str facility " - system-install-k8s")))
-  (actions/package-manager :update)
-  (actions/packages :aptitude ["docker.io" "kubelet" "kubeadm" "kubernetes-cni"]))
+(comment 
+  (defn system-install-k8s
+    [facility]
+    (actions/as-action
+     (logging/info (str facility " - system-install-k8s")))
+    (actions/package-manager :update)
+    (actions/packages :aptitude ["docker.io" "kubelet" "kubeadm" "kubernetes-cni"])))
 
-(defn system-install-kubectl-bash-completion
-  [facility]
-  (actions/as-action
-   (logging/info (str facility " -system-install-kubectl-bash-completion")))
-  (actions/exec-checked-script
-   "add k8s to bash completion"
-   ("kubectl" "completion" "bash" ">>" "/etc/bash_completion.d/kubernetes")))
+(comment 
+  (defn system-install-kubectl-bash-completion
+    [facility]
+    (actions/as-action
+     (logging/info (str facility " -system-install-kubectl-bash-completion")))
+    (actions/exec-checked-script
+     "add k8s to bash completion"
+     ("kubectl" "completion" "bash" ">>" "/etc/bash_completion.d/kubernetes"))))
 
-(defn system-install-k8s-base-config
-  [facility]
-  (actions/as-action (logging/info (str facility " - system-install-k8s-base-config")))
-  (actions/exec-checked-script
-   "system-install-k8s-base-config"
-   ("systemctl" "enable" "docker.service")
-   ("kubeadm" "config" "images" "pull")
-   ("kubeadm" "init" "--pod-network-cidr=10.244.0.0/16"
-              "--apiserver-advertise-address=127.0.0.1") ;fails here if you have less than 2 cpus
-   ))
+(comment 
+  (defn system-install-k8s-base-config
+    [facility]
+    (actions/as-action (logging/info (str facility " - system-install-k8s-base-config")))
+    (actions/exec-checked-script
+     "system-install-k8s-base-config"
+     ("systemctl" "enable" "docker.service")
+     ("kubeadm" "config" "images" "pull")
+     ("kubeadm" "init" "--pod-network-cidr=10.244.0.0/16"
+                "--apiserver-advertise-address=127.0.0.1") ;fails here if you have less than 2 cpus
+     )))
 
 (s/defn user-install-k8s-env
   [facility
@@ -122,9 +125,23 @@
   [facility
    config :- K8s]
   (actions/as-action (logging/info (str facility " - system-install")))
-  (system-install-k8s facility)
-  (system-install-k8s-base-config facility)
-  (system-install-kubectl-bash-completion facility))
+  (comment
+    (system-install-k8s facility)
+    (system-install-k8s-base-config facility)
+    (system-install-kubectl-bash-completion facility))
+  (actions/remote-file
+   (str "/tmp/" (name facility) "/ns_k8s.sh")
+   :literal true
+   ;TODO: konfigurierbar machen
+   :group "k8s"
+   :owner "k8s"
+   :mode "755"
+   :content
+   (selmer/render-file
+    "infra-scripts/kubeadm-init.template" {:advertise-address (:advertise-address config)}))
+  (actions/exec-checked-script
+   (str "Executing bash script " (str "/tmp/" facility "/ns_k8s.sh"))
+   ("sh" ~(str "/tmp/" (name facility) "/ns_k8s.sh"))))
 
 (s/defn user-install
   [facility
