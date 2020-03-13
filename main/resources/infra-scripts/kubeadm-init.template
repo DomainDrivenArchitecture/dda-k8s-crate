@@ -1,0 +1,29 @@
+#Install Kubernetes apt repo
+
+#apt-get update \
+#  && apt-get install -y apt-transport-https \
+#  && curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+
+#echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" \
+#  | tee -a /etc/apt/sources.list.d/kubernetes.list
+
+#Install kubelet (run containers), kubeadm (convenience utility) and kubernetes-cni (network components)
+#CNI stands for Container Networking Interface which is a spec that defines how network drivers should interact with Kubernetes
+apt-get update \
+  && apt-get install -y \
+  docker.io \
+  kubelet \
+  kubeadm \
+  kubernetes-cni
+
+# bash completion
+kubectl completion bash >> /etc/bash_completion.d/kubernetes
+
+#Initialize your cluster with kubeadm
+#kubeadm aims to create a secure cluster out of the box via mechanisms such as RBAC.
+systemctl enable docker.service
+
+# TODO: etcd not public. Configure IPv6. Look for systemd on port 68.
+kubeadm config images pull
+kubeadm init --pod-network-cidr=10.244.0.0/16 \
+  --apiserver-advertise-address={{advertise-address}}
