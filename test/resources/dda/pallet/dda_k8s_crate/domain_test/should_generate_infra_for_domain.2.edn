@@ -4,6 +4,7 @@
          :apple {:fqdn "apple-host-name"}
          :nexus {:fqdn "nexus-host-name"}}
  :expected {:dda-k8s {:user :k8s
+                      :networking {:advertise-ip "192.168.5.1"}
                       :k8s {:external-ip "-   external-ip/32" :external-ipv6 ""}
                       :cert-manager {:env-flag "staging" :acme-flag "-staging"}
                       :apple {:fqdn "apple-host-name"
