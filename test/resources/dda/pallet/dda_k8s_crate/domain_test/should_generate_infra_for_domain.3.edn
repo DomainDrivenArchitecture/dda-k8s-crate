@@ -5,7 +5,7 @@
          :nexus {:fqdn "nexus-host-name"}}
  :expected {:dda-k8s {:user :k8s
                       :networking {:advertise-ip "192.168.5.1"}
-                      :k8s {:external-ip "-   external-ip/32" :external-ipv6 ""}
+                      :k8s {:external-ip "-   external-ip/32" :external-ipv6 "" :advertise-address "192.168.5.1"}
                       :cert-manager {}
                       :apple {:fqdn "apple-host-name"
                               :secret-name "apple-host-name"

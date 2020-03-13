@@ -3,5 +3,6 @@
          :cert-manager :selfsigned-issuer}
  :expected {:dda-k8s {:user :k8s
                       :networking {:advertise-ip "192.168.5.1"}
-                      :k8s {:external-ip "-   external-ip/32" :external-ipv6 "-   external-ipv6/64"}
+                      :k8s {:external-ip "-   external-ip/32" :external-ipv6 "-   external-ipv6/64" 
+                            :advertise-address "192.168.5.1"}
                       :cert-manager {}}}}
