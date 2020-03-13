@@ -18,7 +18,6 @@
    [clojure.tools.logging :as logging]
    [schema.core :as s]
    [pallet.actions :as actions]
-   [selmer.parser :as selmer]
    [dda.pallet.dda-k8s-crate.infra.transport :as transport]))
 
 (s/def Networking
@@ -31,8 +30,11 @@
    (logging/info (str facility "-init")))
   (let [{:keys [advertise-ip]} config]
     (transport/copy-resources-to-tmp
-     facility
+     (name facility)
      "networking"
      [{:filename "99-loop-back.cfg" :config {:ipv4 advertise-ip}}
       {:filename "start.sh"}])
-    (actions/exec-checked-script "networking-init" (~(str "/tmp/" facility "/networking/start.sh")))))
+    (actions/exec-checked-script 
+     "networking-init" 
+     ("cd" ~(str "/tmp/" (name facility) "/networking"))
+     ("sh" "start.sh"))))
