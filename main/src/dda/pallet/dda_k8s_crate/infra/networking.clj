@@ -33,8 +33,5 @@
      (name facility)
      "networking"
      [{:filename "99-loop-back.cfg" :config {:ipv4 advertise-ip}}
-      {:filename "start.sh"}])
-    (actions/exec-checked-script 
-     "networking-init" 
-     ("cd" ~(str "/tmp/" (name facility) "/networking"))
-     ("sh" "start.sh"))))
+      {:filename "init.sh"}])
+    (transport/exec facility "networking" "init.sh")))

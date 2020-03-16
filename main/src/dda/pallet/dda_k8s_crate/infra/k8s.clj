@@ -90,7 +90,6 @@
    config :- K8s]
   (actions/as-action
    (logging/info (str facility "-init")))
-  (actions/package "ifupdown2")
   (init-kubernetes-apt-repositories facility))
 
 (s/defn system-install
@@ -98,10 +97,12 @@
    config :- K8s]
   (actions/as-action (logging/info (str facility " - system-install")))
   (let [{:keys [advertise-address]} config]
-    (transport/copy-resources-to-tmp-and-exec
+    (transport/copy-resources-to-tmp
      facility 
      "k8s" 
-     [:filename "system-install.sh" :config {:advertise-address advertise-address}])))
+     [{:filename "system-install.sh" :config {:advertise-address advertise-address}}])
+    (transport/exec facility "k8s" "system-install.sh")))
+
 
 (s/defn user-install
   [facility

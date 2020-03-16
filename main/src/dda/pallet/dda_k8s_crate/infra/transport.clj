@@ -81,17 +81,11 @@
          :mode mode
          :content (selmer/render-file filename-on-source config))))))
 
-(s/defn copy-resources-to-tmp-and-exec
+(s/defn exec
   [facility :- s/Str
    module :- s/Str
-   files :- [Resource]]
-  (copy-resources-to-tmp
-   (name facility)
-   module
-   files)
-  (doseq [resource files]
-    (let [filename (:filename resource)]
-      (actions/exec-checked-script
-       (str "execute " module "/" filename)
-       ("cd" ~(str "/tmp/" (name facility) "/" module))
-       ("sh" filename)))))
+   filename :-  s/Str]
+  (actions/exec-checked-script
+   (str "execute " module "/" filename)
+   ("cd" ~(str "/tmp/" (name facility) "/" module))
+   ("sh" ~filename)))
