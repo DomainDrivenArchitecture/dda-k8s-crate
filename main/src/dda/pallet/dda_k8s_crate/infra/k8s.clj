@@ -90,6 +90,7 @@
    config :- K8s]
   (actions/as-action
    (logging/info (str facility "-init")))
+  (actions/package "ifupdown2")
   (init-kubernetes-apt-repositories facility))
 
 (s/defn system-install
