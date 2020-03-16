@@ -101,7 +101,7 @@
     (transport/copy-resources-to-tmp-and-exec
      facility 
      "k8s" 
-     [:filename "kubeadm-init" :config {:advertise-address advertise-address}])))
+     [:filename "system-install.sh" :config {:advertise-address advertise-address}])))
 
 (s/defn user-install
   [facility
