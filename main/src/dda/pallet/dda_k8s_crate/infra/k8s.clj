@@ -100,7 +100,7 @@
   (let [{:keys [advertise-address]} config]
     (transport/copy-resources-to-tmp-and-exec
      facility 
-     "infra-scripts" 
+     "k8s" 
      [:filename "kubeadm-init" :config {:advertise-address advertise-address}])))
 
 (s/defn user-install
