@@ -40,6 +40,7 @@
 
 (s/defn kubectl-apply-f
   "apply kubectl config file"
+  {:deprecated "0.1.4"}
   [facility
    user :- s/Str
    user-resource-path :- s/Str
