@@ -1,7 +1,9 @@
+#!/bin/bash
+
 mkdir -p /home/{{user}}/.kube
 cp -i /etc/kubernetes/admin.conf /home/{{user}}/.kube/config
 chown -R {{user}}:{{user}} /home/{{user}}/.kube
 
 mkdir -p /home/{{user}}/k8s_resources/flannel
-install --mode=0600 -o={{user}} -g={{user}} -flannel-rbac.yml /home/{{user}}/k8s_resources/flannel
-install --mode=0600 -o={{user}} -g={{user}} -flannel.yml /home/{{user}}/k8s_resources/flannel
+install --mode=0600 --owner={{user}} --group={{user}} flannel-rbac.yml /home/{{user}}/k8s_resources/flannel
+install --mode=0600 --owner={{user}} --group={{user}} flannel.yml /home/{{user}}/k8s_resources/flannel
