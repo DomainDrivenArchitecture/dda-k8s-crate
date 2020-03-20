@@ -17,22 +17,16 @@
   (:require
    [clojure.tools.logging :as logging]
    [schema.core :as s]
-   [pallet.actions :as actions]))
+   [pallet.actions :as actions]
+   [dda.pallet.dda-k8s-crate.infra.transport :as transport]))
 
-(defn deactivate-swap
-  "deactivate swap on the server"
-  [facility]
-  (actions/as-action
-   (logging/info (str facility "-install system: disable swap")))
-  (actions/exec-checked-script "turn swap off" ("swapoff" "-a"))
-  (actions/exec-checked-script "remove active swap" ("sed" "-i" "'/swap/d'" "/etc/fstab")))
-
-(defn install-utils []
-  (actions/package "grep"))
+(def module "base")
 
 (s/defn system-install
   [facility]
-  (actions/as-action
-   (logging/info (str facility "-install system")))
-  (deactivate-swap facility)
-  (install-utils))
+  (actions/as-action (logging/info (str facility "-install system"))
+   (transport/copy-resources-to-tmp
+    (name facility)
+    module
+    [{:filename "install.sh"}])
+    (transport/exec facility module "install.sh")))
