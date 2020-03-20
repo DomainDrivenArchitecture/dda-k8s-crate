@@ -23,10 +23,10 @@
 (def module "base")
 
 (s/defn system-install
-  [facility]
-  (actions/as-action (logging/info (str facility "-install system"))
-   (transport/copy-resources-to-tmp
-    (name facility)
-    module
-    [{:filename "install.sh"}])
-    (transport/exec facility module "install.sh")))
+  [facility :- s/Keyword]
+  (actions/as-action (logging/info (str facility "-install system")))
+  (let [facility-name (name facility)]
+    (transport/copy-resources-to-tmp
+     facility-name module
+     [{:filename "install.sh"}])
+    (transport/exec facility-name module "install.sh")))
