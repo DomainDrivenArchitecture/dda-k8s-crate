@@ -90,8 +90,8 @@
     (transport/copy-resources-to-tmp
      facility 
      "k8s" 
-     [{:filename "system-install.sh" :config {:advertise-address advertise-address}}])
-    (transport/exec facility "k8s" "system-install.sh")))
+     [{:filename "install.sh" :config {:advertise-address advertise-address}}])
+    (transport/exec facility "k8s" "install.sh")))
 
 
 (s/defn user-install
