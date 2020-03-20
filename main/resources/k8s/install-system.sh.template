@@ -11,9 +11,7 @@ apt-get update \
 kubectl completion bash >> /etc/bash_completion.d/kubernetes
 
 #Initialize your cluster with kubeadm
-#kubeadm aims to create a secure cluster out of the box via mechanisms such as RBAC.
 systemctl enable docker.service
-
 kubeadm config images pull
 kubeadm init --pod-network-cidr=10.244.0.0/16 \
   --apiserver-advertise-address={{advertise-address}}

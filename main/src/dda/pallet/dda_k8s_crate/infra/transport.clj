@@ -22,10 +22,11 @@
    [selmer.parser :as selmer]))
 
 (s/defn user-copy-resources
-  [facility
-   user :- s/Str
-   dirs :- [s/Str]
-   files :- [s/Str]]
+ {:deprecated "0.1.4"}   
+ [facility :- s/Str
+  user :- s/Str
+  dirs :- [s/Str]
+  files :- [s/Str]]
   (actions/as-action
    (logging/info (str facility " - user-copy-resources")))
   (doseq [path dirs]
@@ -33,14 +34,14 @@
      (str "/home/" user path)
      :group user
      :owner user))
-  (doseq [path files]
+  (doseq [file files]
     (actions/remote-file
-     (str "/home/" user "/k8s_resources/" path)
+     (str "/home/" user "/k8s_resources/" file)
      :literal true
      :group user
      :owner user
      :mode "755"
-     :content (selmer/render-file path {}))))
+     :content (selmer/render-file file {}))))
 
 (s/def Resource
   {:filename s/Str
@@ -89,3 +90,13 @@
    (str "execute " module "/" filename)
    ("cd" ~(str "/tmp/" (name facility) "/" module))
    ("bash" ~filename)))
+
+(s/defn exec-as-user
+  [facility :- s/Str
+   module :- s/Str
+   user :- s/Str
+   filename :-  s/Str]
+  (actions/exec-checked-script
+   (str "execute " module "/" filename)
+   ("cd" ~(str "/tmp/" (name facility) "/" module))
+   ("sudo" "-H" "-u" ~user "bash" "-c" ~filename)))

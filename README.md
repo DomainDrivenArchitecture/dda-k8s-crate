@@ -52,6 +52,11 @@ The self-signed issuer does not require a secret or certificate config file. For
 
 The dashboard allows for debugging and to get an overview of the Kubernetes cluster and should later also provide networking. To secure the dashboard, an ssh proxy is required and the dashboard can then be accessed via a http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy in the browser.
 
+```
+ ssh `(whoami)`@k8s-server-name -L 8001:localhost:8001
+ kubectl proxy &
+ ```
+
 ### Apple application for debugging
 
 

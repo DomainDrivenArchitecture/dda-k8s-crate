@@ -24,26 +24,7 @@
 (s/def K8s
   {:external-ip s/Str :external-ipv6 s/Str :advertise-address s/Str})
 
-(def module "k8s")
-
-(s/defn user-install-k8s-env
-  [facility
-   user :- s/Str]
-  (actions/as-action (logging/info (str facility " - user-install-k8s-env")))
-  (actions/exec-checked-script
-   "user-install-k8s-env"
-   ("mkdir" "-p" ~(str "/home/" user "/.kube"))
-   ("cp" "-i" "/etc/kubernetes/admin.conf"
-         ~(str "/home/" user "/.kube/config"))
-   ("chown" "-R" ~(str user ":" user) ~(str "/home/" user "/.kube"))))
-
-(defn user-untaint-master
-  [facility user]
-  (actions/as-action (logging/info (str facility " - system-install-k8s-base-config")))
-  (actions/exec-checked-script
-   "user-untaint-master"
-   ("sudo" "-H" "-u" ~user "bash" "-c" "'kubectl" "taint" "nodes"
-           "--all" "node-role.kubernetes.io/master-'")))
+(def k8s "k8s")
 
 (s/defn user-render-metallb-yml
   [user :- s/Str config :- K8s]
@@ -57,11 +38,6 @@
    (selmer/render-file
     (str "metallb/metallb_config.yml.template") config)))
 
-(s/defn user-install-flannel
-  [apply-with-user]
-  (apply-with-user "flannel/kube-flannel.yml")
-  (apply-with-user "flannel/kube-flannel-rbac.yml"))
-
 (s/defn admin-dash-metal-ingress
   [apply-with-user]
   (apply-with-user "admin/admin_user.yml")
@@ -73,50 +49,50 @@
   (apply-with-user "ingress/ingress_using_mettallb.yml"))
 
 (s/defn init
-  [facility
+  [facility :- s/Keyword
    config :- K8s]
   (actions/as-action (logging/info (str facility "-init")))
   (transport/copy-resources-to-tmp
    (name facility)
-   module
+   k8s
    [{:filename "init.sh"}])
-  (transport/exec facility module "init.sh"))
+  (transport/exec facility k8s "init.sh"))
 
 (s/defn system-install
-  [facility
+  [facility :- s/Keyword
    config :- K8s]
   (actions/as-action (logging/info (str facility " - system-install")))
   (let [{:keys [advertise-address]} config]
     (transport/copy-resources-to-tmp
-     facility 
-     "k8s" 
-     [{:filename "install.sh" :config {:advertise-address advertise-address}}])
-    (transport/exec facility "k8s" "install.sh")))
+     (name facility)
+     k8s 
+     [{:filename "install-system.sh" :config {:advertise-address advertise-address}}])
+    (transport/exec facility k8s "install-system.sh")))
 
 
 (s/defn user-install
-  [facility
+  [facility :- s/Keyword
    user :- s/Str
-   config :- K8s
-   apply-with-user]
+   config :- K8s]
   (actions/as-action (logging/info (str facility " - user-install")))
-  (transport/user-copy-resources
-   facility user
-   ["/k8s_resources"
-    "/k8s_resources/flannel"]
-   ["flannel/kube-flannel-rbac.yml"
-    "flannel/kube-flannel.yml"])
-  (user-install-k8s-env facility user)
-  (user-install-flannel apply-with-user)
-  (user-untaint-master facility user))
+  (transport/copy-resources-to-tmp
+   (name facility)
+   k8s
+   [{:filename "flannel-rbac.yml"}
+    {:filename "flannel.yml"}
+    {:filename "install-user-as-root.sh" :config {:user user}}
+    {:filename "install-user-as-user.sh" :config {:user user}}
+    {:filename "verify-after-taint.sh"}])
+  (transport/exec facility k8s "install-user-as-root.sh")
+  (transport/exec-as-user facility k8s user "install-user-as-user.sh"))
 
 (s/defn system-configure
-  [facility
+  [facility :- s/Keyword
    config :- K8s]
   (actions/as-action (logging/info (str facility " - system-configure"))))
 
 (s/defn user-configure
-  [facility
+  [facility :- s/Keyword
    user :- s/Str
    config :- K8s
    apply-with-user]

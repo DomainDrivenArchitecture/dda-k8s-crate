@@ -70,7 +70,7 @@
     (actions/as-action (logging/info (str facility " - core-infra/dda-install")))
     (base/system-install facility)
     (k8s/system-install facility k8s)
-    (k8s/user-install facility user-str k8s apply-with-user)))
+    (k8s/user-install facility user-str k8s)))
 
 (s/defmethod core-infra/dda-configure facility
   [dda-crate config]

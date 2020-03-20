@@ -1,4 +1,4 @@
 {:existing [{:node-name "test-k8s"
-             :node-ip "78.47.115.237"}]
- :provisioning-user {:login "jem"
+             :node-ip "95.217.21.186"}]
+ :provisioning-user {:login "root"
                      }}
