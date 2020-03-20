@@ -62,12 +62,12 @@
   [facility :- s/Keyword
    config :- K8s]
   (actions/as-action (logging/info (str facility " - system-install")))
-  (let [{:keys [advertise-address]} config]
+  (let [facility-name (name facility)
+        {:keys [advertise-address]} config]
     (transport/copy-resources-to-tmp
-     (name facility)
-     k8s 
+     facility-name k8s
      [{:filename "install-system.sh" :config {:advertise-address advertise-address}}])
-    (transport/exec facility k8s "install-system.sh")))
+    (transport/exec facility-name k8s "install-system.sh")))
 
 
 (s/defn user-install
@@ -75,16 +75,16 @@
    user :- s/Str
    config :- K8s]
   (actions/as-action (logging/info (str facility " - user-install")))
-  (transport/copy-resources-to-tmp
-   (name facility)
-   k8s
-   [{:filename "flannel-rbac.yml"}
-    {:filename "flannel.yml"}
-    {:filename "install-user-as-root.sh" :config {:user user}}
-    {:filename "install-user-as-user.sh" :config {:user user}}
-    {:filename "verify-after-taint.sh"}])
-  (transport/exec facility k8s "install-user-as-root.sh")
-  (transport/exec-as-user facility k8s user "install-user-as-user.sh"))
+  (let [facility-name (name facility)]
+    (transport/copy-resources-to-tmp
+     facility-name k8s
+     [{:filename "flannel-rbac.yml"}
+      {:filename "flannel.yml"}
+      {:filename "install-user-as-root.sh" :config {:user user}}
+      {:filename "install-user-as-user.sh" :config {:user user} :mode "777"}
+      {:filename "verify-after-taint-as-user.sh" :mode "777"}])
+    (transport/exec facility-name k8s "install-user-as-root.sh")
+    (transport/exec-as-user facility-name k8s user "install-user-as-user.sh")))
 
 (s/defn system-configure
   [facility :- s/Keyword
