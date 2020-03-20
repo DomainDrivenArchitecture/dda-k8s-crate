@@ -1,5 +1,6 @@
-#Install Kubernetes apt repo
+#!/bin/bash
 
+#Install Kubernetes apt repo
 apt-get update \
   && apt-get -qqy install apt-transport-https \
   && curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -

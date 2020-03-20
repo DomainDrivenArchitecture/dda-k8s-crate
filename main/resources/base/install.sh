@@ -1,3 +1,5 @@
+#!/bin/bash
+
 apt-get update \
   && apt-get -qqy install grep
 

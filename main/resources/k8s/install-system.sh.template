@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #Install kubelet (run containers), kubeadm (convenience utility) and kubernetes-cni (network components)
 #CNI stands for Container Networking Interface which is a spec that defines how network drivers should interact with Kubernetes
 apt-get update \
