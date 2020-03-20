@@ -45,7 +45,8 @@
 
 (s/def Resource
   {:filename s/Str
-   (s/optional-key :config) s/Any})
+   (s/optional-key :config) s/Any
+   (s/optional-key :mode) s/Str})
 
 (s/defn copy-resources-to-tmp
   [facility :- s/Str
@@ -71,9 +72,10 @@
             config (if template?
                      (:config resource)
                      {})
-            mode (if (string/ends-with? filename ".sh")
-                   "700"
-                   "600")]
+            mode (cond 
+                   (contains? resource :mode) (:mode resource)
+                   (string/ends-with? filename ".sh") "700"
+                   :default "600")]
         (actions/remote-file
          filename-on-target
          :literal true
@@ -99,4 +101,4 @@
   (actions/exec-checked-script
    (str "execute " module "/" filename)
    ("cd" ~(str "/tmp/" (name facility) "/" module))
-   ("sudo" "-H" "-u" ~user "bash" "-c" ~filename)))
+   ("sudo" "-H" "-u" ~user "bash" "-c" ~(str "./" filename))))
