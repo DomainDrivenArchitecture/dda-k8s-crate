@@ -23,6 +23,8 @@
 (s/def Networking
   {:advertise-ip s/Str})
 
+(def module "networking")
+
 (s/defn init
   [facility
    config :- Networking]
@@ -31,7 +33,7 @@
   (let [{:keys [advertise-ip]} config]
     (transport/copy-resources-to-tmp
      (name facility)
-     "networking"
+     module
      [{:filename "99-loop-back.cfg" :config {:ipv4 advertise-ip}}
       {:filename "init.sh"}])
-    (transport/exec facility "networking" "init.sh")))
+    (transport/exec facility module "init.sh")))

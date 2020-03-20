@@ -24,20 +24,7 @@
 (s/def K8s
   {:external-ip s/Str :external-ipv6 s/Str :advertise-address s/Str})
 
-(defn init-kubernetes-apt-repositories
-  [facility]
-  (actions/as-action
-   (logging/info
-    (str facility " - init-kubernetes-apt-repositories")))
-  (actions/package-manager :update)
-  (actions/package "apt-transport-https")
-  (actions/package-source
-   "kubernetes"
-   :aptitude
-   {:url "http://apt.kubernetes.io/"
-    :release "kubernetes-xenial"
-    :scopes ["main"]
-    :key-url "https://packages.cloud.google.com/apt/doc/apt-key.gpg"}))
+(def module "k8s")
 
 (s/defn user-install-k8s-env
   [facility
@@ -88,9 +75,12 @@
 (s/defn init
   [facility
    config :- K8s]
-  (actions/as-action
-   (logging/info (str facility "-init")))
-  (init-kubernetes-apt-repositories facility))
+  (actions/as-action (logging/info (str facility "-init")))
+  (transport/copy-resources-to-tmp
+   (name facility)
+   module
+   [{:filename "init.sh"}])
+  (transport/exec facility module "init.sh"))
 
 (s/defn system-install
   [facility

@@ -88,4 +88,4 @@
   (actions/exec-checked-script
    (str "execute " module "/" filename)
    ("cd" ~(str "/tmp/" (name facility) "/" module))
-   ("sh" ~filename)))
+   ("bash" ~filename)))
