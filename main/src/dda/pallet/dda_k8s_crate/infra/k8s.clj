@@ -115,7 +115,8 @@
      user facility-name k8s-dashboard
      [{:filename "kubernetes-dashboard.2.0.b5.yml"}
       {:filename "admin_dash.2.0.b5.yml"}
-      {:filename "install-dashboard-as-user.sh"}])
+      {:filename "install-dashboard-as-user.sh"}
+      {:filename "proxy.sh"}])
     (transport/exec-as-user
      user facility-name k8s-dashboard "install-dashboard-as-user.sh"))
         
