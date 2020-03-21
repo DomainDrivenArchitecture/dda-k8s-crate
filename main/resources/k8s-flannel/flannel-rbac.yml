@@ -1,8 +1,8 @@
+# https://raw.githubusercontent.com/coreos/flannel/master/Documentation/k8s-manifests/kube-flannel-rbac.yml
 # Create the clusterrole and clusterrolebinding:
 # $ kubectl create -f kube-flannel-rbac.yml
 # Create the pod using the same namespace used by the flannel serviceaccount:
 # $ kubectl create --namespace kube-system -f kube-flannel-legacy.yml
-# https://raw.githubusercontent.com/coreos/flannel/master/Documentation/k8s-manifests/kube-flannel-rbac.yml
 
 ---
 kind: ClusterRole
