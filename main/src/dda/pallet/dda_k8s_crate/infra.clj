@@ -74,12 +74,9 @@
   [dda-crate config]
   (let [facility (:facility dda-crate)
         {:keys [user k8s cert-manager apple nexus]} config
-        user-str (name user)
-        apply-with-user
-        (partial kubectl-apply-f facility user-str
-                 (str "/home/" user-str "/k8s_resources/"))]
+        user-str (name user)]
     (k8s/system-configure facility k8s)
-    (k8s/user-configure facility user-str k8s apply-with-user)
+    (k8s/user-configure facility user-str k8s)
     ;(cert-manager/user-configure-cert-manager facility user-str cert-manager apply-with-user)
     ;(when apple (apple/user-configure-apple facility user-str apple apply-with-user))
     ;(when nexus (nexus/user-configure-nexus facility user-str nexus apply-with-user))

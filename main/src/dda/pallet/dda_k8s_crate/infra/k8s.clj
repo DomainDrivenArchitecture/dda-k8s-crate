@@ -28,6 +28,7 @@
 (def k8s-flannel "k8s-flannel")
 (def k8s-admin "k8s-admin")
 (def k8s-metallb "k8s-metallb")
+(def k8s-ingress "k8s-ingress")
 (def k8s-dashboard "k8s-dashboard")
 
 
@@ -88,8 +89,7 @@
 (s/defn user-configure
   [facility :- s/Keyword
    user :- s/Str
-   config :- K8s
-   apply-with-user]
+   config :- K8s]
   (let [facility-name (name facility)]
     (transport/log-info facility-name "user-configure")
     (transport/copy-resources-to-user
@@ -104,9 +104,21 @@
      [{:filename "metallb.yml"}
       {:filename "metallb-config.yml" :config config}
       {:filename "remove.sh"}
-      {:filename "install-user-as-user.sh"}])
+      {:filename "verify.sh"}
+      {:filename "install.sh"}])
     (transport/exec-as-user
-     user facility-name k8s-metallb "install-user-as-user.sh")
+     user facility-name k8s-metallb "install.sh")
+
+    (transport/copy-resources-to-user
+     user facility-name k8s-ingress
+     [{:filename "mandatory.yml"}
+      {:filename "ingress-using-metallb.yml"}
+      {:filename "remove.sh"}
+      {:filename "verify.sh"}
+      {:filename "install.sh"}])
+    (transport/exec-as-user
+     user facility-name k8s-ingress "install.sh")
+
     (transport/copy-resources-to-user
      user facility-name k8s-dashboard
      [{:filename "kubernetes-dashboard.2.0.0.rc6.yml"}
