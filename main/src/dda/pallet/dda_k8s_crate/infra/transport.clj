@@ -119,9 +119,9 @@
      ("bash" ~filename))))
 
 (s/defn exec-as-user
-  [facility :- s/Str
+  [user :- s/Str
+   facility :- s/Str
    module :- s/Str
-   user :- s/Str
    filename :-  s/Str]
   (let [facility-path (user-path user (name facility))
         module-path (str facility-path "/" module)]

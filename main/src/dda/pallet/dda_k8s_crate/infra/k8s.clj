@@ -24,8 +24,9 @@
 (s/def K8s
   {:external-ip s/Str :external-ipv6 s/Str :advertise-address s/Str})
 
-(def k8s "k8s")
+(def k8s-base "k8s-base")
 (def k8s-flannel "k8s-flannel")
+(def k8s-admin "k8s-admin")
 
 (s/defn user-render-metallb-yml
   [user :- s/Str config :- K8s]
@@ -57,7 +58,7 @@
    (name facility)
    k8s
    [{:filename "init.sh"}])
-  (transport/exec facility k8s "init.sh"))
+  (transport/exec facility k8s-base "init.sh"))
 
 (s/defn system-install
   [facility :- s/Keyword
@@ -68,7 +69,7 @@
     (transport/copy-resources-to-tmp
      facility-name k8s
      [{:filename "install-system.sh" :config {:advertise-address advertise-address}}])
-    (transport/exec facility-name k8s "install-system.sh")))
+    (transport/exec facility-name k8s-base "install-system.sh")))
 
 
 (s/defn user-install
@@ -81,7 +82,7 @@
      facility-name k8s
      [{:filename "install-user-as-root.sh" :config {:user user}}])
     (transport/exec 
-     facility-name k8s "install-user-as-root.sh")
+     facility-name k8s-base "install-user-as-root.sh")
     (transport/copy-resources-to-user
      user facility-name k8s-flannel
      [{:filename "flannel-rbac.yml"}
@@ -89,7 +90,7 @@
       {:filename "install-user-as-user.sh"}
       {:filename "verify.sh"}])
     (transport/exec-as-user 
-     facility-name k8s-flannel user "install-user-as-user.sh")))
+     user facility-name k8s-flannel "install-user-as-user.sh")))
 
 (s/defn system-configure
   [facility :- s/Keyword
@@ -104,8 +105,11 @@
   (let [facility-name (name facility)]
     (transport/log-info facility-name "user-configure")
     (transport/copy-resources-to-user
-     user facility-name k8s-flannel
-     [{:filename "admin-user.yml"}]))
+     user facility-name k8s-admin
+     [{:filename "admin-user.yml"}
+      {:filename "install-user-as-user.sh"}])
+    (transport/exec-as-user
+     user facility-name k8s-admin "install-user-as-user.sh"))
         
   ; (transport/user-copy-resources
   ;  facility user
