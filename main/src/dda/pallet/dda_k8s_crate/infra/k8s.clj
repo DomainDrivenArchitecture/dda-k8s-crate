@@ -76,10 +76,10 @@
      user facility-name k8s-flannel
      [{:filename "flannel-rbac.yml"}
       {:filename "flannel.yml"}
-      {:filename "install-user-as-user.sh"}
+      {:filename "install.sh"}
       {:filename "verify.sh"}])
     (transport/exec-as-user 
-     user facility-name k8s-flannel "install-user-as-user.sh")))
+     user facility-name k8s-flannel "install.sh")))
 
 (s/defn system-configure
   [facility :- s/Keyword
@@ -96,9 +96,9 @@
      user facility-name k8s-admin
      [{:filename "admin-user.yml"}
       {:filename "remove.sh"}
-      {:filename "install-user-as-user.sh"}])
+      {:filename "install.sh"}])
     (transport/exec-as-user
-     user facility-name k8s-admin "install-user-as-user.sh")
+     user facility-name k8s-admin "install.sh")
     (transport/copy-resources-to-user
      user facility-name k8s-metallb
      [{:filename "metallb.yml"}
@@ -123,11 +123,11 @@
      user facility-name k8s-dashboard
      [{:filename "kubernetes-dashboard.2.0.0.rc6.yml"}
       {:filename "admin_dash.2.0.0.rc6.yml"}
-      {:filename "install-dashboard-as-user.sh"}
+      {:filename "install.sh"}
       {:filename "remove.sh"}
       {:filename "proxy.sh"}])
     (transport/exec-as-user
-     user facility-name k8s-dashboard "install-dashboard-as-user.sh"))
+     user facility-name k8s-dashboard "install.sh"))
         
 
   ; (transport/user-copy-resources
