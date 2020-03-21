@@ -120,19 +120,9 @@
 
   ; (transport/user-copy-resources
   ;  facility user
-  ;  ["/k8s_resources/admin"
-  ;   "/k8s_resources/dashboard"
-  ;   "/k8s_resources/metallb"
-  ;   "/k8s_resources/ingress"]
+  ;  ["/k8s_resources/ingress"]
   ;  ["admin/admin_user.yml"
   ;   "admin/pod-running.sh"
-  ;   "dashboard/kubernetes-dashboard.1.10.yml"
-  ;   "dashboard/admin_dash.1.10.yml"
-  ;   "dashboard/kubernetes-dashboard.2.0.b5.yml"
-  ;   "dashboard/admin_dash.2.0.b5.yml"
-  ;   "metallb/metallb.yml"
   ;   "ingress/mandatory.yml"
   ;   "ingress/ingress_using_mettallb.yml"])
-  ; (user-render-metallb-yml user config)
-  ; (admin-dash-metal-ingress apply-with-user)
-    )
+  )

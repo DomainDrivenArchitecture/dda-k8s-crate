@@ -1,5 +1,5 @@
 {:user :k8s
- :k8s {:external-ip "95.216.192.88"}
+ :k8s {:external-ip "95.217.21.186"}
  :cert-manager :letsencrypt-staging-issuer
  :apple {:fqdn "k8s-apple.test.domaindrivenarchitecture.org"}
  ;:nexus {:fqdn "k8s-nexus.test.domaindrivenarchitecture.org"}
