@@ -95,6 +95,7 @@
     (transport/copy-resources-to-user
      user facility-name k8s-admin
      [{:filename "admin-user.yml"}
+      {:filename "remove.sh"}
       {:filename "install-user-as-user.sh"}])
     (transport/exec-as-user
      user facility-name k8s-admin "install-user-as-user.sh")
@@ -102,6 +103,7 @@
      user facility-name k8s-metallb
      [{:filename "metallb.yml"}
       {:filename "metallb-config.yml" :config config}
+      {:filename "remove.sh"}
       {:filename "install-user-as-user.sh"}])
     (transport/exec-as-user
      user facility-name k8s-metallb "install-user-as-user.sh")
@@ -109,6 +111,7 @@
      user facility-name k8s-dashboard
      [{:filename "kubernetes-dashboard.2.0.b5.yml"}
       {:filename "admin_dash.2.0.b5.yml"}
+      {:filename "remove.sh"}
       {:filename "install-dashboard-as-user.sh"}])
     (transport/exec-as-user
      user facility-name k8s-dashboard "install-dashboard-as-user.sh"))
