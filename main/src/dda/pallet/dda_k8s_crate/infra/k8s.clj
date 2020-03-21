@@ -31,14 +31,6 @@
 (def k8s-ingress "k8s-ingress")
 (def k8s-dashboard "k8s-dashboard")
 
-
-(s/defn admin-dash-metal-ingress
-  [apply-with-user]
-  (apply-with-user "dashboard/kubernetes-dashboard.2.0.b5.yml")
-  (apply-with-user "dashboard/admin_dash.2.0.b5.yml")
-  (apply-with-user "ingress/mandatory.yml")
-  (apply-with-user "ingress/ingress_using_mettallb.yml"))
-
 (s/defn init
   [facility :- s/Keyword
    config :- K8s]
@@ -59,7 +51,6 @@
      facility-name k8s-base
      [{:filename "install-system.sh" :config {:advertise-address advertise-address}}])
     (transport/exec facility-name k8s-base "install-system.sh")))
-
 
 (s/defn user-install
   [facility :- s/Keyword
@@ -109,7 +100,6 @@
       {:filename "install.sh"}])
     (transport/exec-as-user
      user facility-name k8s-metallb "install.sh")
-
     (transport/copy-resources-to-user
      user facility-name k8s-ingress
      [{:filename "mandatory.yml"}
@@ -119,7 +109,6 @@
       {:filename "install.sh"}])
     (transport/exec-as-user
      user facility-name k8s-ingress "install.sh")
-
     (transport/copy-resources-to-user
      user facility-name k8s-dashboard
      [{:filename "kubernetes-dashboard.2.0.0.rc6.yml"}
@@ -128,14 +117,4 @@
       {:filename "remove.sh"}
       {:filename "proxy.sh"}])
     (transport/exec-as-user
-     user facility-name k8s-dashboard "install.sh"))
-        
-
-  ; (transport/user-copy-resources
-  ;  facility user
-  ;  ["/k8s_resources/ingress"]
-  ;  ["admin/admin_user.yml"
-  ;   "admin/pod-running.sh"
-  ;   "ingress/mandatory.yml"
-  ;   "ingress/ingress_using_mettallb.yml"])
-  )
+     user facility-name k8s-dashboard "install.sh")))
