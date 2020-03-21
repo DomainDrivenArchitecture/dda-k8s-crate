@@ -19,7 +19,7 @@
     </encoder>
   </appender>
 
-  <logger name="clj-ssh.ssh" level="INFO">
+  <logger name="clj-ssh.ssh" level="ERROR">
     <appender-ref ref="PALLETFILE" />
   </logger>
 

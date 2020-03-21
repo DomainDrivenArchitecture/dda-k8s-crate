@@ -103,6 +103,7 @@
      user facility-name k8s-metallb
      [{:filename "metallb.yml"}
       {:filename "metallb-config.yml" :config config}
+      {:filename "proxy.yml"}
       {:filename "remove.sh"}
       {:filename "verify.sh"}
       {:filename "install.sh"}])

@@ -15,5 +15,12 @@ kubectl completion bash >> /etc/bash_completion.d/kubernetes
 #Initialize your cluster with kubeadm
 systemctl enable docker.service
 kubeadm config images pull
-kubeadm init --pod-network-cidr=10.244.0.0/16 \
-  --apiserver-advertise-address={{advertise-address}}
+# kubeadm init --feature-gates IPv6DualStack=true \
+#   --pod-network-cidr=10.244.0.0/16,fc00::/64 \
+#   --service-cidr=10.96.0.0/12,fd00::/64 \
+#   --apiserver-advertise-address={{advertise-address}}
+
+kubeadm init \
+   --pod-network-cidr=10.244.0.0/16 \
+   --service-cidr=10.96.0.0/12 \
+   --apiserver-advertise-address={{advertise-address}}
