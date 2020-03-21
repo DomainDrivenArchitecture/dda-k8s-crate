@@ -56,7 +56,7 @@
   (actions/as-action (logging/info (str facility "-init")))
   (transport/copy-resources-to-tmp
    (name facility)
-   k8s
+   k8s-base
    [{:filename "init.sh"}])
   (transport/exec facility k8s-base "init.sh"))
 
@@ -67,7 +67,7 @@
   (let [facility-name (name facility)
         {:keys [advertise-address]} config]
     (transport/copy-resources-to-tmp
-     facility-name k8s
+     facility-name k8s-base
      [{:filename "install-system.sh" :config {:advertise-address advertise-address}}])
     (transport/exec facility-name k8s-base "install-system.sh")))
 
@@ -79,7 +79,7 @@
   (let [facility-name (name facility)]
     (transport/log-info facility-name "user-install")
     (transport/copy-resources-to-tmp
-     facility-name k8s
+     facility-name k8s-base
      [{:filename "install-user-as-root.sh" :config {:user user}}])
     (transport/exec 
      facility-name k8s-base "install-user-as-root.sh")
