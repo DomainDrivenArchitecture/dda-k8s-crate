@@ -109,10 +109,11 @@
      user facility-name k8s-metallb "install-user-as-user.sh")
     (transport/copy-resources-to-user
      user facility-name k8s-dashboard
-     [{:filename "kubernetes-dashboard.2.0.b5.yml"}
-      {:filename "admin_dash.2.0.b5.yml"}
+     [{:filename "kubernetes-dashboard.2.0.0.rc6.yml"}
+      {:filename "admin_dash.2.0.0.rc6.yml"}
+      {:filename "install-dashboard-as-user.sh"}
       {:filename "remove.sh"}
-      {:filename "install-dashboard-as-user.sh"}])
+      {:filename "proxy.sh"}])
     (transport/exec-as-user
      user facility-name k8s-dashboard "install-dashboard-as-user.sh"))
         

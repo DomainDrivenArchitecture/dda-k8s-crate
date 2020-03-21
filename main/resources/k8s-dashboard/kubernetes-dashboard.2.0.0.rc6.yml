@@ -11,8 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-# https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta5/aio/deploy/recommended.yml
+# https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-rc6/aio/deploy/recommended.yaml
 
 apiVersion: v1
 kind: Namespace
@@ -189,7 +188,7 @@ spec:
     spec:
       containers:
         - name: kubernetes-dashboard
-          image: kubernetesui/dashboard:v2.0.0-beta5
+          image: kubernetesui/dashboard:v2.0.0-rc6
           imagePullPolicy: Always
           ports:
             - containerPort: 8443
@@ -273,7 +272,7 @@ spec:
     spec:
       containers:
         - name: dashboard-metrics-scraper
-          image: kubernetesui/metrics-scraper:v1.0.1
+          image: kubernetesui/metrics-scraper:v1.0.3
           ports:
             - containerPort: 8000
               protocol: TCP
