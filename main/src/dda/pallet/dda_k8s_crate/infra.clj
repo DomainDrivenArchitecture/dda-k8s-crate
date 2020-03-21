@@ -64,10 +64,7 @@
   [dda-crate config]
   (let [facility (:facility dda-crate)
         {:keys [user k8s]} config
-        user-str (name user)
-        apply-with-user
-        (partial kubectl-apply-f facility user-str
-                 (str "/home/" user-str "/k8s_resources/"))]
+        user-str (name user)]
     (actions/as-action (logging/info (str facility " - core-infra/dda-install")))
     (base/system-install facility)
     (k8s/system-install facility k8s)
@@ -81,11 +78,12 @@
         apply-with-user
         (partial kubectl-apply-f facility user-str
                  (str "/home/" user-str "/k8s_resources/"))]
-    (k8s/system-configure facility k8s)
-    (k8s/user-configure facility user-str k8s apply-with-user)
-    (cert-manager/user-configure-cert-manager facility user-str cert-manager apply-with-user)
-    (when apple (apple/user-configure-apple facility user-str apple apply-with-user))
-    (when nexus (nexus/user-configure-nexus facility user-str nexus apply-with-user))))
+    ;(k8s/system-configure facility k8s)
+    ;(k8s/user-configure facility user-str k8s apply-with-user)
+    ;(cert-manager/user-configure-cert-manager facility user-str cert-manager apply-with-user)
+    ;(when apple (apple/user-configure-apple facility user-str apple apply-with-user))
+    ;(when nexus (nexus/user-configure-nexus facility user-str nexus apply-with-user))
+    ))
 
 (def dda-k8s-crate
   (core-infra/make-dda-crate-infra

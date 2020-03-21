@@ -48,20 +48,22 @@
    (s/optional-key :config) s/Any
    (s/optional-key :mode) s/Str})
 
-(s/defn copy-resources-to-tmp
-  [facility :- s/Str
-   module :- s/Str
-   files :- [Resource]]
-  (let [facility-path (str "/tmp/" facility)
-        module-path (str facility-path "/" module)]
+(defn
+  ^{:private true}
+  copy-resources-to-path
+  [user 
+   facility-path 
+   module 
+   files]
+  (let [module-path (str facility-path "/" module)]
     (actions/directory
      facility-path
-     :group "root"
-     :owner "root")
+     :group user
+     :owner user)
     (actions/directory
      module-path
-     :group "root"
-     :owner "root")
+     :group user
+     :owner user)
     (doseq [resource files]
       (let [template? (contains? resource :config)
             filename (:filename resource)
@@ -72,33 +74,58 @@
             config (if template?
                      (:config resource)
                      {})
-            mode (cond 
+            mode (cond
                    (contains? resource :mode) (:mode resource)
                    (string/ends-with? filename ".sh") "700"
                    :default "600")]
         (actions/remote-file
          filename-on-target
          :literal true
-         :group "root"
-         :owner "root"
+         :group user
+         :owner user
          :mode mode
          :content (selmer/render-file filename-on-source config))))))
+
+(defn ^{:private true} user-path
+  [user facility]
+  (str "/home/" user "/resources/" facility))
+
+(defn ^{:private true} tmp-path
+  [facility]
+  (str "/tmp/" facility))
+
+(s/defn copy-resources-to-user
+  [user :- s/Str
+   facility :- s/Str
+   module :- s/Str
+   files :- [Resource]]
+  (copy-resources-to-path user (user-path user facility) module files))
+
+(s/defn copy-resources-to-tmp
+  [facility :- s/Str
+   module :- s/Str
+   files :- [Resource]]
+  (copy-resources-to-path "root" (tmp-path facility) module files))
 
 (s/defn exec
   [facility :- s/Str
    module :- s/Str
    filename :-  s/Str]
-  (actions/exec-checked-script
-   (str "execute " module "/" filename)
-   ("cd" ~(str "/tmp/" (name facility) "/" module))
-   ("bash" ~filename)))
+  (let [facility-path (tmp-path (name facility))
+        module-path (str facility-path "/" module)]
+    (actions/exec-checked-script
+     (str "execute " module "/" filename)
+     ("cd" ~module-path)
+     ("bash" ~filename))))
 
 (s/defn exec-as-user
   [facility :- s/Str
    module :- s/Str
    user :- s/Str
    filename :-  s/Str]
-  (actions/exec-checked-script
-   (str "execute " module "/" filename)
-   ("cd" ~(str "/tmp/" (name facility) "/" module))
-   ("sudo" "-H" "-u" ~user "bash" "-c" ~(str "./" filename))))
+  (let [facility-path (user-path user (name facility))
+        module-path (str facility-path "/" module)]
+    (actions/exec-checked-script
+     (str "execute " module "/" filename)
+     ("cd" ~module-path)
+     ("sudo" "-H" "-u" ~user "bash" "-c" ~(str "./" filename)))))
