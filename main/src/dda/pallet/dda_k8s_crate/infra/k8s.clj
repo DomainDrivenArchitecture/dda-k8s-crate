@@ -28,6 +28,8 @@
 (def k8s-flannel "k8s-flannel")
 (def k8s-admin "k8s-admin")
 (def k8s-metallb "k8s-metallb")
+(def k8s-dashboard "k8s-dashboard")
+
 
 (s/defn admin-dash-metal-ingress
   [apply-with-user]
@@ -102,8 +104,16 @@
       {:filename "metallb-config.yml" :config config}
       {:filename "install-user-as-user.sh"}])
     (transport/exec-as-user
-     user facility-name k8s-metallb "install-user-as-user.sh"))
-    
+     user facility-name k8s-metallb "install-user-as-user.sh")
+    (transport/copy-resources-to-user
+     user facility-name k8s-dashboard
+     [{:filename "kubernetes-dashboard.2.0.b5.yml"}
+      {:filename "admin_dash.2.0.b5.yml"}
+      {:filename "install-dashboard-as-user.sh"}])
+    (transport/exec-as-user
+     user facility-name k8s-dashboard "install-dashboard-as-user.sh"))
+        
+
   ; (transport/user-copy-resources
   ;  facility user
   ;  ["/k8s_resources/admin"
