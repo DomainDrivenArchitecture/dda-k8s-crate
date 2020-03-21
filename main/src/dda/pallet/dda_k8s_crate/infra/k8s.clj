@@ -80,14 +80,16 @@
     (transport/copy-resources-to-tmp
      facility-name k8s
      [{:filename "install-user-as-root.sh" :config {:user user}}])
-    (transport/exec facility-name k8s "install-user-as-root.sh")
+    (transport/exec 
+     facility-name k8s "install-user-as-root.sh")
     (transport/copy-resources-to-user
      user facility-name k8s-flannel
      [{:filename "flannel-rbac.yml"}
       {:filename "flannel.yml"}
       {:filename "install-user-as-user.sh" :config {:user user}}
       {:filename "verify.sh"}])
-    (transport/exec-as-user facility-name k8s-flannel user "install-user-as-user.sh")))
+    (transport/exec-as-user 
+     facility-name k8s-flannel user "install-user-as-user.sh")))
 
 (s/defn system-configure
   [facility :- s/Keyword
