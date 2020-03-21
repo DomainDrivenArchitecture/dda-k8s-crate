@@ -129,3 +129,8 @@
      (str "execute " module "/" filename)
      ("cd" ~module-path)
      ("sudo" "-H" "-u" ~user "bash" "-c" ~(str "./" filename)))))
+
+(s/defn log-info
+  [facility :- s/Str
+   log :- s/Str]
+   (actions/as-action (logging/info (str facility " - " log))))

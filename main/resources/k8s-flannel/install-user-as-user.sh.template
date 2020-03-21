@@ -1,6 +1,0 @@
-#!/bin/bash
-
-kubectl apply -f /home/{{user}}/k8s_resources/flannel
-kubectl apply -f /home/{{user}}/k8s_resources/flannel-rbac
-
-kubectl taint nodes --all node-role.kubernetes.io/master-

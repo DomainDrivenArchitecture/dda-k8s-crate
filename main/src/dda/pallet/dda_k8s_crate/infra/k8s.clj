@@ -75,8 +75,8 @@
   [facility :- s/Keyword
    user :- s/Str
    config :- K8s]
-  (actions/as-action (logging/info (str facility " - user-install")))
   (let [facility-name (name facility)]
+    (transport/log-info facility-name "user-install")
     (transport/copy-resources-to-tmp
      facility-name k8s
      [{:filename "install-user-as-root.sh" :config {:user user}}])
@@ -86,7 +86,7 @@
      user facility-name k8s-flannel
      [{:filename "flannel-rbac.yml"}
       {:filename "flannel.yml"}
-      {:filename "install-user-as-user.sh" :config {:user user}}
+      {:filename "install-user-as-user.sh"}
       {:filename "verify.sh"}])
     (transport/exec-as-user 
      facility-name k8s-flannel user "install-user-as-user.sh")))
@@ -94,29 +94,34 @@
 (s/defn system-configure
   [facility :- s/Keyword
    config :- K8s]
-  (actions/as-action (logging/info (str facility " - system-configure"))))
+  (transport/log-info (name facility) "system-configure"))
 
 (s/defn user-configure
   [facility :- s/Keyword
    user :- s/Str
    config :- K8s
    apply-with-user]
-  (actions/as-action (logging/info (str facility " - user-configure")))
-  ; TODO: run cleanup for being able do reaply config??
-  (transport/user-copy-resources
-   facility user
-   ["/k8s_resources/admin"
-    "/k8s_resources/dashboard"
-    "/k8s_resources/metallb"
-    "/k8s_resources/ingress"]
-   ["admin/admin_user.yml"
-    "admin/pod-running.sh"
-    "dashboard/kubernetes-dashboard.1.10.yml"
-    "dashboard/admin_dash.1.10.yml"
-    "dashboard/kubernetes-dashboard.2.0.b5.yml"
-    "dashboard/admin_dash.2.0.b5.yml"
-    "metallb/metallb.yml"
-    "ingress/mandatory.yml"
-    "ingress/ingress_using_mettallb.yml"])
-  (user-render-metallb-yml user config)
-  (admin-dash-metal-ingress apply-with-user))
+  (let [facility-name (name facility)]
+    (transport/log-info facility-name "user-configure")
+    (transport/copy-resources-to-user
+     user facility-name k8s-flannel
+     [{:filename "admin-user.yml"}]))
+        
+  ; (transport/user-copy-resources
+  ;  facility user
+  ;  ["/k8s_resources/admin"
+  ;   "/k8s_resources/dashboard"
+  ;   "/k8s_resources/metallb"
+  ;   "/k8s_resources/ingress"]
+  ;  ["admin/admin_user.yml"
+  ;   "admin/pod-running.sh"
+  ;   "dashboard/kubernetes-dashboard.1.10.yml"
+  ;   "dashboard/admin_dash.1.10.yml"
+  ;   "dashboard/kubernetes-dashboard.2.0.b5.yml"
+  ;   "dashboard/admin_dash.2.0.b5.yml"
+  ;   "metallb/metallb.yml"
+  ;   "ingress/mandatory.yml"
+  ;   "ingress/ingress_using_mettallb.yml"])
+  ; (user-render-metallb-yml user config)
+  ; (admin-dash-metal-ingress apply-with-user)
+    )
