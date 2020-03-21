@@ -27,27 +27,14 @@
 (def k8s-base "k8s-base")
 (def k8s-flannel "k8s-flannel")
 (def k8s-admin "k8s-admin")
+(def k8s-metallb "k8s-metallb")
 (def k8s-dashboard "k8s-dashboard")
 
-(s/defn user-render-metallb-yml
-  [user :- s/Str config :- K8s]
-  (actions/remote-file
-   (str "/home/" user "/k8s_resources/metallb/metallb_config.yml")
-   :literal true
-   :group user
-   :owner user
-   :mode "755"
-   :content
-   (selmer/render-file
-    (str "metallb/metallb_config.yml.template") config)))
 
 (s/defn admin-dash-metal-ingress
   [apply-with-user]
-  (apply-with-user "admin/admin_user.yml")
   (apply-with-user "dashboard/kubernetes-dashboard.2.0.b5.yml")
   (apply-with-user "dashboard/admin_dash.2.0.b5.yml")
-  (apply-with-user "metallb/metallb.yml")
-  (apply-with-user "metallb/metallb_config.yml")
   (apply-with-user "ingress/mandatory.yml")
   (apply-with-user "ingress/ingress_using_mettallb.yml"))
 
@@ -108,18 +95,29 @@
     (transport/copy-resources-to-user
      user facility-name k8s-admin
      [{:filename "admin-user.yml"}
+      {:filename "remove.sh"}
       {:filename "install-user-as-user.sh"}])
     (transport/exec-as-user
      user facility-name k8s-admin "install-user-as-user.sh")
+    (transport/copy-resources-to-user
+     user facility-name k8s-metallb
+     [{:filename "metallb.yml"}
+      {:filename "metallb-config.yml" :config config}
+      {:filename "remove.sh"}
+      {:filename "install-user-as-user.sh"}])
+    (transport/exec-as-user
+     user facility-name k8s-metallb "install-user-as-user.sh")
     (transport/copy-resources-to-user
      user facility-name k8s-dashboard
      [{:filename "kubernetes-dashboard.2.0.0.rc6.yml"}
       {:filename "admin_dash.2.0.0.rc6.yml"}
       {:filename "install-dashboard-as-user.sh"}
+      {:filename "remove.sh"}
       {:filename "proxy.sh"}])
     (transport/exec-as-user
      user facility-name k8s-dashboard "install-dashboard-as-user.sh"))
         
+
   ; (transport/user-copy-resources
   ;  facility user
   ;  ["/k8s_resources/admin"
