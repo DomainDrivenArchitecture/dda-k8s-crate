@@ -19,23 +19,13 @@
    [schema.core :as s]
    [pallet.actions :as actions]
    [selmer.parser :as selmer]
-   [dda.pallet.dda-k8s-crate.infra.transport :as transport]
-   [dda.pallet.dda-k8s-crate.infra.check :as check]))
+   [dda.pallet.dda-k8s-crate.infra.check :as check]
+   [dda.pallet.dda-k8s-crate.infra.transport :as transport]))
 
 (s/def CertManager {(s/optional-key :env-flag) s/Str
                     (s/optional-key :acme-flag) s/Str})
 
-(s/defn user-render-cert-manager-yml
-  [user :- s/Str
-   config :- CertManager]
-  (actions/remote-file
-   (str "/home/" user "/k8s_resources/cert_manager/le-issuer.yml")
-   :literal true
-   :group user
-   :owner user
-   :mode "755"
-   :content
-   (selmer/render-file "cert_manager/le-issuer.yml.template" config)))
+(def cert-manager "cert-manager")
 
 (s/defn apply-cert-manager
   [apply-with-user
@@ -52,13 +42,16 @@
     (apply-with-user "cert_manager/le-issuer.yml")))
 
 (s/defn user-configure-cert-manager
-  [facility user config apply-with-user]
-  (actions/as-action (logging/info (str facility " - user-configure-cert-manager")))
-  (transport/user-copy-resources
-   facility user
-   ["/k8s_resources"
-    "/k8s_resources/cert_manager"]
-   ["cert_manager/cert-manager.yml"
-    "cert_manager/selfsigning-issuer.yml"])
-  (user-render-cert-manager-yml user config)
-  (apply-cert-manager apply-with-user user))
+  [facility user config]
+  (let [facility-name (name facility)]
+    (transport/log-info facility-name " - user-configure-cert-manager")
+    (transport/copy-resources-to-user
+     user facility-name cert-manager
+     [{:filename "cert-manager.yml"}
+      {:filename "selfsigning-issuer.yml"}
+      {:filename "le-issuer.yml" :config config}
+      {:filename "install.sh"}
+      {:filename "wait-for-pod.sh"}
+      {:filename "verify.sh"}])
+    (transport/exec-as-user
+     user facility-name cert-manager "install.sh")))
