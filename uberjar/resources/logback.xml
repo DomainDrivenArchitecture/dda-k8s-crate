@@ -27,6 +27,14 @@
     <appender-ref ref="PALLETFILE" />
   </logger>
 
+  <logger name="pallet.ssh" level="ERROR">
+    <appender-ref ref="PALLETFILE" />
+  </logger>
+
+  <logger name="pallet.algo" level="ERROR">
+    <appender-ref ref="PALLETFILE" />
+  </logger>
+
   <logger name="dda" level="DEBUG">
     <appender-ref ref="PALLETFILE" />
   </logger>
