@@ -38,21 +38,6 @@
    (s/optional-key :apple) apple/Apple
    (s/optional-key :nexus) nexus/Nexus})
 
-(s/defn kubectl-apply-f
-  "apply kubectl config file"
-  {:deprecated "0.1.4"}
-  [facility
-   user :- s/Str
-   user-resource-path :- s/Str
-   resource :- s/Str]
-  (let [path-on-server (str user-resource-path resource)]
-    (actions/as-action
-     (logging/info (str facility " - kubectl-apply-f "
-                        path-on-server)))
-    (actions/exec-checked-script
-     (str "apply config " path-on-server)
-     ("sudo" "-H" "-u" ~user "bash" "-c" "'kubectl" "apply" "-f" ~path-on-server "'"))))
-
 (s/defmethod core-infra/dda-init facility
   [dda-crate config]
   (let [facility (:facility dda-crate)
@@ -78,7 +63,7 @@
     (k8s/system-configure facility k8s)
     (k8s/user-configure facility user-str k8s)
     (cert-manager/user-configure-cert-manager facility user-str cert-manager)
-    ;(when apple (apple/user-configure-apple facility user-str apple apply-with-user))
+    (when apple (apple/user-configure-apple facility user-str apple))
     ;(when nexus (nexus/user-configure-nexus facility user-str nexus apply-with-user))
     ))
 

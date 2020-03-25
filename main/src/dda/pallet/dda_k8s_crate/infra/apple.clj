@@ -23,18 +23,7 @@
 
 (s/def Apple {:fqdn s/Str :secret-name s/Str :cluster-issuer s/Str})
 
-(s/defn user-render-apple-yml
-  [user :- s/Str
-   config :- Apple]
-  (actions/remote-file
-   (str "/home/" user "/k8s_resources/apple/ingress_apple_https.yml")
-   :literal true
-   :group user
-   :owner user
-   :mode "755"
-   :content
-   (selmer/render-file
-    (str "apple/ingress_apple_https.yml.template") config)))
+(def apple "apple")
 
 (s/defn apply-apple
   [user :- s/Str apply-with-user]
@@ -47,12 +36,15 @@
   (apply-with-user "apple/ingress_apple_https.yml"))
 
 (s/defn user-configure-apple
-  [facility user config apply-with-user]
-  (actions/as-action (logging/info (str facility " - user-apple-configure")))
-  (transport/user-copy-resources
-   facility user
-   ["/k8s_resources"
-    "/k8s_resources/apple"]
-   ["apple/apple.yml"])
-  (user-render-apple-yml user config)
-  (apply-apple user apply-with-user))
+  [facility user config]
+  (let [facility-name (name facility)]
+    (transport/log-info facility-name "(s/defn user-configure-apple")
+    (transport/copy-resources-to-user
+     user facility-name apple
+     [{:filename "apple.yml"}
+      {:filename "ingress_apple_https.yml" :config config}
+      {:filename "install.sh"}
+      {:filename "remove.sh"}
+      {:filename "verify.sh" :config config}])
+    (transport/exec-as-user
+     user facility-name apple "install.sh")))

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+echo -e "\n====================\n"
+echo -e "ingress-apple has external ip"
+echo -e "\n====================\n"
+kubectl get all
+
+echo -e "\n====================\n"
+echo -e "shows certificate with subject"
+echo -e "CN={{fqdn}}"
+echo -e "\n====================\n"
+curl --insecure -v https://{{fqdn}}/apple
+
+echo -e "\n====================\n"
+echo -e "shows apple"
+echo -e "\n====================\n"
+curl --insecure https://{{fqdn}}/apple
