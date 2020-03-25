@@ -64,7 +64,7 @@
     (k8s/user-configure facility user-str k8s)
     (cert-manager/user-configure-cert-manager facility user-str cert-manager)
     (when apple (apple/user-configure-apple facility user-str apple))
-    ;(when nexus (nexus/user-configure-nexus facility user-str nexus apply-with-user))
+    (when nexus (nexus/user-configure-nexus facility user-str nexus))
     ))
 
 (def dda-k8s-crate

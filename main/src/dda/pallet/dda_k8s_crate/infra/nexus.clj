@@ -15,48 +15,24 @@
 ; limitations under the License.
 (ns dda.pallet.dda-k8s-crate.infra.nexus
   (:require
-   [clojure.tools.logging :as logging]
    [schema.core :as s]
-   [pallet.actions :as actions]
-   [selmer.parser :as selmer]
-   [dda.pallet.dda-k8s-crate.infra.transport :as transport]
-   [dda.pallet.dda-k8s-crate.infra.check :as check]))
+   [dda.pallet.dda-k8s-crate.infra.transport :as transport]))
 
 (s/def Nexus {:fqdn s/Str :secret-name s/Str :cluster-issuer s/Str})
 
-(s/defn user-render-nexus-yml
-  [user :- s/Str
-   config :- Nexus]
-  (actions/remote-file
-   (str "/home/" user "/k8s_resources/nexus/ingress_nexus_https.yml")
-   :literal true
-   :group user
-   :owner user
-   :mode "755"
-   :content
-   (selmer/render-file
-    (str "nexus/ingress_nexus_https.yml.template") config)))
-
-(s/defn apply-nexus
-  [user :- s/Str apply-with-user]
-  (actions/directory
-   "/mnt/data"
-   :owner user
-   :group user
-   :mode "777")
-  (apply-with-user "nexus/nexus-storage.yml")
-  (apply-with-user "nexus/nexus.yml")
-  (apply-with-user "nexus/ingress_nexus_https.yml"))
+(def nexus "nexus")
 
 (s/defn user-configure-nexus
-  [facility user config apply-with-user]
-  (actions/as-action (logging/info (str facility " - user-configure-nexus")))
-  (transport/user-copy-resources
-   facility user
-   ["/k8s_resources"
-    "/k8s_resources/nexus"]
-   ["nexus/nexus-storage.yml"
-    "nexus/nexus.yml"])
-  (user-render-nexus-yml user config)
-  (apply-nexus user apply-with-user)
-  (check/wait-until-pod-running user "nexus" 5 10 20))
+  [facility user config]
+  (let [facility-name (name facility)]
+    (transport/log-info facility-name "user-configure-nexus")
+    (transport/copy-resources-to-user
+     user facility-name nexus
+     [{:filename "ingress_nexus_https.yml" :config config}
+      {:filename "nexus-storage.yml"}
+      {:filename "nexus.yml"}
+      {:filename "remove.sh"}
+      {:filename "verify.sh" :config config}
+      {:filename "install.sh"}])
+    (transport/exec-as-user
+     user facility-name nexus "install.sh")))
