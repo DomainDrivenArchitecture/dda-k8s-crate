@@ -16,7 +16,7 @@
 (ns dda.pallet.dda-k8s-crate.infra.apple
   (:require
    [clojure.spec.alpha :as s]
-   ;[schema.core :as s]
+   [schema.core :as sch]
    [dda.pallet.dda-k8s-crate.infra.transport :as transport]))
 
 (s/def ::fqdn string?)
@@ -26,7 +26,8 @@
 (s/def ::facility keyword?)
 (s/def ::user string?)
 
-(s/def ::apple (s/keys :req [::fqdn ::secret-name ::cluster-issuer ]))
+(s/def ::apple (s/keys :req [::fqdn ::secret-name ::cluster-issuer]))
+(sch/def Apple {:fqdn sch/Str :secret-name sch/Str :cluster-issuer sch/Str})
 
 (def apple "apple")
 
