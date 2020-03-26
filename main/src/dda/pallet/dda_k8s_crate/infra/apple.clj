@@ -15,28 +15,26 @@
 ; limitations under the License.
 (ns dda.pallet.dda-k8s-crate.infra.apple
   (:require
-   [clojure.tools.logging :as logging]
-   [schema.core :as s]
-   [pallet.actions :as actions]
-   [selmer.parser :as selmer]
+   [clojure.spec.alpha :as s]
+   ;[schema.core :as s]
    [dda.pallet.dda-k8s-crate.infra.transport :as transport]))
 
-(s/def Apple {:fqdn s/Str :secret-name s/Str :cluster-issuer s/Str})
+(s/def ::fqdn string?)
+(s/def ::secret-name string?)
+(s/def ::cluster-issuer string?)
+
+(s/def ::facility keyword?)
+(s/def ::user string?)
+
+(s/def ::apple (s/keys :req [::fqdn ::secret-name ::cluster-issuer ]))
 
 (def apple "apple")
 
-(s/defn apply-apple
-  [user :- s/Str apply-with-user]
-  (actions/directory
-   "/mnt/data"
-   :owner user
-   :group user
-   :mode "777")
-  (apply-with-user "apple/apple.yml")
-  (apply-with-user "apple/ingress_apple_https.yml"))
-
-(s/defn user-configure-apple
+(defn user-configure-apple
   [facility user config]
+  {:pre [(s/valid? ::facility facility) 
+         (s/valid? ::user user) 
+         (s/valid? ::apple config)]}
   (let [facility-name (name facility)]
     (transport/log-info facility-name "(s/defn user-configure-apple")
     (transport/copy-resources-to-user
@@ -48,3 +46,11 @@
       {:filename "verify.sh" :config config}])
     (transport/exec-as-user
      user facility-name apple "install.sh")))
+
+(s/fdef myspectest 
+  :args (s/cat :facility ::facility :user ::user :config ::apple)
+  :ret int?)
+
+(defn myspectest "test"
+  [facility user config]
+  "123")
