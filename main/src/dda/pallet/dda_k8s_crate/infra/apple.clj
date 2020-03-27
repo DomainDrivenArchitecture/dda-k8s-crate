@@ -32,6 +32,9 @@
 
 (def apple "apple")
 
+(s/fdef user-configure-apple
+  :args (s/cat :facility ::facility :user ::user :config ::apple))
+
 (defn user-configure-apple
   [facility user config]
   (let [facility-name (name facility)]
