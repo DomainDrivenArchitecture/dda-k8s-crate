@@ -16,6 +16,7 @@
 (ns dda.pallet.dda-k8s-crate.infra.apple
   (:require
    [clojure.spec.alpha :as s]
+   [clojure.spec.test.alpha :as st]
    [schema.core :as sch]
    [dda.pallet.dda-k8s-crate.infra.transport :as transport]))
 
@@ -30,6 +31,9 @@
 (sch/def Apple {:fqdn sch/Str :secret-name sch/Str :cluster-issuer sch/Str})
 
 (def apple "apple")
+
+(s/fdef user-configure-apple
+  :args (s/cat :facility ::facility :user ::user :config ::apple))
 
 (defn user-configure-apple
   [facility user config]
@@ -52,3 +56,5 @@
 (defn myspectest "test"
   [facility user config]
   "123")
+
+(st/instrument `myspectest)
