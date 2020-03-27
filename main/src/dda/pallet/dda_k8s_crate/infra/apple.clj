@@ -16,6 +16,7 @@
 (ns dda.pallet.dda-k8s-crate.infra.apple
   (:require
    [clojure.spec.alpha :as s]
+   [clojure.spec.test.alpha :as st]
    [schema.core :as sch]
    [dda.pallet.dda-k8s-crate.infra.transport :as transport]))
 
@@ -33,9 +34,6 @@
 
 (defn user-configure-apple
   [facility user config]
-  {:pre [(s/valid? ::facility facility) 
-         (s/valid? ::user user) 
-         (s/valid? ::apple config)]}
   (let [facility-name (name facility)]
     (transport/log-info facility-name "(s/defn user-configure-apple")
     (transport/copy-resources-to-user
@@ -55,3 +53,5 @@
 (defn myspectest "test"
   [facility user config]
   "123")
+
+(st/instrument `myspectest)
