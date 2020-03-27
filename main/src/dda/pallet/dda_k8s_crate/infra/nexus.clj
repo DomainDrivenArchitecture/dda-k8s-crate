@@ -33,6 +33,10 @@
       {:filename "nexus.yml"}
       {:filename "remove.sh"}
       {:filename "verify.sh" :config config}
-      {:filename "install.sh"}])
+      {:filename "install.sh"}
+      {:filename "change-permissions.sh" :config {:user user}}])
+    ;TODO: change-permissions.sh not executing correctly
+    (transport/exec
+     facility-name nexus "change-permissions.sh")
     (transport/exec-as-user
      user facility-name nexus "install.sh")))
