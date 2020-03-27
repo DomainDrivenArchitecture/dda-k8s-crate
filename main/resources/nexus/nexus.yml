@@ -28,4 +28,3 @@ spec:
     app: nexus
   ports:
     - port: 8081
-

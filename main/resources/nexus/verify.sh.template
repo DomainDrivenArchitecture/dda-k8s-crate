@@ -8,10 +8,13 @@ kubectl get all
 echo -e "\n====================\n"
 echo -e "shows certificate with subject"
 echo -e "CN={{fqdn}}"
+echo -e "issuer: CN=Fake LE Intermediate X1"
 echo -e "\n====================\n"
 curl --insecure -v https://{{fqdn}}
 
 echo -e "\n====================\n"
-echo -e "shows nexus"
+echo -e "the initial password for user 'admin'"
 echo -e "\n====================\n"
-curl --insecure https://{{fqdn}}
+cat /var/nexus/admin.password
+
+echo -e "\n"

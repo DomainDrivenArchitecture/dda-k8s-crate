@@ -8,6 +8,7 @@ kubectl get all
 echo -e "\n====================\n"
 echo -e "shows certificate with subject"
 echo -e "CN={{fqdn}}"
+echo -e "issuer: CN=Fake LE Intermediate X1"
 echo -e "\n====================\n"
 curl --insecure -v https://{{fqdn}}/apple
 

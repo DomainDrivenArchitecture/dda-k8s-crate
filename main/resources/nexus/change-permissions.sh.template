@@ -1,3 +1,0 @@
-#!/bin/bash
-
-install -d -m 0777 -o {{user}} -g {{user}} /mnt/data

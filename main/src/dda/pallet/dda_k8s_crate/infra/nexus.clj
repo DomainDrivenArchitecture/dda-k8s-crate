@@ -22,6 +22,16 @@
 
 (def nexus "nexus")
 
+(s/defn user-install-nexus
+  [facility user config]
+  (let [facility-name (name facility)]
+    (transport/log-info facility-name "user-install-nexus")
+    (transport/copy-resources-to-tmp
+     facility-name nexus
+     [{:filename "create-storage.sh" :config {:user user}}])
+    (transport/exec
+     facility-name nexus "create-storage.sh")))
+
 (s/defn user-configure-nexus
   [facility user config]
   (let [facility-name (name facility)]
@@ -33,10 +43,6 @@
       {:filename "nexus.yml"}
       {:filename "remove.sh"}
       {:filename "verify.sh" :config config}
-      {:filename "install.sh"}
-      {:filename "change-permissions.sh" :config {:user user}}])
-    ;TODO: change-permissions.sh not executing correctly
-    (transport/exec
-     facility-name nexus "change-permissions.sh")
+      {:filename "install.sh"}])
     (transport/exec-as-user
      user facility-name nexus "install.sh")))

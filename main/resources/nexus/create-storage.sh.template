@@ -1,0 +1,4 @@
+#!/bin/bash
+
+mkdir -p /var/nexus
+install -d -m 0777 -o {{user}} -g {{user}} /var/nexus

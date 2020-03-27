@@ -48,12 +48,13 @@
 (s/defmethod core-infra/dda-install facility
   [dda-crate config]
   (let [facility (:facility dda-crate)
-        {:keys [user k8s]} config
+        {:keys [user k8s nexus]} config
         user-str (name user)]
     (actions/as-action (logging/info (str facility " - core-infra/dda-install")))
     (base/system-install facility)
     (k8s/system-install facility k8s)
-    (k8s/user-install facility user-str k8s)))
+    (k8s/user-install facility user-str k8s)
+    (when nexus (nexus/user-install-nexus facility user-str nexus))))
 
 (s/defmethod core-infra/dda-configure facility
   [dda-crate config]
@@ -64,8 +65,7 @@
     (k8s/user-configure facility user-str k8s)
     (cert-manager/user-configure-cert-manager facility user-str cert-manager)
     (when apple (apple/user-configure-apple facility user-str apple))
-    (when nexus (nexus/user-configure-nexus facility user-str nexus))
-    ))
+    (when nexus (nexus/user-configure-nexus facility user-str nexus))))
 
 (def dda-k8s-crate
   (core-infra/make-dda-crate-infra
