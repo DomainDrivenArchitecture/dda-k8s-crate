@@ -1,4 +1,4 @@
-(defproject dda/dda-k8s-crate "0.1.4-SNAPSHOT"
+(defproject dda/dda-k8s-crate "0.1.4"
   :description "Module for installing a server with kubeadm"
   :url "https://domaindrivenarchitecture.org"
   :license {:name "Apache License, Version 2.0"
