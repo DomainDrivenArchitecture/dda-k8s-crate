@@ -122,16 +122,13 @@
   [user :- s/Str
    facility :- s/Str
    module :- s/Str
-   filename :-  s/Str
-   & [execute-function]]
+   filename :-  s/Str]
   (let [facility-path (user-path user (name facility))
         module-path (str facility-path "/" module)]
     (actions/exec-checked-script
      (str "execute " module "/" filename)
      ("cd" ~module-path)
-     (or 
-      execute-function
-      ("sudo" "-H" "-u" ~user "bash" "-c" ~(str "./" filename))))))
+     ("sudo" "-H" "-u" ~user "bash" "-c" ~(str "./" filename)))))
 
 (s/defn log-info
   [facility :- s/Str
