@@ -27,7 +27,7 @@ We use the following components:
 * nginx-ingress: [[Ingress]](https://kubernetes.io/docs/concepts/services-networking/Ingress/)
 * cert-manager: [[cert-manager]](tps://github.com/jetstack/cert-manager)
 * dashboard 2.0: [[dashboard]](https://github.com/kubernetes/dashboard/)
-* apple-rcho for debugging: [[http-echo]](https://github.com/hashicorp/http-echo)
+* apple-echo for debugging: [[http-echo]](https://github.com/hashicorp/http-echo)
 * nexus as example application: [[docker-nexus]](https://github.com/sonatype/docker-nexus)
 
 k8s api and dashboard is eposed to localhost only and can be accesed through a ssh-tunnel, all k8s operations can be executed by a k8s user. Generated yml manifests can be found at '/home/k8s/k8s-resources'
