@@ -6,6 +6,10 @@
 
 This crate is part of [dda-pallet](https://domaindrivenarchitecture.org/pages/dda-pallet/).
 
+This is a asciinema recording of the features of this crate:
+[![asciicast](https://asciinema.org/a/vfNZcYMeNLb21uTfr0xGga0F7.svg)](https://asciinema.org/a/vfNZcYMeNLb21uTfr0xGga0F7)
+
+
 ## Kubernetes setup
 
 This crate sets up a K8s as SingleNode-Instance. Setup is based on ubuntu18.4
