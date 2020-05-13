@@ -7,8 +7,7 @@
 This crate is part of [dda-pallet](https://domaindrivenarchitecture.org/pages/dda-pallet/).
 
 This is a asciinema recording of the features of this crate:
-[![asciicast](https://asciinema.org/a/vfNZcYMeNLb21uTfr0xGga0F7.svg)](https://asciinema.org/a/vfNZcYMeNLb21uTfr0xGga0F7)
-
+[![asciicast](https://asciinema.org/a/329800.svg)](https://asciinema.org/a/329800)
 
 ## Kubernetes setup
 
