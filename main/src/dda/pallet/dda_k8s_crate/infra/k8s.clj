@@ -115,6 +115,7 @@
       {:filename "admin_dash.2.0.0.rc6.yml"}
       {:filename "install.sh"}
       {:filename "remove.sh"}
+      {:filename "verify.sh"}
       {:filename "proxy.sh"}])
     (transport/exec-as-user
      user facility-name k8s-dashboard "install.sh")))
