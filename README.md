@@ -2,7 +2,7 @@
 [![Clojars Project](https://img.shields.io/clojars/v/dda/dda-k8s-crate.svg)](https://clojars.org/dda/dda-k8s-crate)
 [![Build Status](https://travis-ci.org/DomainDrivenArchitecture/dda-k8s-crate.svg?branch=master)](https://travis-ci.org/DomainDrivenArchitecture/dda-k8s-crate)
 
-[![Slack](https://img.shields.io/badge/chat-clojurians-green.svg?style=flat)](https://clojurians.slack.com/messages/#dda-pallet/) | [<img src="https://meissa-gmbh.de/img/community/Mastodon_Logotype.svg" width=20 alt="team@social.meissa-gmbh.de"> team@social.meissa-gmbh.de](https://social.meissa-gmbh.de/@team) | [Website & Blog](https://domaindrivenarchitecture.org)
+[<img src="https://domaindrivenarchitecture.org/img/delta-chat.svg" width=20 alt="DeltaChat"> chat over e-mail](mailto:buero@meissa-gmbh.de?subject=community-chat) | [<img src="https://meissa-gmbh.de/img/community/Mastodon_Logotype.svg" width=20 alt="team@social.meissa-gmbh.de"> team@social.meissa-gmbh.de](https://social.meissa-gmbh.de/@team) | [Website & Blog](https://domaindrivenarchitecture.org)
 
 This crate is part of [dda-pallet](https://domaindrivenarchitecture.org/pages/dda-pallet/).
 
@@ -11,7 +11,7 @@ This is a asciinema recording of the features of this crate:
 
 ## Kubernetes setup
 
-This crate sets up a K8s as SingleNode-Instance. Setup is based on ubuntu18.4
+This crate sets up a K8s as SingleNode-Instance. Setup is based on ubuntu 20.4
 
 ## Features
 
