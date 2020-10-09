@@ -2,10 +2,9 @@
 ;  :k8s {:external-ip "95.217.21.186"
 ;        :external-ipv6 "2a01:4f9:c010:37e0::1"
 ;        }
- :k8s {:external-ip "95.216.192.88"
+ :k8s {:external-ip "78.46.126.89"
        ;:external-ipv6 "2a01:4f9:c010:37e0::1"
        }
  :cert-manager :letsencrypt-staging-issuer
  :apple {:fqdn "k8s-apple.test.meissa-gmbh.de"}
- :nexus {:fqdn "k8s-nexus.test.meissa-gmbh.de"}
  }

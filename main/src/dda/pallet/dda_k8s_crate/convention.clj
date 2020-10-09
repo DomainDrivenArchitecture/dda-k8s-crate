@@ -26,7 +26,8 @@
 (s/def k8sConvention
   {:user s/Keyword
    :k8s {:external-ip s/Str (s/optional-key :external-ipv6) s/Str 
-         (s/optional-key :advertise-address) s/Str}
+         (s/optional-key :advertise-address) s/Str
+         (s/optional-key :u18-04) (s/enum true)}
    :cert-manager (s/enum :letsencrypt-prod-issuer :letsencrypt-staging-issuer :selfsigned-issuer)
    (s/optional-key :apple) {:fqdn s/Str}
    (s/optional-key :nexus) {:fqdn s/Str}})
@@ -51,19 +52,21 @@
     {:env-flag "prod" :acme-flag ""}
     {:env-flag "staging" :acme-flag "-staging"}))
 
-(s/defn ^:always-validate
-  infra-configuration :- InfraResult
+(s/defn ^:always-validate 
+        infra-configuration :- InfraResult
   [domain-config :- k8sConventionResolved]
   (let [{:keys [user k8s cert-manager apple nexus]} domain-config
-        {:keys [external-ip external-ipv6 advertise-address]} k8s
+        {:keys [external-ip external-ipv6 advertise-address u18-04]} k8s
         cluster-issuer (name cert-manager)
         cert-config (when (not (= cert-manager :selfsigned-issuer)) 
                       (letsencrypt-configuration cert-manager))
-        advertise-address (or advertise-address "192.168.5.1")]
+        advertise-address (or advertise-address "192.168.5.1")
+        os-version (if u18-04 :18.04 :20.04)]
     {infra/facility
      (mu/deep-merge
       {:user user
-       :networking {:advertise-ip advertise-address}
+       :networking {:advertise-ip advertise-address
+                    :os-version os-version}
        :k8s (merge {:external-ip (str "-   " external-ip "/32")}
                    {:external-ipv6 (if external-ipv6 (str "-   " external-ipv6 "/64") "")}
                    {:advertise-address advertise-address})}

@@ -21,7 +21,8 @@
    [dda.pallet.dda-k8s-crate.infra.transport :as transport]))
 
 (s/def Networking
-  {:advertise-ip s/Str})
+  {:advertise-ip s/Str
+   :os-version (s/enum :20.04 :18.04)})
 
 (def module "networking")
 
@@ -30,11 +31,14 @@
    config :- Networking]
   (actions/as-action
    (logging/info (str facility "-init")))
-  (let [{:keys [advertise-ip]} config]
+  (let [{:keys [advertise-ip os-version]} config]
     (transport/copy-resources-to-tmp
      (name facility)
      module
      [{:filename "99-loopback.cfg" :config {:ipv4 advertise-ip}}
       {:filename "99-loopback.yaml" :config {:ipv4 advertise-ip}}
-      {:filename "init.sh"}])
-    (transport/exec facility module "init.sh")))
+      {:filename "init18_04.sh"}
+      {:filename "init20_04.sh"}])
+    (if (= :20.04 os-version)
+      (transport/exec facility module "init20_04.sh")
+      (transport/exec facility module "init18_04.sh"))))
