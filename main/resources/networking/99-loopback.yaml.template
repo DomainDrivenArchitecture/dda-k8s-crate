@@ -1,0 +1,10 @@
+network:
+    version: 2
+    ethernets:
+        lo:
+            renderer: networkd
+            match:
+                name: lo
+            addresses:
+            - {{ipv4}}/32
+            

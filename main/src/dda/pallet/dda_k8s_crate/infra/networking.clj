@@ -34,6 +34,7 @@
     (transport/copy-resources-to-tmp
      (name facility)
      module
-     [{:filename "99-loop-back.cfg" :config {:ipv4 advertise-ip}}
+     [{:filename "99-loopback.cfg" :config {:ipv4 advertise-ip}}
+      {:filename "99-loopback.yaml" :config {:ipv4 advertise-ip}}
       {:filename "init.sh"}])
     (transport/exec facility module "init.sh")))
