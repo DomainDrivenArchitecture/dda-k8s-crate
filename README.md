@@ -90,10 +90,10 @@ In case of problems you may want to have a look at the log-file:
 
 You can define provisioning targets using the [targets-schema](https://github.com/DomainDrivenArchitecture/dda-pallet-commons/blob/master/doc/existing_spec.md)
 
-### Domain API
+### Convention API
 
 You can use our conventions as a starting point:
-[see domain reference](doc/reference_domain.md)
+[see convention reference](doc/reference_convention.md)
 
 ### Infra API
 

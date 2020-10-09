@@ -1,13 +1,13 @@
-(defproject dda/dda-k8s-crate "0.2.1-SNAPSHOT"
+(defproject dda/dda-k8s-crate "1.0.0-SNAPSHOT"
   :description "Module for installing a server with kubeadm"
   :url "https://domaindrivenarchitecture.org"
   :license {:name "Apache License, Version 2.0"
             :url "https://www.apache.org/licenses/LICENSE-2.0.html"}
-  :dependencies [[org.clojure/clojure "1.10.0"]
-                 [dda/dda-pallet "3.0.0"]
-                 [dda/dda-serverspec-crate "1.3.4"]
-                 [dda/dda-user-crate "2.0.5"]
-                 [dda/dda-git-crate "2.2.2"]]
+  :dependencies [[org.clojure/clojure "1.10.1"]
+                 [dda/dda-pallet "4.0.0"]
+                 [dda/dda-serverspec-crate "2.0.0"]
+                 [dda/dda-user-crate "3.0.0"]
+                 [dda/dda-git-crate "3.0.0"]]
   :target-path "target/%s/"
   :source-paths ["main/src"]
   :resource-paths ["main/resources"]
@@ -21,7 +21,7 @@
                    :resource-paths ["integration/resources"
                                     "test/resources"]
                    :dependencies
-                   [[org.clojure/test.check "0.10.0"]
+                   [[org.clojure/test.check "1.1.0"]
                     [dda/data-test "0.1.1"]
                     [dda/pallet "0.9.1" :classifier "tests"]
                     [ch.qos.logback/logback-classic "1.3.0-alpha4"]
@@ -38,7 +38,7 @@
                        :aot :all
                        :main dda.pallet.dda-k8s-crate.main
                        :uberjar-name "dda-k8s-standalone.jar"
-                       :dependencies [[org.clojure/tools.cli "0.4.2"]
+                       :dependencies [[org.clojure/tools.cli "1.0.194"]
                                       [ch.qos.logback/logback-classic "1.3.0-alpha4"
                                        :exclusions [com.sun.mail/javax.mail]]
                                       [org.slf4j/jcl-over-slf4j "2.0.0-alpha1"]]}}

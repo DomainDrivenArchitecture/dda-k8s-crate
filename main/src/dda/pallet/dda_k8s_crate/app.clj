@@ -23,15 +23,15 @@
    [dda.pallet.dda-config-crate.infra :as config-crate]
    [dda.pallet.dda-user-crate.app :as user]
    [dda.pallet.dda-k8s-crate.infra :as infra]
-   [dda.pallet.dda-k8s-crate.domain :as domain]))
+   [dda.pallet.dda-k8s-crate.convention :as convention]))
 
 (def with-k8s infra/with-k8s)
 
-(def k8sDomain domain/k8sDomain)
+(def k8sConvention convention/k8sConvention)
 
-(def k8sDomainResolved domain/k8sDomainResolved)
+(def k8sConventionResolved convention/k8sConventionResolved)
 
-(def InfraResult domain/InfraResult)
+(def InfraResult convention/InfraResult)
 
 (def k8sApp
   {:group-specific-config
@@ -40,28 +40,28 @@
 
 (s/defn ^:always-validate
   app-configuration-resolved :- k8sApp
-  [resolved-domain-config :- k8sDomainResolved
+  [resolved-convention-config :- k8sConventionResolved
    & options]
   (let [{:keys [group-key] :or {group-key infra/facility}} options]
     (mu/deep-merge
      (user/app-configuration-resolved
-      (domain/user-domain-configuration resolved-domain-config) :group-key group-key)
+      (convention/user-domain-configuration resolved-convention-config) :group-key group-key)
      {:group-specific-config
       {group-key
-       (domain/infra-configuration resolved-domain-config)}})))
+       (convention/infra-configuration resolved-convention-config)}})))
 
 (s/defn ^:always-validate
   app-configuration :- k8sApp
-  [domain-config :- k8sDomain
+  [convention-config :- k8sConvention
    & options]
-  (let [resolved-domain-config (secret/resolve-secrets domain-config k8sDomain)]
-    (apply app-configuration-resolved resolved-domain-config options)))
+  (let [resolved-convention-config (secret/resolve-secrets convention-config k8sConvention)]
+    (apply app-configuration-resolved resolved-convention-config options)))
 
 (s/defmethod ^:always-validate
   core-app/group-spec infra/facility
   [crate-app
-   domain-config :- k8sDomainResolved]
-  (let [app-config (app-configuration-resolved domain-config)]
+   convention-config :- k8sConventionResolved]
+  (let [app-config (app-configuration-resolved convention-config)]
     (core-app/pallet-group-spec
      app-config [(config-crate/with-config app-config)
                  user/with-user
@@ -69,6 +69,6 @@
 
 (def crate-app (core-app/make-dda-crate-app
                 :facility infra/facility
-                :domain-schema k8sDomain
-                :domain-schema-resolved k8sDomainResolved
-                :default-domain-file "k8s.edn"))
+                :convention-schema k8sConvention
+                :convention-schema-resolved k8sConventionResolved
+                :default-convention-file "k8s.edn"))

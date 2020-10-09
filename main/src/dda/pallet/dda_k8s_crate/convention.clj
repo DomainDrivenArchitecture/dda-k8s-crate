@@ -13,7 +13,7 @@
 ; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
-(ns dda.pallet.dda-k8s-crate.domain
+(ns dda.pallet.dda-k8s-crate.convention
   (:require
    [schema.core :as s]
    [dda.pallet.commons.secret :as secret]
@@ -23,7 +23,7 @@
 
 (def InfraResult {infra/facility infra/ddaK8sConfig})
 
-(s/def k8sDomain
+(s/def k8sConvention
   {:user s/Keyword
    :k8s {:external-ip s/Str (s/optional-key :external-ipv6) s/Str 
          (s/optional-key :advertise-address) s/Str}
@@ -31,7 +31,7 @@
    (s/optional-key :apple) {:fqdn s/Str}
    (s/optional-key :nexus) {:fqdn s/Str}})
 
-(def k8sDomainResolved (secret/create-resolved-schema k8sDomain))
+(def k8sConventionResolved (secret/create-resolved-schema k8sConvention))
 
 (def InfraResult {infra/facility infra/ddaK8sConfig})
 
@@ -39,7 +39,7 @@
   (apply str (take len (repeatedly #(char (+ (rand 26) 65))))))
 
 (s/defn ^:always-validate user-domain-configuration
-  [domain-config :- k8sDomainResolved]
+  [domain-config :- k8sConventionResolved]
   (let [{:keys [user]} domain-config]
     {user
      (merge
@@ -53,7 +53,7 @@
 
 (s/defn ^:always-validate
   infra-configuration :- InfraResult
-  [domain-config :- k8sDomainResolved]
+  [domain-config :- k8sConventionResolved]
   (let [{:keys [user k8s cert-manager apple nexus]} domain-config
         {:keys [external-ip external-ipv6 advertise-address]} k8s
         cluster-issuer (name cert-manager)

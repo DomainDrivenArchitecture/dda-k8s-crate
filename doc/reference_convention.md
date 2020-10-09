@@ -1,5 +1,5 @@
 ```clojure
-(s/def k8sDomain
+(s/def k8sConvention
   {:user s/Keyword
    :k8s {:external-ip s/Str (s/optional-key :external-ipv6) s/Str}
    :cert-manager (s/enum :letsencrypt-prod-issuer :letsencrypt-staging-issuer :selfsigned-issuer)

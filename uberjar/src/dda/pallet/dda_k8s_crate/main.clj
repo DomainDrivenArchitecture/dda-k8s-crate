@@ -42,7 +42,7 @@
     ""
     "k8s.edn"
     "  - follows the edn format."
-    "  - has to be a valid k8sDomainConfig (see: https://github.com/DomainDrivenArchitecture/dda-k8s-crate)"
+    "  - has to be a valid k8sConventionConfig (see: https://github.com/DomainDrivenArchitecture/dda-k8s-crate)"
     ""]))
 
 (defn -main [& args]
@@ -54,20 +54,20 @@
       (not= (count arguments) 1) (mh/exit 1 (usage summary))
       (:serverspec options) (if (core-app/existing-serverspec
                                  app/crate-app
-                                 {:domain (first arguments)
+                                 {:convention (first arguments)
                                   :targets (:targets options)
                                   :verbosity verbose})
                               (mh/exit-test-passed)
                               (mh/exit-test-failed))
       (:configure options) (if (core-app/existing-configure
                                 app/crate-app
-                                {:domain (first arguments)
+                                {:convention (first arguments)
                                  :targets (:targets options)})
                              (mh/exit-default-success)
                              (mh/exit-default-error))
       :default (if (core-app/existing-install
                     app/crate-app
-                    {:domain (first arguments)
+                    {:convention (first arguments)
                      :targets (:targets options)})
                  (mh/exit-default-success)
                  (mh/exit-default-error)))))

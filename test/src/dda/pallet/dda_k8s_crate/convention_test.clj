@@ -1,8 +1,8 @@
-(ns dda.pallet.dda-k8s-crate.domain-test
+(ns dda.pallet.dda-k8s-crate.convention-test
   (:require
    [clojure.test :refer :all]
    [data-test :refer :all]
-   [dda.pallet.dda-k8s-crate.domain :as sut]))
+   [dda.pallet.dda-k8s-crate.convention :as sut]))
 
 (defdatatest should-generate-infra-for-domain [input expected]
   (is (= expected
