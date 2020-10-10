@@ -11,7 +11,14 @@ This is a asciinema recording of the features of this crate:
 
 ## Kubernetes setup
 
-This crate sets up a K8s as SingleNode-Instance. Setup is based on ubuntu 20.4
+This crate sets up a K8s as SingleNode-Instance. This cheap setup is intended for production grade low traffic applications.
+
+## Compatibility
+dda-k8s is compatible with the following versions
+
+* pallet 0.9
+* clojure 1.10.1
+* ubuntu 18.04 / 20.04
 
 ## Features
 
