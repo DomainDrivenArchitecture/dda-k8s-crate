@@ -16,7 +16,6 @@
 (ns dda.pallet.dda-k8s-crate.infra.apple
   (:require
    [clojure.spec.alpha :as s]
-   [clojure.spec.test.alpha :as st]
    [schema.core :as sch]
    [dda.provision :as p]
    [dda.provision.pallet :as pp]))
@@ -39,7 +38,7 @@
 (defn user-configure-apple
   [facility user config]
   (let [facility-name (name facility)]
-    (p/provision-log ::pp/pallet facility-name "user-configure-apple" ::p/info "start")
+    (p/provision-log ::pp/pallet facility-name apple ::p/info "user-configure-apple")
     (p/copy-resources-to-user
      ::pp/pallet user facility-name apple
      [{:filename "apple.yml"}
