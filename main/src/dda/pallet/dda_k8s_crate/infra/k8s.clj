@@ -37,10 +37,10 @@
     (p/provision-log ::pp/pallet facility-name k8s-base
                      ::p/info "init")
     (p/copy-resources-to-tmp
-     ::pp/pallet user facility-name k8s-base
+     ::pp/pallet facility-name k8s-base
      [{:filename "init.sh"}])
     (p/exec-file-on-target-as-root
-     ::pp/pallet user facility-name k8s-base "init.sh")))
+     ::pp/pallet facility-name k8s-base "init.sh")))
 
 (s/defn system-install
   [facility :- s/Keyword
@@ -80,7 +80,8 @@
   [facility :- s/Keyword
    config :- K8s]
   (let [facility-name (name facility)]
-    (transport/log-info (name facility) "system-configure")))
+    (p/provision-log ::pp/pallet facility-name k8s-base
+                     ::p/info "system-configure")))
 
 (s/defn user-configure
   [facility :- s/Keyword
