@@ -2,7 +2,7 @@
 ;  :k8s {:external-ip "95.217.21.186"
 ;        :external-ipv6 "2a01:4f9:c010:37e0::1"
 ;        }
- :k8s {:external-ip "135.181.97.15"
+ :k8s {:external-ip "195.201.96.96"
        ;:external-ipv6 "2a01:4f9:c010:37e0::1"
        ;:u18-04 true
        }
