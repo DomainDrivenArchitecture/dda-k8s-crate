@@ -39,7 +39,7 @@
 (defn user-configure-apple
   [facility user config]
   (let [facility-name (name facility)]
-    (p/provision-log ::pp/pallet facility-name "user-configure-apple" "info" "start")
+    (p/provision-log ::pp/pallet facility-name "user-configure-apple" ::p/info "start")
     (p/copy-resources-to-user
      ::pp/pallet user facility-name apple
      [{:filename "apple.yml"}

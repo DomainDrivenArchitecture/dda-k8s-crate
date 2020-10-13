@@ -4,7 +4,7 @@
   :license {:name "Apache License, Version 2.0"
             :url "https://www.apache.org/licenses/LICENSE-2.0.html"}
   :dependencies [[org.clojure/clojure "1.10.1"]
-                 [dda/dda-pallet "4.0.0"]
+                 [dda/dda-pallet "4.0.1"]
                  [dda/dda-serverspec-crate "2.0.0"]
                  [dda/dda-user-crate "3.0.0"]
                  [dda/dda-git-crate "3.0.0"]]
