@@ -18,7 +18,8 @@
    [clojure.spec.alpha :as s]
    [clojure.spec.test.alpha :as st]
    [schema.core :as sch]
-   [dda.pallet.dda-k8s-crate.infra.transport :as transport]))
+   [dda.provision :as p]
+   [dda.provision.pallet :as pp]))
 
 (s/def ::fqdn string?)
 (s/def ::secret-name string?)
@@ -38,23 +39,13 @@
 (defn user-configure-apple
   [facility user config]
   (let [facility-name (name facility)]
-    (transport/log-info facility-name "(s/defn user-configure-apple")
-    (transport/copy-resources-to-user
-     user facility-name apple
+    (p/provision-log ::pp/pallet facility-name "user-configure-apple" "info" "start")
+    (p/copy-resources-to-user
+     ::pp/pallet user facility-name apple
      [{:filename "apple.yml"}
       {:filename "ingress_apple_https.yml" :config config}
       {:filename "install.sh"}
       {:filename "remove.sh"}
       {:filename "verify.sh" :config config}])
-    (transport/exec-as-user
-     user facility-name apple "install.sh")))
-
-(s/fdef myspectest 
-  :args (s/cat :facility ::facility :user ::user :config ::apple)
-  :ret int?)
-
-(defn myspectest "test"
-  [facility user config]
-  "123")
-
-(st/instrument `myspectest)
+    (p/exec-file-on-target-as-user
+     ::pp/pallet user facility-name apple "install.sh")))
