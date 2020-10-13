@@ -15,11 +15,10 @@
 ; limitations under the License.
 (ns dda.pallet.dda-k8s-crate.infra.k8s
   (:require
-   [clojure.tools.logging :as logging]
    [schema.core :as s]
    [pallet.actions :as actions]
-   [selmer.parser :as selmer]
-   [dda.pallet.dda-k8s-crate.infra.transport :as transport]))
+   [dda.provision :as p]
+   [dda.provision.pallet :as pp]))
 
 (s/def K8s
   {:external-ip s/Str :external-ipv6 s/Str :advertise-address s/Str})
@@ -34,88 +33,95 @@
 (s/defn init
   [facility :- s/Keyword
    config :- K8s]
-  (actions/as-action (logging/info (str facility "-init")))
-  (transport/copy-resources-to-tmp
-   (name facility)
-   k8s-base
-   [{:filename "init.sh"}])
-  (transport/exec facility k8s-base "init.sh"))
+  (let [facility-name (name facility)]
+    (p/provision-log ::pp/pallet facility-name k8s-base
+                     ::p/info "init")
+    (p/copy-resources-to-tmp
+     ::pp/pallet user facility-name k8s-base
+     [{:filename "init.sh"}])
+    (p/exec-file-on-target-as-root
+     ::pp/pallet user facility-name k8s-base "init.sh")))
 
 (s/defn system-install
   [facility :- s/Keyword
    config :- K8s]
-  (actions/as-action (logging/info (str facility " - system-install")))
-  (let [facility-name (name facility)
-        {:keys [advertise-address]} config]
-    (transport/copy-resources-to-tmp
-     facility-name k8s-base
-     [{:filename "install-system.sh" :config {:advertise-address advertise-address}}])
-    (transport/exec facility-name k8s-base "install-system.sh")))
+  (let [facility-name (name facility)]
+    (p/provision-log ::pp/pallet facility-name k8s-base
+                     ::p/info "system-install")
+    (let [{:keys [advertise-address]} config]
+      (p/copy-resources-to-tmp
+       ::pp/pallet facility-name k8s-base
+       [{:filename "install-system.sh" :config {:advertise-address advertise-address}}])
+      (p/exec-file-on-target-as-root
+       ::pp/pallet facility-name k8s-base "install-system.sh"))))
 
 (s/defn user-install
   [facility :- s/Keyword
    user :- s/Str
    config :- K8s]
   (let [facility-name (name facility)]
-    (transport/log-info facility-name "user-install")
-    (transport/copy-resources-to-tmp
-     facility-name k8s-base
+    (p/provision-log ::pp/pallet facility-name k8s-base
+                     ::p/info "user-install")
+    (p/copy-resources-to-tmp
+     ::pp/pallet facility-name k8s-base
      [{:filename "install-user-as-root.sh" :config {:user user}}])
-    (transport/exec 
-     facility-name k8s-base "install-user-as-root.sh")
-    (transport/copy-resources-to-user
-     user facility-name k8s-flannel
+    (p/exec-file-on-target-as-root
+     ::pp/pallet facility-name k8s-base "install-user-as-root.sh")
+    (p/copy-resources-to-user
+     ::pp/pallet user facility-name k8s-flannel
      [{:filename "flannel-rbac.yml"}
       {:filename "flannel.yml"}
       {:filename "install.sh"}
       {:filename "verify.sh"}])
-    (transport/exec-as-user 
-     user facility-name k8s-flannel "install.sh")))
+    (p/exec-file-on-target-as-user
+     ::pp/pallet user facility-name k8s-flannel "install.sh")))
 
 (s/defn system-configure
   [facility :- s/Keyword
    config :- K8s]
-  (transport/log-info (name facility) "system-configure"))
+  (let [facility-name (name facility)]
+    (transport/log-info (name facility) "system-configure")))
 
 (s/defn user-configure
   [facility :- s/Keyword
    user :- s/Str
    config :- K8s]
   (let [facility-name (name facility)]
-    (transport/log-info facility-name "user-configure")
-    (transport/copy-resources-to-user
-     user facility-name k8s-admin
+    (p/provision-log ::pp/pallet facility-name k8s-base
+                     ::p/info "user-configure")
+    (p/copy-resources-to-user
+     ::pp/pallet user facility-name k8s-admin
      [{:filename "admin-user.yml"}
       {:filename "remove.sh"}
       {:filename "install.sh"}])
-    (transport/exec-as-user
-     user facility-name k8s-admin "install.sh")
-    (transport/copy-resources-to-user
-     user facility-name k8s-metallb
+    (p/exec-file-on-target-as-user
+     ::pp/pallet user facility-name k8s-admin "install.sh")
+    (p/copy-resources-to-user
+     ::pp/pallet user facility-name k8s-metallb
      [{:filename "metallb.yml"}
       {:filename "metallb-config.yml" :config config}
       {:filename "proxy.yml"}
       {:filename "remove.sh"}
       {:filename "verify.sh"}
       {:filename "install.sh"}])
-    (transport/exec-as-user
-     user facility-name k8s-metallb "install.sh")
-    (transport/copy-resources-to-user
-     user facility-name k8s-ingress
+    (p/exec-file-on-target-as-user
+     ::pp/pallet user facility-name k8s-metallb "install.sh")
+    (p/copy-resources-to-user
+     ::pp/pallet user facility-name k8s-ingress
      [{:filename "mandatory.yml"}
       {:filename "ingress-using-metallb.yml"}
       {:filename "remove.sh"}
       {:filename "verify.sh"}
       {:filename "install.sh"}])
-    (transport/exec-as-user
-     user facility-name k8s-ingress "install.sh")
-    (transport/copy-resources-to-user
-     user facility-name k8s-dashboard
+    (p/exec-file-on-target-as-user
+     ::pp/pallet user facility-name k8s-ingress "install.sh")
+    (p/copy-resources-to-user
+     ::pp/pallet user facility-name k8s-dashboard
      [{:filename "kubernetes-dashboard.2.0.0.rc6.yml"}
       {:filename "admin_dash.2.0.0.rc6.yml"}
       {:filename "install.sh"}
       {:filename "remove.sh"}
       {:filename "verify.sh"}
       {:filename "proxy.sh"}])
-    (transport/exec-as-user
-     user facility-name k8s-dashboard "install.sh")))
+    (p/exec-file-on-target-as-user
+     ::pp/pallet user facility-name k8s-dashboard "install.sh")))

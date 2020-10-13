@@ -16,7 +16,8 @@
 (ns dda.pallet.dda-k8s-crate.infra.nexus
   (:require
    [schema.core :as s]
-   [dda.pallet.dda-k8s-crate.infra.transport :as transport]))
+   [dda.provision :as p]
+   [dda.provision.pallet :as pp]))
 
 (s/def Nexus {:fqdn s/Str :secret-name s/Str :cluster-issuer s/Str})
 
@@ -25,24 +26,24 @@
 (s/defn user-install-nexus
   [facility user config]
   (let [facility-name (name facility)]
-    (transport/log-info facility-name "user-install-nexus")
-    (transport/copy-resources-to-tmp
-     facility-name nexus
+    (p/provision-log ::pp/pallet facility-name nexus ::p/info "user-install-nexus")
+    (p/copy-resources-to-tmp
+     ::pp/pallet facility-name nexus
      [{:filename "create-storage.sh" :config {:user user}}])
-    (transport/exec
-     facility-name nexus "create-storage.sh")))
+    (p/exec-file-on-target-as-root
+     ::pp/pallet facility-name nexus "create-storage.sh")))
 
 (s/defn user-configure-nexus
   [facility user config]
   (let [facility-name (name facility)]
-    (transport/log-info facility-name "user-configure-nexus")
-    (transport/copy-resources-to-user
-     user facility-name nexus
+    (p/provision-log ::pp/pallet facility-name nexus ::p/info "user-configure-nexus")
+    (p/copy-resources-to-user
+     ::pp/pallet user facility-name nexus
      [{:filename "ingress_nexus_https.yml" :config config}
       {:filename "nexus-storage.yml"}
       {:filename "nexus.yml"}
       {:filename "remove.sh"}
       {:filename "verify.sh" :config config}
       {:filename "install.sh"}])
-    (transport/exec-as-user
-     user facility-name nexus "install.sh")))
+    (p/exec-file-on-target-as-user
+     ::pp/pallet user facility-name nexus "install.sh")))

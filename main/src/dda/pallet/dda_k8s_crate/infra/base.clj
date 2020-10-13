@@ -18,7 +18,8 @@
    [clojure.tools.logging :as logging]
    [schema.core :as s]
    [pallet.actions :as actions]
-   [dda.pallet.dda-k8s-crate.infra.transport :as transport]))
+   [dda.provision :as p]
+   [dda.provision.pallet :as pp]))
 
 (def module "base")
 
@@ -26,7 +27,8 @@
   [facility :- s/Keyword]
   (actions/as-action (logging/info (str facility "-install system")))
   (let [facility-name (name facility)]
-    (transport/copy-resources-to-tmp
-     facility-name module
+    (p/copy-resources-to-tmp
+     ::pp/pallet facility-name module
      [{:filename "install.sh"}])
-    (transport/exec facility-name module "install.sh")))
+    (p/exec-file-on-target-as-root
+     ::pp/pallet facility-name module "install.sh")))

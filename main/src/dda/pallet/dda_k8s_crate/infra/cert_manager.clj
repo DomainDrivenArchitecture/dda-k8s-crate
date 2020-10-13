@@ -15,12 +15,11 @@
 ; limitations under the License.
 (ns dda.pallet.dda-k8s-crate.infra.cert-manager
   (:require
-   [clojure.tools.logging :as logging]
    [schema.core :as s]
    [pallet.actions :as actions]
-   [selmer.parser :as selmer]
    [dda.pallet.dda-k8s-crate.infra.check :as check]
-   [dda.pallet.dda-k8s-crate.infra.transport :as transport]))
+   [dda.provision :as p]
+   [dda.provision.pallet :as pp]))
 
 (s/def CertManager {(s/optional-key :env-flag) s/Str
                     (s/optional-key :acme-flag) s/Str})
@@ -44,14 +43,15 @@
 (s/defn user-configure-cert-manager
   [facility user config]
   (let [facility-name (name facility)]
-    (transport/log-info facility-name " - user-configure-cert-manager")
-    (transport/copy-resources-to-user
-     user facility-name cert-manager
+    (p/provision-log ::pp/pallet facility-name cert-manager 
+                     ::p/info "user-configure-cert-manager")
+    (p/copy-resources-to-user
+     ::pp/pallet user facility-name cert-manager
      [{:filename "cert-manager.yml"}
       {:filename "selfsigning-issuer.yml"}
       {:filename "le-issuer.yml" :config config}
       {:filename "install.sh"}
       {:filename "wait-for-pod.sh"}
       {:filename "verify.sh"}])
-    (transport/exec-as-user
-     user facility-name cert-manager "install.sh")))
+    (p/exec-file-on-target-as-user
+     ::pp/pallet user facility-name cert-manager "install.sh")))
