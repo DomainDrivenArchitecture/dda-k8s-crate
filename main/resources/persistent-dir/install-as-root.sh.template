@@ -1,0 +1,4 @@
+#!/bin/bash
+
+mkdir -p /var/{{persistent-dir}}
+install -d -m 0777 -o {{user}} -g {{user}} /var/{{persistent-dir}}

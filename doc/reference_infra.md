@@ -13,6 +13,7 @@
   {:user s/Keyword
    :k8s k8s/K8s
    :cert-manager cert-manager/CertManager
+   (s/optional-key :persistent-dir) s/Str
    (s/optional-key :apple) apple/Apple
    (s/optional-key :nexus) nexus/Nexus})
 ```
