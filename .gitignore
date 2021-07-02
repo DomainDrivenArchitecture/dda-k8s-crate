@@ -12,3 +12,4 @@ pom.xml.asc
 
 .clj-kondo
 .lsp
+integration*.edn
