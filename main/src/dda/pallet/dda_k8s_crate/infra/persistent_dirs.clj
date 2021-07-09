@@ -23,15 +23,7 @@
 
 (def module "persistent-dirs")
 
-(s/defn system-install
-  [facility :- s/Keyword
-   user-str :- s/Str
-   persistent-dirs :- [s/Str]]
-  (actions/as-action (logging/info (str facility "-install system")))
-  (doseq [dir persistent-dirs]
-    (install-dir facility user-str dir)))
-
-(defn install-dir 
+(s/defn install-dir 
   [facility :- s/Keyword
    user-str :- s/Str
    persistent-dir :- s/Str]
@@ -41,3 +33,11 @@
      [{:filename "install-as-root.sh" :config {:user user-str :persistent-dir persistent-dir}}])
     (p/exec-file-on-target-as-root
      ::pp/pallet facility-name module "install-as-root.sh")))
+
+(s/defn system-install
+  [facility :- s/Keyword
+   user-str :- s/Str
+   persistent-dirs :- [s/Str]]
+  (actions/as-action (logging/info (str facility "-install system")))
+  (doseq [dir persistent-dirs]
+    (install-dir facility user-str dir)))
