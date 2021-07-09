@@ -13,7 +13,7 @@
 ; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
-(ns dda.pallet.dda-k8s-crate.infra.persistent-dir
+(ns dda.pallet.dda-k8s-crate.infra.persistent-dirs
   (:require
    [clojure.tools.logging :as logging]
    [schema.core :as s]
@@ -21,13 +21,20 @@
    [dda.provision :as p]
    [dda.provision.pallet :as pp]))
 
-(def module "persistent-dir")
+(def module "persistent-dirs")
 
 (s/defn system-install
   [facility :- s/Keyword
    user-str :- s/Str
-   persistent-dir :- s/Str]
+   persistent-dirs :- [s/Str]]
   (actions/as-action (logging/info (str facility "-install system")))
+  (doseq [dir persistent-dirs]
+    (install-dir facility user-str dir)))
+
+(defn install-dir 
+  [facility :- s/Keyword
+   user-str :- s/Str
+   persistent-dir :- s/Str]
   (let [facility-name (name facility)]
     (p/copy-resources-to-tmp
      ::pp/pallet facility-name module

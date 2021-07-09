@@ -19,7 +19,7 @@
    [schema.core :as s]
    [dda.pallet.core.infra :as core-infra]
    [dda.pallet.dda-k8s-crate.infra.base :as base]
-   [dda.pallet.dda-k8s-crate.infra.persistent-dir :as pers]
+   [dda.pallet.dda-k8s-crate.infra.persistent-dirs :as pers]
    [dda.pallet.dda-k8s-crate.infra.k8s :as k8s]
    [dda.pallet.dda-k8s-crate.infra.cert-manager :as cert-manager]
    [dda.pallet.dda-k8s-crate.infra.apple :as apple]
@@ -36,7 +36,7 @@
    :k8s k8s/K8s
    :networking networking/Networking
    :cert-manager cert-manager/CertManager
-   (s/optional-key :persistent-dir) s/Str
+   (s/optional-key :persistent-dirs) [s/Str]
    (s/optional-key :apple) apple/Apple
    (s/optional-key :nexus) nexus/Nexus})
 
@@ -50,11 +50,11 @@
 (s/defmethod core-infra/dda-install facility
   [dda-crate config]
   (let [facility (:facility dda-crate)
-        {:keys [user k8s nexus persistent-dir]} config
+        {:keys [user k8s nexus persistent-dirs]} config
         user-str (name user)]
     (actions/as-action (logging/info (str facility " - core-infra/dda-install")))
     (base/system-install facility)
-    (pers/system-install facility user-str persistent-dir)
+    (pers/system-install facility user-str persistent-dirs)
     (k8s/system-install facility k8s)
     (k8s/user-install facility user-str k8s)
     (when nexus (nexus/user-install-nexus facility user-str nexus))))

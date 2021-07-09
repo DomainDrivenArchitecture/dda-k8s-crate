@@ -29,7 +29,7 @@
          (s/optional-key :advertise-address) s/Str
          (s/optional-key :u18-04) (s/enum true)}
    :cert-manager (s/enum :letsencrypt-prod-issuer :letsencrypt-staging-issuer :selfsigned-issuer)
-   (s/optional-key :persistent-dir) s/Str
+   (s/optional-key :persistent-dirs) [s/Str]
    (s/optional-key :apple) {:fqdn s/Str}
    (s/optional-key :nexus) {:fqdn s/Str}})
 
@@ -56,7 +56,7 @@
 (s/defn ^:always-validate 
         infra-configuration :- InfraResult
   [domain-config :- k8sConventionResolved]
-  (let [{:keys [user k8s cert-manager apple nexus persistent-dir]} domain-config
+  (let [{:keys [user k8s cert-manager apple nexus persistent-dirs]} domain-config
         {:keys [external-ip external-ipv6 advertise-address u18-04]} k8s
         cluster-issuer (name cert-manager)
         cert-config (when (not (= cert-manager :selfsigned-issuer)) 
@@ -72,7 +72,7 @@
                    {:external-ipv6 (if external-ipv6 (str "-   " external-ipv6 "/64") "")}
                    {:advertise-address advertise-address})}
       (if cert-config {:cert-manager cert-config} {:cert-manager {}})
-      (when persistent-dir {:persistent-dir persistent-dir})
+      (when persistent-dirs {:persistent-dirs persistent-dirs})
       (when apple {:apple (merge
                            apple {:secret-name (str/replace (:fqdn apple) #"\." "-")
                                   :cluster-issuer cluster-issuer})})
